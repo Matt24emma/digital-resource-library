@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #2563eb;
+    font-size: 1.3rem;
+}
+
+
+.form {
+    width: 90%;
+}
+
+form {
+    box-shadow: 3px 4px 6px gainsboro;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+form label {
+    padding: 1rem;
+    margin: 1rem;
+}
+
+form input {
+    padding: 0.6rem ;
+    margin: 1rem;
+    width: 50%;
+}
+
+.button {
+    display: flex;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    width: 80%;
+}
+
+.button button {
+    padding: 0.3rem 1.6rem;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 5rem;
+    cursor: pointer;
+}
+
+/* This is small screen */
+/* ================= SMALL SCREEN (480px) ================= */
+@media (min-width: 480px) {
+    body {
+        /*background-color: blue;*/
+}
+
+.form {
+    width: 97%;
+}
+
+
+form input {
+    padding: 0.6rem ;
+    margin: 1rem;
+    width: 60%;
+}
+
+form input {
+    padding: 0.6rem ;
+    margin: 1rem;
+    width: 50%;
+}
+
+
+}
+/* =============== END SMALL SCREEN (480px) =============== */
+/* This is the end of small screen*/
+
+
+/* ================= TABLET SCREEN (768px) ================= */
+@media (min-width: 768px) {
+    body {
+        /*background-color: purple;*/
+}
+
+.form {
+    width: 50%;
+}
+
+}
+/* =============== END TABLET SCREEN (768px) =============== */
+
+
+</style>
+<body>
+    <h1>Please Fill Out the Form to Download</h1>
+    <div class="form">
+        <form method="post">
+            {% csrf_token %}
+            <div class="name">
+                <label for="name">Name:</label>
+                <input type="text" name="name" id="name" required>
+            </div>
+        
+            <div class="email">
+                <label for="email">Email:</label>
+                <input type="email" name="email" id="email" required>
+            </div>
+        
+            <div class="phone">
+                <label for="phone">Phone:</label>
+                <input type="tel" name="phone" id="phone" required>
+            </div>
+    
+            <div class="button">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+</body>
+</html>

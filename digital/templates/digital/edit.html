@@ -1,0 +1,64 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="upload-form">
+
+    <h1>Edit Resource</h1>
+    <p>Update the resource details below.</p>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Current Thumbnail</label><br>
+
+            {% if resource.thumbnail %}
+            <img src="{{ resource.thumbnail.url }}" alt="{{ resource.title }}"
+                style="width:180px;border-radius:8px;margin-bottom:1rem;">
+            {% endif %}
+
+            <input type="file" name="thumbnail" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label>Current Resource File</label>
+
+            {% if resource.file %}
+            <p>
+                Current file:
+                <a href="{{ resource.file.url }}" target="_blank">
+                    View Current File
+                </a>
+            </p>
+            {% endif %}
+
+            <input type="file" name="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt">
+        </div>
+
+        <div class="form-group">
+            <label>Title</label>
+
+            <input type="text" name="title" value="{{ resource.title }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+
+            <textarea name="description" rows="6" required>{{ resource.description }}</textarea>
+        </div>
+
+        <button type="submit">
+            Save Changes
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

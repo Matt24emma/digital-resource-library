@@ -1,0 +1,236 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.resource-detail {
+    width: 95%;
+    margin-left: 0.8rem;
+    margin-right: 0.8rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.download {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    box-shadow: 3px 4px 6px gainsboro;
+    padding-bottom: 1rem;
+    width: 100%;
+}
+
+.download h1 {
+    line-height: 0.4;
+}
+
+.resource-detail img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+}
+
+.resource-detail a {
+    padding: 0.3rem;
+    box-shadow: 3px 4px 6px gainsboro;
+}
+
+
+.most-downloaded {
+    margin-top: 3rem;
+}
+
+.download-item {
+    padding-bottom: 0.8rem;
+    margin-bottom: 1rem;
+    box-shadow: 3px 4px 6px gainsboro;
+}
+
+
+
+/* This is small screen size */
+/* ================= SMALL SCREEN (480px) ================= */
+@media (min-width: 480px) {
+    body {
+        /*background-color: blue;*/
+}
+
+.resource-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.download {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    align-self: center;
+}
+
+.download-cont {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.res-img {
+    width: 80%;
+    aspect-ratio: 16 / 9;
+    /* or 4 / 3, 1 / 1 depending on your design */
+    overflow: hidden;
+    border-radius: var(--radius-md);
+}
+
+
+
+
+}
+/* =============== END SMALL SCREEN (480px) =============== */
+/* This is the end of small screen size*/
+
+
+
+/* This is tablet screen size */
+/* ================= TABLET SCREEN (768px) ================= */
+@media (min-width: 768px) {
+    body {
+        /*background-color: purple;*/
+}
+
+.resource-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.download {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: center;
+}
+
+.download-cont {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+}
+
+.res-img {
+    width: 80%;
+    aspect-ratio: 16 / 9;
+    /* or 4 / 3, 1 / 1 depending on your design */
+    overflow: hidden;
+    border-radius: var(--radius-md);
+}
+
+
+}
+/* =============== END TABLET SCREEN (768px) =============== */
+/* This is the end of tablet screen size*/
+
+
+
+
+
+
+/* This is laptop screen size */
+/* ================= LAPTOP SCREEN (1024px) ================= */
+@media (min-width: 1024px) {
+    body {
+        /*background-color: green;*/
+}
+
+.resource-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.download {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: center;
+}
+
+.download-cont {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+}
+
+.res-img {
+    width: 80%;
+    aspect-ratio: 16 / 9;
+    /* or 4 / 3, 1 / 1 depending on your design */
+    overflow: hidden;
+    border-radius: var(--radius-md);
+}
+
+
+
+}
+/* =============== END LAPTOP SCREEN (1024px) =============== */
+/* This is the end of laptop screen size*/
+
+
+
+
+
+/* This is large screen size */
+/* ================= LARGE SCREEN (1280px) ================= */
+@media (min-width: 1280px) {
+    body {
+        /*background-color: pink;*/
+}
+
+.resource-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.download {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: center;
+}
+
+.download-cont {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+}
+
+.res-img {
+    width: 80%;
+    aspect-ratio: 16 / 9;
+    /* or 4 / 3, 1 / 1 depending on your design */
+    overflow: hidden;
+    border-radius: var(--radius-md);
+}
+
+
+
+
+
+}
+/* =============== END LARGE SCREEN (1280px) =============== */
+/* This is the end of large screen size*/

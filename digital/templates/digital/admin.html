@@ -1,0 +1,143 @@
+{% extends "digital/base.html" %}
+
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet"  href="{% static 'css/admin.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="admin">
+        <h1>Admin</h1>
+
+        <div class="upload">
+            <a href="{% url 'upload' %}">Upload File</a>
+        </div>
+
+
+        <div class="logout">
+            <a href="{% url 'logout' %}">
+                <button>Logout</button>
+            </a>
+        </div>
+
+    </div>
+
+    
+
+<h2>Uploaded Resources</h2>
+<div class="analytics">
+    <p>Total Resources: {{ total_resources }}</p>
+    <p>Total Lead: {{user_count}}</p>
+    <p>Total Download: {{total_downloads}}</p>
+</div>
+<div class="table-container">
+    <table>
+    <tr>
+        <th>Thumbnail</th>
+        <th>Title</th>
+        <th>Actions</th>
+        <th>View Resource</th>
+        <th>Download Count</th>
+    </tr>
+
+    {% for resource in resources %}
+    <tr>
+        <td>
+            <img src="{{ resource.thumbnail.url }}" width="80">
+        </td>
+
+        <td>{{ resource.title }}</td>
+
+        <td>
+            <a href="{% url 'edit_resource' resource.id %}">
+                <button id="edit">Edit</button>
+            </a>
+
+            <a href="{% url 'delete_resource' resource.id %}">
+                <button id="delete">Delete</button>
+            </a>
+        </td>
+        <td>
+            <a href="{% url 'resource_detail' slug=resource.slug %}"><button>View Resource</button></a>
+        </td>
+
+        <td>
+            <p>Download Count:{{ resource.most_downloaded }}</p>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<div class="pagination">
+
+    {% if leads.has_previous %}
+    <a href="?lead_page=1">First</a>
+    <a href="?lead_page={{ leads.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <span>
+        Page {{ leads.number }} of {{ leads.paginator.num_pages }}
+    </span>
+
+    {% if leads.has_next %}
+    <a href="?lead_page={{ leads.next_page_number }}">Next</a>
+    <a href="?lead_page={{ leads.paginator.num_pages }}">Last</a>
+    {% endif %}
+
+</div>
+
+
+<div style="margin-top: 1rem;" class="table2">
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Joined</th>
+            <th>Downloded Files</th>
+        </tr>
+        {% for leads in leads %}
+        <tr>
+            <td>{{leads.name}}</td>
+            <td>{{leads.email}}</td>
+            <td>{{leads.phone}}</td>
+            <td>{{leads.created_at}}</td>
+            <td>
+                <p>Downloaded files <a href="{% url 'downloads' %}">View Downloads</a></p>
+            </td>
+        </tr>
+    
+        {% endfor %}
+    </table>
+    <div class="pagination">
+    
+        {% if leads.has_previous %}
+        <a href="?page={{ resources.number }}&lead_page=1">First</a>
+    
+        <a href="?page={{ resources.number }}&lead_page={{ leads.previous_page_number }}">
+            Previous
+        </a>
+        {% endif %}
+    
+        <span>
+            Page {{ leads.number }} of {{ leads.paginator.num_pages }}
+        </span>
+    
+        {% if leads.has_next %}
+        <a href="?page={{ resources.number }}&lead_page={{ leads.next_page_number }}">
+            Next
+        </a>
+    
+        <a href="?page={{ resources.number }}&lead_page={{ leads.paginator.num_pages }}">
+            Last
+        </a>
+        {% endif %}
+    
+    </div>
+</div>
+</div>
+
+    
+
+
+{% endblock %}

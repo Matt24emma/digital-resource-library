@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #2563eb;
+    font-size: 1.3rem;
+}
+
+
+.form {
+    width: 100%;
+}
+
+
+form {
+    box-shadow: 3px 4px 6px gainsboro;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+form label {
+    padding: 1rem;
+    margin: 1rem;
+}
+
+form input {
+    padding: 0.6rem ;
+    margin: 1rem;
+    width: 50%;
+}
+
+
+.button {
+    display: flex;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    width: 80%;
+}
+
+.button button {
+    padding: 0.3rem 1.6rem;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 5rem;
+    cursor: pointer;
+}
+
+/* ================= TABLET SCREEN (768px) ================= */
+@media (min-width: 768px) {
+    body {
+        /*background-color: purple;*/
+}
+
+.form {
+    width: 50%;
+}
+}
+/* =============== END TABLET SCREEN (768px) =============== */
+
+
+
+</style>
+<body>
+    <h1>Login</h1>
+    <div class="form">
+        <form method="post">
+            {% csrf_token %}
+            <div class="username">
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username" required>
+            </div>
+            <br>
+            <div class="password">
+                <label for="password">Password:</label>
+                <input type="password" name="password" id="password" required>
+            </div>
+            <br>
+            <div class="button">
+                <button type="submit">Login</button>
+            </div>
+        </form>
+    </div>
+    {% if error_message %}
+        <p style="color: red;">{{ error_message }}</p>
+    {% endif %}
+
+<div class="redirect">
+    <p style="display: flex; flex-direction: column; font-size: 1.1rem; align-items: center;">Don't have an account? Create one here. <br> <a href="{% url 'create_account' %}">Create Account</a></p>
+</div>
+</body>
+</html>

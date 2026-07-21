@@ -1,0 +1,38 @@
+{% extends 'digital/base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/details.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="resource-detail">
+    <div class="download">
+        <img src="{{ resource.thumbnail.url }}" alt="{{ resource.title }}">
+        <h1>{{ resource.title }}</h1>
+        <p>{{ resource.description }}</p>
+        <a href="{% url 'download_resource' resource.slug %}">
+            Download Resource
+        </a>
+    </div>
+
+    <div class="most-downloaded">
+    <h4>Top 5 Most Downloaded Resources</h4>
+
+    <div class="download-cont">
+        {% for resource in top_downloaded_resources %}
+        <div class="download-item">
+            <img class="res-img" src="{{ resource.thumbnail.url }}" alt="{{ resource.title }}">
+        
+            <div>
+                <h5>{{ resource.title }}</h5>
+                <p>{{ resource.most_downloaded }} Downloads</p>
+        
+                <a href="{% url 'resource_detail' slug=resource.slug %}">
+                    View Resource
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

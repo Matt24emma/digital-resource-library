@@ -1,0 +1,68 @@
+{% extends 'digital/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="hero-section">
+        <h1>Download Free Learning Resources</h1>
+        <p>Access high-quality PDFs, templates, guides, and educational materials curated for modern professionals and
+            students.</p>
+    
+        <div class="search">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" placeholder="Search...">
+            <button id="search">Search</button>
+        </div>
+    </div>
+    
+    <div class="all-resources">
+    
+        {% for resource in digital_resources %}
+        <div class="resource-container">
+            <div class="res-img"><img src="{{ resource.thumbnail.url }}" alt="Image"></div>
+            <div class="resource-name">
+                <h3>{{ resource.title }}</h3>
+                <p>{{ resource.description }}</p>
+                <a href="{% url 'resource_detail' slug=resource.slug %}"><button>View Resource</button></a>
+            </div>
+        </div>
+        {% endfor%}
+    
+    </div>
+
+<div class="pagination">
+
+    {% if digital_resources.has_previous %}
+    <a href="?page=1">&laquo; First</a>
+    <a href="?page={{ digital_resources.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <span>
+        Page {{ digital_resources.number }}
+        of
+        {{ digital_resources.paginator.num_pages }}
+    </span>
+
+    {% if digital_resources.has_next %}
+    <a href="?page={{ digital_resources.next_page_number }}">Next</a>
+    <a href="?page={{ digital_resources.paginator.num_pages }}">Last &raquo;</a>
+    {% endif %}
+
+</div>
+
+<!--<div class="data-from-backend">
+    {% for resource in digital_resources %}
+        <div class="resource-container">
+            <div class="res-img"><img src="{{ resource.thumbnail.url }}" alt="Image"></div>
+            <div class="resource-name">
+                <h3>{{ resource.title }}</h3>
+                <p>{{ resource.description }}</p>
+                <a href="{{ resource.file.url }}" download><button>Download</button></a>
+            </div>
+        </div>
+    {% endfor %}
+</div>-->
+{% endblock %}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    table {
+    border-collapse: collapse;
+    box-shadow: 3px 4px 6px gainsboro;
+    min-width: 60rem;
+}
+
+table, th,td {
+    border: 1px solid rgb(0, 0, 0,0.1) ;
+}
+
+th,td {
+    padding: 1rem;
+    text-align: left;
+}
+
+th {
+    background-color: #2563eb;
+    color: white;
+}
+
+#edit, #delete {
+    padding: 0.2rem 0.7rem;
+    margin-left: 1rem;
+}
+
+.table-container {
+    overflow-x: scroll;
+    margin: 0.8rem;
+}
+</style>
+<body>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Downloaded Files</th>
+            <th>Count</th>
+        </tr>
+    
+        {% for lead in leads %}
+        <tr>
+            <td>{{ lead.name }}</td>
+            <td>{{ lead.email }}</td>
+    
+            <td>
+                {% for download in lead.downloads.all %}
+                {{ download.resource.title }}<br>
+                {% empty %}
+                No downloads
+                {% endfor %}
+            </td>
+    
+            <td>{{ lead.number_of_resources_downloaded }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+<div class="pagination">
+
+    {% if leads.has_previous %}
+    <a href="?page=1">First</a>
+    <a href="?page={{ leads.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <span>
+        Page {{ leads.number }} of {{ leads.paginator.num_pages }}
+    </span>
+
+    {% if leads.has_next %}
+    <a href="?page={{ leads.next_page_number }}">Next</a>
+    <a href="?page={{ leads.paginator.num_pages }}">Last</a>
+    {% endif %}
+
+</div>
+</body>
+</html>

@@ -1,0 +1,551 @@
+:root {
+    /* ===== Primary Colors ===== */
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #dbeafe;
+
+    /* ===== Secondary Colors ===== */
+    --secondary: #0f172a;
+    --accent: #14b8a6;
+
+    /* ===== Background Colors ===== */
+    --bg-color: #f8fafc;
+    --surface: #ffffff;
+    --surface-hover: #f1f5f9;
+
+    /* ===== Text Colors ===== */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-light: #94a3b8;
+    --text-white: #ffffff;
+
+    /* ===== Border ===== */
+    --border: #e2e8f0;
+
+    /* ===== Status Colors ===== */
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+
+    /* ===== Shadows ===== */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+
+    /* ===== Border Radius ===== */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
+    /* ===== Spacing ===== */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+
+    /* ===== Typography ===== */
+    --font-family: "Inter", sans-serif;
+
+    --fs-xs: 0.75rem;
+    --fs-sm: 0.875rem;
+    --fs-md: 1rem;
+    --fs-lg: 1.25rem;
+    --fs-xl: 2rem;
+    --fs-2xl: 3rem;
+
+    --fw-normal: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+
+    /* ===== Layout ===== */
+    --container-width: 1200px;
+    --transition: all 0.3s ease;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.hero-section {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    padding: var(--space-2xl) 0;
+    text-align: center;
+    font-family: var(--font-family);
+    box-shadow: 3px 4px 6px gainsboro;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-section h1 {
+    font-size: 1.7rem;
+}
+
+.hero-section p {
+    color: rgb(0, 0, 0, 0.5);
+    width: 80%;
+    text-align: center;
+    font-size: var(--fs-sm);
+}
+
+
+/* This is search bar */
+.search {
+    border: 1px solid var(--border);
+    width: 80%;
+    display: flex;
+    align-items: center;
+    box-shadow: 3px 4px 6px gainsboro;
+    margin-top: 2rem;
+    padding: 0.1rem 0rem;
+    position: relative;
+    border-radius: var(--radius-md);
+}
+
+.search input {
+    width: 100%;
+    padding: 12px 12px 12px 42px;
+    /* Left padding makes room for the icon */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    border: none;
+}
+
+.search input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #777;
+    pointer-events: none;
+    /* Allows clicks to go to the input */
+}
+
+.search button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: var(--primary);
+    color: var(--text-white);
+    border: none;
+    padding: 0 16px;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    cursor: pointer;
+}
+
+/* This is the end of search bar*/
+
+/* This is resource section */
+
+.all-resources {
+    width: 90%;
+    margin-right: 0.5rem;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.resource-container {
+    box-shadow: 3px 4px 6px gainsboro;
+    padding: 0.5rem 0.5rem 0.3rem 0.5rem;
+    padding-bottom: var(--space-lg);
+}
+
+.resource-container img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+}
+
+.res-img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    /* or 4 / 3, 1 / 1 depending on your design */
+    overflow: hidden;
+    border-radius: var(--radius-md);
+}
+
+.res-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.resource-container h3 {
+    font-size: 1.3rem;
+    margin-top: var(--space-sm);
+    line-height: 1.2;
+    font-family: var(--font-family);
+    margin-bottom: var(--space-sm);
+}
+
+.resource-container p {
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.resource-name {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.resource-name button {
+    background-color: var(--primary);
+    color: var(--text-white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.resource-container img {
+    width: 100%;
+    height: auto;
+}
+
+/* This is the end of resource section*/
+
+.pagination {
+    font-family: var(--font-family);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.3rem;
+    margin-left: 1rem;
+    font-size: 1.1rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    padding: 0.2rem;
+    box-shadow: 3px 4px 6px gainsboro;
+}
+
+.pagination a {
+    
+}
+
+
+
+
+
+/* This is small screen size */
+/* ================= SMALL SCREEN (480px) ================= */
+@media (min-width: 480px) {
+    body {
+        /*background-color: blue;*/
+}
+
+.all-resources {
+    width: 98%;
+    margin-left: 1rem;
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.resource-container {
+    width: 80%;
+    box-shadow: 3px 4px 6px gainsboro;
+    padding: 0.5rem 0.5rem 0.3rem 0.5rem;
+    padding-bottom: var(--space-lg);
+}
+
+
+}
+/* =============== END SMALL SCREEN (480px) =============== */
+/* This is the end of small screen size*/
+
+
+
+
+
+
+
+/* This is tablet screen size */
+/* ================= TABLET SCREEN (768px) ================= */
+@media (min-width: 768px) {
+    body {
+        /*background-color: purple;*/
+}
+
+.all-resources {
+    width: 90%;
+    margin-left: 1rem;
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.resource-container {
+    width: 22%;
+    box-shadow: 3px 4px 6px gainsboro;
+    padding: 0.5rem 0.5rem 0.3rem 0.5rem;
+    padding-bottom: var(--space-lg);
+}
+
+
+
+
+
+
+}
+/* =============== END TABLET SCREEN (768px) =============== */
+/* This is the end of tablet screen size*/
+
+
+
+/* This is laptop screen size */
+/* ================= LAPTOP SCREEN (1024px) ================= */
+@media (min-width: 1024px) {
+    body {
+        /*background-color: green;*/
+}
+
+.all-resources {
+    width: 98%;
+    margin-left: 1rem;
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.resource-container {
+    width: 40%;
+    box-shadow: 3px 4px 6px gainsboro;
+    padding: 0.5rem 0.5rem 0.3rem 0.5rem;
+    padding-bottom: var(--space-lg);
+}
+
+
+
+
+}
+/* =============== END LAPTOP SCREEN (1024px) =============== */
+/* This is the end of laptop screen size*/
+
+
+
+
+/* This is large screen size */
+/* ================= LARGE SCREEN (1280px) ================= */
+@media (min-width: 1280px) {
+    body {
+        /*background-color: pink;*/
+}
+
+
+.hero-section {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    padding: var(--space-2xl) 0;
+    text-align: center;
+    font-family: var(--font-family);
+    box-shadow: 3px 4px 6px gainsboro;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+}
+
+.hero-section p {
+    color: rgb(0, 0, 0, 0.5);
+    width: 50%;
+    text-align: center;
+}
+
+
+/* This is search bar */
+.search {
+    border: 1px solid var(--border);
+    width: 50%;
+    display: flex;
+    align-items: center;
+    box-shadow: 3px 4px 6px gainsboro;
+    margin-top: 2rem;
+    padding: 0.1rem 0rem;
+    position: relative;
+    border-radius: var(--radius-md);
+}
+
+.search input {
+    width: 100%;
+    padding: 12px 12px 12px 42px;
+    /* Left padding makes room for the icon */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    border: none;
+}
+
+.search input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #777;
+    pointer-events: none;
+    /* Allows clicks to go to the input */
+}
+
+.search button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: var(--primary);
+    color: var(--text-white);
+    border: none;
+    padding: 0 16px;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    cursor: pointer;
+}
+
+/* This is the end of search bar*/
+
+/* This is resource section */
+
+.all-resources {
+    width: 98%;
+    margin-left: 1rem;
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.resource-container {
+    width: 40%;
+    box-shadow: 3px 4px 6px gainsboro;
+    padding: 0.5rem 0.5rem 0.3rem 0.5rem;
+    padding-bottom: var(--space-lg);
+}
+
+.resource-container img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+}
+
+.res-img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    /* or 4 / 3, 1 / 1 depending on your design */
+    overflow: hidden;
+    border-radius: var(--radius-md);
+}
+
+.res-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.resource-container h3 {
+    font-size: 1.3rem;
+    margin-top: var(--space-sm);
+    line-height: 1.2;
+    font-family: var(--font-family);
+    margin-bottom: var(--space-sm);
+}
+
+.resource-container p {
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.resource-name {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.resource-name button {
+    background-color: var(--primary);
+    color: var(--text-white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.resource-container img {
+    width: 100%;
+    height: auto;
+}
+
+/* This is the end of resource section*/
+
+
+}
+/* =============== END LARGE SCREEN (1280px) =============== */
+/* This is the end of large screen size*/
+
+
