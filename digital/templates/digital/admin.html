@@ -10,18 +10,46 @@
     <div class="admin">
         <h1>Admin</h1>
 
-        <div class="upload">
-            <a href="{% url 'upload' %}">Upload File</a>
-        </div>
-
-
         <div class="logout">
             <a href="{% url 'logout' %}">
                 <button>Logout</button>
             </a>
         </div>
 
-    </div>
+</div>
+
+<div class="upload-form">
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="thumbnail">Thumbnail</label>
+            <input type="file" id="thumbnail" name="thumbnail" accept="image/*" required>
+        </div>
+
+        <div class="form-group">
+            <label for="file">Resource File</label>
+            <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt" required>
+        </div>
+
+        <div class="form-group">
+            <label for="title">Headline</label>
+            <input type="text" id="title" name="title" placeholder="Enter title" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="6" placeholder="Write a description..."
+                required></textarea>
+        </div>
+
+        <div class="button">
+            <button type="submit">Upload</button>
+        </div>
+    </form>
+</div>
+
+
 
     
 

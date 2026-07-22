@@ -194,6 +194,77 @@ th {
     margin: 0.8rem;
 }
 
+
+
+
+
+.upload-form {
+    width: 98%;
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    justify-self: center;
+    margin-top: 1rem;
+    box-shadow: 3px 4px 6px gainsboro;
+}
+
+
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1.6rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 90%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.upload-form button {
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #2563eb;
+    width: 30%;
+    color: white;
+}
+
+.cancel {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+
+
+/* =============== END LARGE SCREEN (1280px) =============== */
+
 /* ================= LARGE SCREEN (1280px) ================= */
 @media (min-width: 1280px) {
     body {
@@ -248,6 +319,62 @@ th {
 .table-container {
     overflow-x: scroll;
     margin: 0.8rem;
+}
+
+
+.upload-form {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    justify-self: center;
+    margin-top: 1rem;
+    box-shadow: 3px 4px 6px gainsboro;
+}
+
+
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1.6rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 90%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.upload-form button {
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #2563eb;
+    width: 30%;
+    color: white;
 }
 }
 /* =============== END LARGE SCREEN (1280px) =============== */

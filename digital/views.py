@@ -109,7 +109,7 @@ def admin(request):
             title=title,
             description=description,
         )
-        return redirect("home")
+        return redirect("admin")
 
     user_count = Lead.objects.count()
     total_resources = Resource.objects.count()
@@ -264,9 +264,6 @@ def reset_session(request):
     request.session.flush()
     return redirect("home")
 
-
-def upload(request):
-    return render(request, 'digital/upload.html')
 
 
 def downloads(request):
