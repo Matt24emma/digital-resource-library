@@ -1,10 +1,11 @@
+from .storages import CloudinaryMediaStorage, CloudinaryRawStorage
 from django.db import models
 from django.utils.text import slugify
 
 
 class Resource(models.Model):
-    thumbnail = models.ImageField(upload_to="thumbnails/", null=True, blank=True)
-    file = models.FileField(upload_to="resources/")
+    thumbnail = models.ImageField(upload_to="thumbnails/", storage=CloudinaryMediaStorage(), null=True, blank=True)
+    file = models.FileField(upload_to="resources/",storage=CloudinaryRawStorage(),)
     title = models.CharField(max_length=100)
     description = models.TextField()
     slug = models.SlugField(unique=True, blank=True)

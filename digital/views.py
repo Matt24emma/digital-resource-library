@@ -11,33 +11,42 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 import re
 from django.db.models import Sum, Count
-
+from django.http import HttpResponse, FileResponse
 
 def download_resource(request, slug):
     print(request.session.items())
+
     resource = get_object_or_404(Resource, slug=slug)
 
-    # Has the visitor submitted the lead form?
+    # Check if lead has been verified
     if not request.session.get("lead_verified"):
         return redirect("leads", slug=slug)
 
-    # Get the lead from the session
+    # Get lead from session
     lead_id = request.session.get("lead_id")
     lead = get_object_or_404(Lead, id=lead_id)
 
-    # Record the download
+    # Try opening file first
+    try:
+        file = resource.file.open("rb")
+
+    except Exception as e:
+        print("Download error:", e)
+        return HttpResponse("File unavailable", status=404)
+
+    # Only record download after file opens successfully
     Download.objects.create(
         lead=lead,
         resource=resource,
     )
 
-    # Increment the download count
+    # Increment download count
     Resource.objects.filter(pk=resource.pk).update(
         most_downloaded=F("most_downloaded") + 1
     )
 
     return FileResponse(
-        resource.file.open("rb"),
+        file,
         as_attachment=True,
         filename=resource.file.name.split("/")[-1],
     )
@@ -263,7 +272,6 @@ def leads(request, slug):
 def reset_session(request):
     request.session.flush()
     return redirect("home")
-
 
 
 def downloads(request):
