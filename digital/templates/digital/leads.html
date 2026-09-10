@@ -1,137 +1,366 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+{% extends 'digital/base.html' %}
+{% load static %}
+
+{% block title %}Get Your Resource — Foundry{% endblock %}
+
+{% block extra_css %}
 <style>
+    /* ==================================================
+       LEAD CAPTURE PAGE
+       ================================================== */
 
-body {
+    .lead-container {
+        max-width: 540px;
+        margin: 40px auto 60px;
+        padding: 0 20px;
+    }
+
+    .lead-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .lead-header .eyebrow {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: var(--font-semibold);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 4px 14px;
+        border-radius: 100px;
+        margin-bottom: 12px;
+    }
+
+    .lead-header h1 {
+        font-family: var(--font-heading);
+        font-weight: var(--font-bold);
+        font-size: clamp(1.8rem, 3vw, 2.4rem);
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        margin-bottom: 8px;
+    }
+
+    .lead-header p {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        max-width: 440px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .lead-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 32px 36px 36px;
+    }
+
+    .lead-card .form-group {
+        margin-bottom: 20px;
+    }
+
+    .lead-card .form-group label {
+        display: block;
+        font-weight: var(--font-semibold);
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .lead-card .form-group input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        background: var(--white);
+        color: var(--text-primary);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+    }
+
+    .lead-card .form-group input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .lead-card .form-group input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .lead-card .form-actions {
+        margin-top: 4px;
+    }
+
+    .lead-card .form-actions .btn-primary {
+        width: 100%;
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        padding: 12px;
+        border-radius: var(--radius-sm);
+        font-weight: var(--font-semibold);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+    }
+
+    .lead-card .form-actions .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+
+    .lead-card .trust-message {
+        margin-top: 20px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-align: center;
+        line-height: 1.6;
+        border-top: 1px solid var(--border);
+        padding-top: 18px;
+    }
+
+    .lead-card .trust-message a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .lead-card .trust-message a:hover {
+        text-decoration: underline;
+    }
+
+    .lead-card .error-message {
+        background: #fef2f2;
+        color: #991b1b;
+        padding: 10px 16px;
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+        border-left: 4px solid #ef4444;
+    }
+
+    /* ----- After submission (download area) ----- */
+    .download-success {
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .download-success .icon {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .download-success h2 {
+        font-family: var(--font-heading);
+        font-weight: var(--font-bold);
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+    }
+
+    .download-success p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        max-width: 480px;
+        margin: 0 auto 20px;
+        line-height: 1.6;
+    }
+
+    .download-success .btn-primary {
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        padding: 12px 32px;
+        border-radius: var(--radius-sm);
+        font-weight: var(--font-semibold);
+        font-size: 0.95rem;
+        transition: background 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .download-success .btn-primary:hover {
+        background: var(--primary-hover);
+    }
+
+    .download-success .brand-tagline {
+        margin-top: 20px;
+        font-family: var(--font-heading);
+        font-weight: var(--font-medium);
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        letter-spacing: 0.04em;
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 768px) {
+        .lead-card {
+            padding: 24px 20px 28px;
+        }
+
+        .lead-container {
+            margin: 24px auto 40px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .lead-card {
+            padding: 16px 16px 20px;
+        }
+
+        .lead-header h1 {
+            font-size: 1.6rem;
+        }
+
+        .lead-card .form-group input {
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+}
+
+/* Two-button action row for the success state */
+.download-actions {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
 }
 
-h1 {
-    color: #2563eb;
-    font-size: 1.3rem;
-}
-
-
-.form {
-    width: 90%;
-}
-
-form {
-    box-shadow: 3px 4px 6px gainsboro;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    
-}
-
-form label {
-    padding: 1rem;
-    margin: 1rem;
-}
-
-form input {
-    padding: 0.6rem ;
-    margin: 1rem;
-    width: 50%;
-}
-
-.button {
-    display: flex;
-    align-self: center;
+.download-actions .btn-primary,
+.download-actions .btn-secondary {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
-    width: 80%;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-weight: var(--font-semibold);
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    min-width: 200px;
 }
 
-.button button {
-    padding: 0.3rem 1.6rem;
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 5rem;
-    cursor: pointer;
+.download-actions .btn-secondary {
+    background: var(--white);
+    color: var(--primary);
+    border: 1px solid var(--primary);
 }
 
-/* This is small screen */
-/* ================= SMALL SCREEN (480px) ================= */
-@media (min-width: 480px) {
-    body {
-        /*background-color: blue;*/
+.download-actions .btn-secondary:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
 }
 
-.form {
-    width: 97%;
+/* Stack buttons on mobile */
+@media (max-width: 480px) {
+    .download-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .download-actions .btn-primary,
+    .download-actions .btn-secondary {
+        width: 100%;
+        min-width: 0;
+    }
 }
-
-
-form input {
-    padding: 0.6rem ;
-    margin: 1rem;
-    width: 60%;
-}
-
-form input {
-    padding: 0.6rem ;
-    margin: 1rem;
-    width: 50%;
-}
-
-
-}
-/* =============== END SMALL SCREEN (480px) =============== */
-/* This is the end of small screen*/
-
-
-/* ================= TABLET SCREEN (768px) ================= */
-@media (min-width: 768px) {
-    body {
-        /*background-color: purple;*/
-}
-
-.form {
-    width: 50%;
-}
-
-}
-/* =============== END TABLET SCREEN (768px) =============== */
-
-
 </style>
-<body>
-    <h1>Please Fill Out the Form to Download</h1>
-    <div class="form">
-        <form method="post">
-            {% csrf_token %}
-            <div class="name">
-                <label for="name">Name:</label>
-                <input type="text" name="name" id="name" required>
-            </div>
-        
-            <div class="email">
-                <label for="email">Email:</label>
-                <input type="email" name="email" id="email" required>
-            </div>
-        
-            <div class="phone">
-                <label for="phone">Phone:</label>
-                <input type="tel" name="phone" id="phone" required>
-            </div>
+{% endblock %}
+
+{% block content %}
+    <div class="lead-container">
+
+    <!-- Check if already submitted (download available) -->
+    {% if request.session.lead_verified %}
+    <!-- DOWNLOAD SUCCESS STATE -->
+    <!-- DOWNLOAD SUCCESS STATE -->
+    <div class="download-success">
+        <span class="icon">🎉</span>
+        <h2>Your resource is ready!</h2>
+        <p>
+            You downloaded one book. What will you do with the next one?<br>
+            A good book can give you a great idea. But the real value comes from reading it,
+            understanding it, and putting that idea to work.
+        </p>
+        <p>
+            Foundry gives your reading structure so you can move from:<br>
+            <strong>Reading → Understanding → Action → Progress</strong>
+        </p>
     
-            <div class="button">
-                <button type="submit">Submit</button>
+        <div class="download-actions">
+            {% if user.is_authenticated %}
+            <!-- Logged-in users go to their dashboard -->
+            <a href="{% url 'user_dashboard' %}" class="btn-primary">Go to My Dashboard</a>
+            {% else %}
+            <!-- Guests go to the home page -->
+            <a href="{% url 'home' %}" class="btn-primary">Start Reading With Foundry</a>
+            {% endif %}
+    
+            <!-- Proceed to download the current resource -->
+            <a href="{% url 'download_resource' slug=resource.slug %}" class="btn-secondary">
+                Proceed to Download
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <path d="M7 10l5 5 5-5" />
+                    <path d="M12 15V3" />
+                </svg>
+            </a>
+        </div>
+    
+        <div class="brand-tagline">Turn what you learn into what you do.<br>Every Chapter Builds Your Business.</div>
+    </div>
+    {% else %}
+    <!-- LEAD CAPTURE FORM -->
+    <div class="lead-header">
+        <span class="eyebrow">YOUR RESOURCE IS READY</span>
+        <h1>You're one step away from your resource.</h1>
+        <p>Enter your details below and we'll get your resource ready for you.</p>
+    </div>
+
+    <div class="lead-card">
+        {% if message %}
+        <div class="error-message">{{ message }}</div>
+        {% endif %}
+
+        <form method="post" action="{% url 'leads' slug=resource.slug %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Your name" required
+                    value="{{ request.POST.name|default:'' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Your email address" required
+                    value="{{ request.POST.email|default:'' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" placeholder="Your phone number" required
+                    value="{{ request.POST.phone|default:'' }}">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Get My Resource</button>
+            </div>
+
+            <div class="trust-message">
+                Your information is used to deliver this resource and share relevant learning and business resources
+                from Foundry.
+                We respect your privacy and don't sell your information.
             </div>
         </form>
     </div>
-    {% if message %}
-        <p>{{ message }}</p>
     {% endif %}
-</body>
-</html>
+</div>
+{% endblock %}

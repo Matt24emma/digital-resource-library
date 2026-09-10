@@ -1,0 +1,2403 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ===========================
+       BASE & RESET
+    =========================== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: #050505;
+        color: #FFFFFF;
+        font-family: 'Poppins', sans-serif;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #111111;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #00E5A8;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #00c997;
+    }
+
+    /* ===========================
+       FOUNDRY WRAPPER
+    =========================== */
+    .foundry-wrapper {
+        display: flex;
+        min-height: 100vh;
+        background: #050505;
+        position: relative;
+    }
+
+    /* ===========================
+       SIDEBAR
+    =========================== */
+    .foundry-sidebar {
+        width: 260px;
+        min-height: 100vh;
+        background: #111111;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 32px 20px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        flex-shrink: 0;
+        z-index: 100;
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .foundry-sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 40px;
+        padding-left: 4px;
+    }
+
+    .foundry-sidebar-brand .logo-icon {
+        width: 36px;
+        height: 36px;
+        background: #00E5A8;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 18px;
+        color: #050505;
+        flex-shrink: 0;
+    }
+
+    .foundry-sidebar-brand .logo-text {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #FFFFFF;
+    }
+
+    .foundry-sidebar-brand .logo-text span {
+        color: #00E5A8;
+    }
+
+    .foundry-sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+    }
+
+    .foundry-sidebar-nav .nav-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #9CA3AF;
+        padding: 16px 12px 8px 12px;
+        opacity: 0.5;
+    }
+
+    .foundry-sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: #9CA3AF;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.25s ease;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .foundry-sidebar-nav a .nav-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        line-height: 1;
+    }
+
+    .foundry-sidebar-nav a .nav-icon svg {
+        width: 20px;
+        height: 20px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .foundry-sidebar-nav a:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: #FFFFFF;
+    }
+
+    .foundry-sidebar-nav a.active {
+        background: rgba(0, 229, 168, 0.10);
+        color: #00E5A8;
+    }
+
+    .foundry-sidebar-nav a.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 24px;
+        background: #00E5A8;
+        border-radius: 0 4px 4px 0;
+    }
+
+    .foundry-sidebar-nav a .nav-badge {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #9CA3AF;
+    }
+
+    .foundry-sidebar-footer {
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .foundry-sidebar-footer .user-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 4px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .foundry-sidebar-footer .user-card:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .foundry-sidebar-footer .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00E5A8, #00c997);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        color: #050505;
+        flex-shrink: 0;
+    }
+
+    .foundry-sidebar-footer .user-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .foundry-sidebar-footer .user-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #FFFFFF;
+        line-height: 1.3;
+    }
+
+    .foundry-sidebar-footer .user-email {
+        font-size: 11px;
+        color: #9CA3AF;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ===========================
+       SIDEBAR TOGGLE (mobile)
+    =========================== */
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 200;
+        background: rgba(17, 17, 17, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #FFFFFF;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .sidebar-toggle:hover {
+        background: #1a1a1a;
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 99;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+
+    /* ===========================
+       MAIN CONTENT
+    =========================== */
+    .foundry-main {
+        flex: 1;
+        padding: 0 48px 60px 48px;
+        min-height: 100vh;
+        max-width: calc(100% - 260px);
+        margin-left: 0;
+        transition: max-width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.3s ease;
+    }
+
+    /* ===========================
+       HEADER
+    =========================== */
+    .cards-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding: 28px 0 20px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .cards-header-left h1 {
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #FFFFFF;
+        line-height: 1.1;
+        margin-bottom: 2px;
+    }
+
+    .cards-header-left h1 .accent {
+        color: #00E5A8;
+    }
+
+    .cards-header-left .subtitle {
+        font-size: 16px;
+        color: #9CA3AF;
+        font-weight: 400;
+    }
+
+    .cards-header-right {
+        display: flex;
+        gap: 12px;
+        flex-shrink: 0;
+        align-items: center;
+    }
+
+    .cards-header-right .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 28px;
+        background: #00E5A8;
+        color: #050505;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 4px 24px rgba(0, 229, 168, 0.15);
+    }
+
+    .cards-header-right .btn-primary:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 40px rgba(0, 229, 168, 0.25);
+        background: #00f0b0;
+    }
+
+    .cards-header-right .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 22px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #9CA3AF;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .cards-header-right .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.07);
+        color: #FFFFFF;
+        border-color: rgba(255, 255, 255, 0.10);
+        transform: translateY(-2px);
+    }
+
+    .cards-header-right .btn-secondary .pro-badge {
+        display: inline-block;
+        font-size: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        background: linear-gradient(135deg, #F59E0B, #F97316);
+        color: #050505;
+        padding: 1px 8px;
+        border-radius: 6px;
+        line-height: 16px;
+        margin-left: 2px;
+    }
+
+    /* ===========================
+       STATISTICS
+    =========================== */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        padding: 24px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-card {
+        background: #111111;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 18px 22px;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: default;
+    }
+
+    .stat-card:hover {
+        background: #171717;
+        border-color: rgba(255, 255, 255, 0.08);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card .stat-icon {
+        font-size: 20px;
+        display: block;
+        margin-bottom: 4px;
+        color: #00E5A8;
+        opacity: 0.7;
+    }
+
+    .stat-card .stat-number {
+        font-size: 26px;
+        font-weight: 700;
+        color: #FFFFFF;
+        letter-spacing: -0.3px;
+        line-height: 1.1;
+    }
+
+    .stat-card .stat-number .suffix {
+        font-size: 14px;
+        font-weight: 400;
+        color: #9CA3AF;
+        margin-left: 2px;
+    }
+
+    .stat-card .stat-label {
+        font-size: 13px;
+        color: #9CA3AF;
+        font-weight: 400;
+        margin-top: 2px;
+    }
+
+    /* ===========================
+       SEARCH & FILTERS
+    =========================== */
+    .cards-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px 24px;
+        padding: 20px 0 16px 0;
+        align-items: center;
+    }
+
+    .search-wrapper {
+        position: relative;
+        flex: 1;
+        min-width: 200px;
+        max-width: 400px;
+    }
+
+    .search-wrapper .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6B7280;
+        font-size: 16px;
+        pointer-events: none;
+        transition: color 0.3s ease;
+    }
+
+    .search-wrapper input {
+        width: 100%;
+        padding: 12px 16px 12px 48px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        color: #FFFFFF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        outline: none;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        background: rgba(17, 17, 17, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    .search-wrapper input::placeholder {
+        color: #6B7280;
+        font-weight: 400;
+    }
+
+    .search-wrapper input:focus {
+        border-color: rgba(0, 229, 168, 0.20);
+        background: rgba(17, 17, 17, 0.8);
+        box-shadow: 0 0 0 4px rgba(0, 229, 168, 0.04);
+    }
+
+    .search-wrapper input:focus~.search-icon {
+        color: #00E5A8;
+    }
+
+    .filter-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        flex: 1;
+    }
+
+    .filter-chip {
+        padding: 6px 16px;
+        border-radius: 100px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: #9CA3AF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .filter-chip:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #FFFFFF;
+        border-color: rgba(255, 255, 255, 0.10);
+    }
+
+    .filter-chip.active {
+        background: rgba(0, 229, 168, 0.10);
+        border-color: rgba(0, 229, 168, 0.15);
+        color: #00E5A8;
+        box-shadow: 0 0 20px rgba(0, 229, 168, 0.04);
+    }
+
+    .filter-chip .chip-count {
+        display: inline-block;
+        margin-left: 4px;
+        font-size: 10px;
+        opacity: 0.5;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0 6px;
+        border-radius: 8px;
+        line-height: 16px;
+    }
+
+    .filter-chip.active .chip-count {
+        opacity: 0.7;
+        background: rgba(0, 229, 168, 0.06);
+    }
+
+    .display-toggle {
+        display: flex;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 10px;
+        padding: 3px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        flex-shrink: 0;
+    }
+
+    .display-toggle .dt-btn {
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        color: #9CA3AF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .display-toggle .dt-btn:hover {
+        color: #FFFFFF;
+    }
+
+    .display-toggle .dt-btn.active {
+        background: #00E5A8;
+        color: #050505;
+        box-shadow: 0 2px 12px rgba(0, 229, 168, 0.15);
+    }
+
+    /* ===========================
+       CARD GRID
+    =========================== */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 8px 0 12px 0;
+    }
+
+    .cards-grid.list-view {
+        grid-template-columns: 1fr;
+    }
+
+    .knowledge-card {
+        background: #111111;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 20px 22px 18px 22px;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: default;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .knowledge-card:hover {
+        background: #171717;
+        border-color: rgba(255, 255, 255, 0.08);
+        transform: translateY(-6px);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+    }
+
+    .knowledge-card .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+        gap: 10px;
+    }
+
+    .knowledge-card .category-badge {
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 2px 12px;
+        border-radius: 20px;
+        display: inline-block;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .knowledge-card .category-badge.emerald {
+        background: rgba(0, 229, 168, 0.08);
+        color: #00E5A8;
+        border-color: rgba(0, 229, 168, 0.10);
+    }
+
+    .knowledge-card .category-badge.blue {
+        background: rgba(59, 130, 246, 0.08);
+        color: #60A5FA;
+        border-color: rgba(59, 130, 246, 0.10);
+    }
+
+    .knowledge-card .category-badge.purple {
+        background: rgba(168, 85, 247, 0.08);
+        color: #A78BFA;
+        border-color: rgba(168, 85, 247, 0.10);
+    }
+
+    .knowledge-card .category-badge.orange {
+        background: rgba(251, 146, 60, 0.08);
+        color: #FB923C;
+        border-color: rgba(251, 146, 60, 0.10);
+    }
+
+    .knowledge-card .category-badge.red {
+        background: rgba(239, 68, 68, 0.08);
+        color: #F87171;
+        border-color: rgba(239, 68, 68, 0.10);
+    }
+
+    .knowledge-card .category-badge.gold {
+        background: rgba(245, 158, 11, 0.08);
+        color: #FBBF24;
+        border-color: rgba(245, 158, 11, 0.10);
+    }
+
+    .knowledge-card .card-actions-top {
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .knowledge-card:hover .card-actions-top {
+        opacity: 1;
+    }
+
+    .knowledge-card .card-actions-top button {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: none;
+        color: #9CA3AF;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .knowledge-card .card-actions-top button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #FFFFFF;
+    }
+
+    .knowledge-card .card-actions-top button.favorite.active {
+        color: #FBBF24;
+    }
+
+    .knowledge-card .book-ref {
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 400;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .knowledge-card .book-ref .book-title {
+        color: #9CA3AF;
+        font-weight: 500;
+    }
+
+    .knowledge-card .book-ref .chapter {
+        color: #6B7280;
+        font-size: 11px;
+    }
+
+    .knowledge-card .card-content {
+        font-size: 14px;
+        line-height: 1.7;
+        color: #E5E7EB;
+        font-weight: 400;
+        flex: 1;
+        margin: 6px 0 12px 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .knowledge-card .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        padding-top: 12px;
+        margin-top: auto;
+    }
+
+    .knowledge-card .card-footer .date {
+        font-size: 11px;
+        color: #6B7280;
+        font-weight: 400;
+    }
+
+    .knowledge-card .card-footer .action-buttons {
+        display: flex;
+        gap: 4px;
+    }
+
+    .knowledge-card .card-footer .action-buttons button {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: none;
+        color: #6B7280;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .knowledge-card .card-footer .action-buttons button:hover {
+        background: rgba(255, 255, 255, 0.07);
+        color: #FFFFFF;
+    }
+
+    .knowledge-card .card-footer .action-buttons button.danger:hover {
+        background: rgba(239, 68, 68, 0.10);
+        color: #EF4444;
+    }
+
+    /* ===========================
+       LIST VIEW
+    =========================== */
+    .cards-grid.list-view .knowledge-card {
+        flex-direction: row;
+        align-items: center;
+        padding: 14px 20px;
+        gap: 16px;
+    }
+
+    .cards-grid.list-view .knowledge-card .card-top {
+        margin-bottom: 0;
+        flex: 0 0 auto;
+        min-width: 120px;
+    }
+
+    .cards-grid.list-view .knowledge-card .card-content {
+        -webkit-line-clamp: 2;
+        margin: 0;
+        flex: 1;
+    }
+
+    .cards-grid.list-view .knowledge-card .card-footer {
+        border-top: none;
+        padding-top: 0;
+        flex: 0 0 auto;
+        width: auto;
+        margin-top: 0;
+    }
+
+    .cards-grid.list-view .knowledge-card .book-ref {
+        margin-bottom: 0;
+    }
+
+    /* ===========================
+       EMPTY STATE
+    =========================== */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 24px;
+        background: #111111;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .empty-state .empty-icon {
+        font-size: 56px;
+        margin-bottom: 16px;
+        opacity: 0.4;
+    }
+
+    .empty-state h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 4px;
+        letter-spacing: -0.3px;
+    }
+
+    .empty-state p {
+        font-size: 15px;
+        color: #9CA3AF;
+        max-width: 380px;
+        margin-bottom: 24px;
+        line-height: 1.6;
+    }
+
+    .empty-state .btn-generate {
+        padding: 14px 32px;
+        background: #00E5A8;
+        color: #050505;
+        border: none;
+        border-radius: 14px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 4px 24px rgba(0, 229, 168, 0.15);
+    }
+
+    .empty-state .btn-generate:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 40px rgba(0, 229, 168, 0.25);
+        background: #00f0b0;
+    }
+
+    /* ===========================
+       RIGHT SIDEBAR
+    =========================== */
+    .cards-rightbar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-left: 32px;
+    }
+
+    .rightbar-card {
+        background: #111111;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 18px 20px;
+    }
+
+    .rightbar-card .card-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6B7280;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .rightbar-stat {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+        font-size: 13px;
+        color: #9CA3AF;
+        font-weight: 400;
+    }
+
+    .rightbar-stat .stat-value {
+        color: #FFFFFF;
+        font-weight: 500;
+    }
+
+    .rightbar-stat .stat-value .accent {
+        color: #00E5A8;
+    }
+
+    .rightbar-card .progress-track {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 6px 0 10px 0;
+    }
+
+    .rightbar-card .progress-track .progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 10px;
+        background: #00E5A8;
+        transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .rightbar-card .rightbar-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 4px;
+    }
+
+    .rightbar-card .rightbar-list .list-item {
+        font-size: 12px;
+        color: #9CA3AF;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .rightbar-card .rightbar-list .list-item .item-icon {
+        font-size: 14px;
+        color: #00E5A8;
+        opacity: 0.6;
+    }
+
+    .rightbar-card .rightbar-list .list-item .item-text {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .rightbar-card .rightbar-list .list-item .item-tag {
+        font-size: 9px;
+        padding: 1px 8px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #6B7280;
+    }
+
+    /* ===========================
+       BULK ACTIONS TOOLBAR
+    =========================== */
+    .bulk-actions {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        background: #111111;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        margin: 8px 0 12px 0;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .bulk-actions.visible {
+        display: flex;
+    }
+
+    .bulk-actions .bulk-info {
+        font-size: 13px;
+        color: #9CA3AF;
+        font-weight: 400;
+    }
+
+    .bulk-actions .bulk-info span {
+        color: #FFFFFF;
+        font-weight: 500;
+    }
+
+    .bulk-actions .bulk-buttons {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .bulk-actions .bulk-buttons button {
+        padding: 6px 16px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: #9CA3AF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .bulk-actions .bulk-buttons button:hover {
+        background: rgba(255, 255, 255, 0.07);
+        color: #FFFFFF;
+    }
+
+    .bulk-actions .bulk-buttons button.danger:hover {
+        background: rgba(239, 68, 68, 0.10);
+        color: #EF4444;
+        border-color: rgba(239, 68, 68, 0.10);
+    }
+
+    /* ===========================
+       TOAST
+    =========================== */
+    .toast-message {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        background: rgba(17, 17, 17, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 14px 22px;
+        color: #FFFFFF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        border-left: 3px solid #00E5A8;
+    }
+
+    .toast-message.show {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .toast-message .toast-icon {
+        font-size: 18px;
+        color: #00E5A8;
+    }
+
+    /* ===========================
+       MODAL OVERLAY
+    =========================== */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-overlay.open {
+        display: flex;
+    }
+
+    .modal-box {
+        background: #171717;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 32px 36px;
+        max-width: 520px;
+        width: 100%;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+        position: relative;
+        transform: scale(0.95);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .modal-overlay.open .modal-box {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    .modal-box .modal-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
+    }
+
+    .modal-box .modal-desc {
+        font-size: 14px;
+        color: #9CA3AF;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .modal-box .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .modal-box .modal-actions button {
+        padding: 10px 24px;
+        border-radius: 12px;
+        border: none;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .modal-box .modal-actions .btn-cancel {
+        background: rgba(255, 255, 255, 0.05);
+        color: #9CA3AF;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .modal-box .modal-actions .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #FFFFFF;
+    }
+
+    .modal-box .modal-actions .btn-danger {
+        background: rgba(239, 68, 68, 0.10);
+        color: #EF4444;
+        border: 1px solid rgba(239, 68, 68, 0.10);
+    }
+
+    .modal-box .modal-actions .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.18);
+        border-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .modal-box .modal-actions .btn-primary {
+        background: #00E5A8;
+        color: #050505;
+        border: none;
+    }
+
+    .modal-box .modal-actions .btn-primary:hover {
+        background: #00f0b0;
+        transform: scale(1.02);
+    }
+
+    /* ===========================
+       RESPONSIVE
+    =========================== */
+    @media (max-width: 1200px) {
+        .foundry-main {
+            padding: 0 32px 48px 32px;
+        }
+
+        .cards-rightbar {
+            width: 180px;
+            margin-left: 24px;
+        }
+
+        .cards-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        }
+    }
+
+    @media (max-width: 992px) {
+        .foundry-sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            height: 100vh;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 8px 0 64px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        .foundry-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .foundry-main {
+            max-width: 100% !important;
+            padding: 72px 20px 48px 20px;
+        }
+
+        .cards-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .cards-header-right {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .cards-header-right .btn-primary,
+        .cards-header-right .btn-secondary {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .cards-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-wrapper {
+            max-width: 100%;
+        }
+
+        .filter-chips {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-chip {
+            flex-shrink: 0;
+        }
+
+        .cards-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        }
+
+        .cards-rightbar {
+            width: 100%;
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+            margin-left: 0;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .cards-rightbar .rightbar-card {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .display-toggle {
+            align-self: flex-start;
+        }
+
+        .bulk-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .bulk-actions .bulk-buttons {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .foundry-main {
+            padding: 64px 14px 32px 14px;
+        }
+
+        .cards-header-left h1 {
+            font-size: 26px;
+        }
+
+        .cards-header-left .subtitle {
+            font-size: 14px;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .stat-card {
+            padding: 14px 16px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 20px;
+        }
+
+        .cards-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .cards-grid.list-view .knowledge-card {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .cards-grid.list-view .knowledge-card .card-top {
+            flex: unset;
+            min-width: unset;
+        }
+
+        .cards-grid.list-view .knowledge-card .card-footer {
+            flex: unset;
+            width: 100%;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 10px;
+            margin-top: 8px;
+        }
+
+        .cards-rightbar .rightbar-card {
+            min-width: 100%;
+        }
+
+        .modal-box {
+            padding: 24px 20px;
+            margin: 0 10px;
+        }
+
+        .toast-message {
+            bottom: 16px;
+            right: 12px;
+            left: 12px;
+            padding: 12px 16px;
+            font-size: 12px;
+            border-radius: 12px;
+        }
+
+        .bulk-actions .bulk-buttons button {
+            font-size: 11px;
+            padding: 5px 12px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .stat-card {
+            padding: 10px 12px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 18px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 11px;
+        }
+
+        .cards-header-right .btn-primary,
+        .cards-header-right .btn-secondary {
+            font-size: 12px;
+            padding: 10px 16px;
+        }
+    }
+
+    /* ===========================
+       UTILITY
+    =========================== */
+    .hidden {
+        display: none !important;
+    }
+
+    .fade-in {
+        opacity: 0;
+    }
+
+    .mt-2 {
+        margin-top: 8px;
+    }
+
+    .mb-2 {
+        margin-bottom: 8px;
+    }
+
+    .gap-1 {
+        gap: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ===========================
+     SIDEBAR OVERLAY
+     =========================== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===========================
+     SIDEBAR TOGGLE
+     =========================== -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+</button>
+
+<!-- ===========================
+     FOUNDRY WRAPPER
+     =========================== -->
+<div class="foundry-wrapper">
+
+    <!-- ===========================
+         SIDEBAR
+         =========================== -->
+    <aside class="foundry-sidebar" id="foundrySidebar">
+        <div class="foundry-sidebar-brand">
+            <div class="logo-icon">F</div>
+            <span class="logo-text">Foundry<span>.</span></span>
+        </div>
+
+        <nav class="foundry-sidebar-nav">
+            <div class="nav-label">Main</div>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                    </svg>
+                </span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 6h16v12H4z" />
+                        <path d="M4 6h16" />
+                        <path d="M4 10h16" />
+                        <path d="M4 14h16" />
+                        <path d="M4 18h16" />
+                        <path d="M8 6v12" />
+                        <path d="M16 6v12" />
+                    </svg>
+                </span>
+                <span class="nav-text">My Library</span>
+                <span class="nav-badge">12</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Reading Session</span>
+            </a>
+
+            <a href="#" class="active">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </span>
+                <span class="nav-text">Knowledge Cards</span>
+                <span class="nav-badge">48</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                    </svg>
+                </span>
+                <span class="nav-text">Insights</span>
+            </a>
+
+            <div class="nav-label" style="margin-top:12px;">Workspace</div>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                </span>
+                <span class="nav-text">Notes</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Chat</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="2" />
+                        <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20z" />
+                        <path d="M12 2v20" />
+                        <path d="M2 12h20" />
+                    </svg>
+                </span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+
+        <div class="foundry-sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <div class="user-name">John Doe</div>
+                    <div class="user-email">john@foundry.ai</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ===========================
+         MAIN CONTENT
+         =========================== -->
+    <main class="foundry-main" id="foundryMain">
+
+        <!-- ===========================
+             HEADER
+             =========================== -->
+        <div class="cards-header" id="cardsHeader">
+            <div class="cards-header-left">
+                <h1>Knowledge <span class="accent">Cards</span></h1>
+                <div class="subtitle">Transform ideas into reusable assets.</div>
+            </div>
+            <div class="cards-header-right">
+                <button class="btn-primary" id="generateBtn">✨ Generate New Cards</button>
+                <button class="btn-secondary" id="exportAllBtn">📥 Export All PDF <span
+                        class="pro-badge">PRO</span></button>
+            </div>
+        </div>
+
+        <!-- ===========================
+             STATISTICS
+             =========================== -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card">
+                <span class="stat-icon">🃏</span>
+                <div class="stat-number"><span class="counter" data-target="48">0</span></div>
+                <div class="stat-label">Total Cards</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">⬇️</span>
+                <div class="stat-number"><span class="counter" data-target="18">0</span></div>
+                <div class="stat-label">Downloaded</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">⭐</span>
+                <div class="stat-number"><span class="counter" data-target="12">0</span></div>
+                <div class="stat-label">Favorites</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📤</span>
+                <div class="stat-number"><span class="counter" data-target="7">0</span></div>
+                <div class="stat-label">Shared</div>
+            </div>
+        </div>
+
+        <!-- ===========================
+             SEARCH & FILTERS
+             =========================== -->
+        <div class="cards-controls" id="cardsControls">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search knowledge..." id="searchInput" autocomplete="off">
+            </div>
+            <div class="filter-chips" id="filterChips">
+                <span class="filter-chip active" data-filter="all">All <span class="chip-count">48</span></span>
+                <span class="filter-chip" data-filter="main-idea">Main Ideas <span class="chip-count">8</span></span>
+                <span class="filter-chip" data-filter="lesson">Lessons <span class="chip-count">12</span></span>
+                <span class="filter-chip" data-filter="concept">Concepts <span class="chip-count">10</span></span>
+                <span class="filter-chip" data-filter="example">Examples <span class="chip-count">6</span></span>
+                <span class="filter-chip" data-filter="action">Action Steps <span class="chip-count">9</span></span>
+                <span class="filter-chip" data-filter="insight">Personal Insights <span
+                        class="chip-count">3</span></span>
+                <span class="filter-chip" data-filter="favorites">Favorites <span class="chip-count">12</span></span>
+                <span class="filter-chip" data-filter="recent">Recently Created <span
+                        class="chip-count">14</span></span>
+            </div>
+            <div class="display-toggle" id="displayToggle">
+                <button class="dt-btn active" data-view="grid">📐 Grid</button>
+                <button class="dt-btn" data-view="list">📋 List</button>
+            </div>
+        </div>
+
+        <!-- ===========================
+             BULK ACTIONS
+             =========================== -->
+        <div class="bulk-actions" id="bulkActions">
+            <div class="bulk-info">
+                <span id="selectedCount">0</span> selected
+            </div>
+            <div class="bulk-buttons">
+                <button id="bulkFavorite">⭐ Favorite</button>
+                <button id="bulkExport">📥 Export</button>
+                <button id="bulkDownload">⬇️ Download</button>
+                <button class="danger" id="bulkDelete">🗑️ Delete</button>
+            </div>
+        </div>
+
+        <!-- ===========================
+             CARD GRID
+             =========================== -->
+        <div class="cards-grid" id="cardsGrid">
+            <!-- Cards will be rendered by JS -->
+        </div>
+
+        <!-- ===========================
+             EMPTY STATE
+             =========================== -->
+        <div class="empty-state hidden" id="emptyState">
+            <div class="empty-icon">🃏</div>
+            <h2>No Knowledge Cards Yet</h2>
+            <p>Generate cards from your chapter summaries to capture key insights.</p>
+            <button class="btn-generate" id="emptyGenerateBtn">✨ Generate First Card</button>
+        </div>
+
+        <!-- ===========================
+             RIGHT SIDEBAR
+             =========================== -->
+        <div class="cards-rightbar" id="cardsRightbar">
+            <div class="rightbar-card">
+                <div class="card-label">Storage & Usage</div>
+                <div class="rightbar-stat">
+                    <span>Downloads This Month</span>
+                    <span class="stat-value">12</span>
+                </div>
+                <div class="rightbar-stat">
+                    <span>Storage Used</span>
+                    <span class="stat-value">342 <span style="color:#9CA3AF;font-weight:400;">MB</span></span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:28%;"></div>
+                </div>
+                <div class="rightbar-stat">
+                    <span>Premium Status</span>
+                    <span class="stat-value" style="color:#00E5A8;">✦ Pro</span>
+                </div>
+            </div>
+
+            <div class="rightbar-card">
+                <div class="card-label">Quick Export</div>
+                <button
+                    style="width:100%;padding:8px 0;border-radius:10px;background:rgba(0,229,168,0.08);border:1px solid rgba(0,229,168,0.06);color:#00E5A8;font-family:'Poppins',sans-serif;font-weight:500;font-size:12px;cursor:pointer;transition:all 0.3s ease;margin-bottom:6px;">
+                    📄 Export as PDF
+                </button>
+                <button
+                    style="width:100%;padding:8px 0;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.05);color:#9CA3AF;font-family:'Poppins',sans-serif;font-weight:500;font-size:12px;cursor:pointer;transition:all 0.3s ease;">
+                    🖼️ Export as PNG
+                </button>
+            </div>
+
+            <div class="rightbar-card">
+                <div class="card-label">Recently Viewed</div>
+                <div class="rightbar-list">
+                    <div class="list-item">
+                        <span class="item-icon">📌</span>
+                        <span class="item-text">Monopoly creates value</span>
+                        <span class="item-tag">Concept</span>
+                    </div>
+                    <div class="list-item">
+                        <span class="item-icon">📌</span>
+                        <span class="item-text">The Power Law</span>
+                        <span class="item-tag">Lesson</span>
+                    </div>
+                    <div class="list-item">
+                        <span class="item-icon">📌</span>
+                        <span class="item-text">Competition is for losers</span>
+                        <span class="item-tag">Main Idea</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rightbar-card">
+                <div class="card-label">⭐ Favorite Cards</div>
+                <div class="rightbar-list">
+                    <div class="list-item">
+                        <span class="item-icon">⭐</span>
+                        <span class="item-text">Build a monopoly</span>
+                        <span class="item-tag">Action</span>
+                    </div>
+                    <div class="list-item">
+                        <span class="item-icon">⭐</span>
+                        <span class="item-text">Secrets are valuable</span>
+                        <span class="item-tag">Insight</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ===========================
+     MODAL (Delete confirmation)
+     =========================== -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-title">Delete Knowledge Card?</div>
+        <div class="modal-desc">This action cannot be undone. The card will be permanently removed from your library.
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" id="modalCancel">Cancel</button>
+            <button class="btn-danger" id="modalConfirm">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===========================
+     TOAST
+     =========================== -->
+<div class="toast-message" id="toast">
+    <span class="toast-icon">✓</span>
+    <span id="toastText">Action completed</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // ===========================
+        // DATA
+        // ===========================
+        const cardsData = [
+            {
+                id: 1, category: 'main-idea', label: 'Main Idea', emoji: '🎯', title: 'Zero to One', chapter: 'Ch. 2',
+                content: 'The most valuable companies are those that create monopolies through proprietary technology. Focus on going from 0 to 1, not 1 to n.',
+                date: '2 days ago', favorite: true
+            },
+            {
+                id: 2, category: 'lesson', label: 'Lesson', emoji: '📚', title: 'Zero to One', chapter: 'Ch. 4',
+                content: 'Competition is destructive. Instead of fighting in a red ocean, build a blue ocean where you are the only player. Monopoly is the condition of every successful business.',
+                date: '1 week ago', favorite: false
+            },
+            {
+                id: 3, category: 'concept', label: 'Concept', emoji: '🧠', title: 'Zero to One', chapter: 'Ch. 5',
+                content: 'The Power Law: The distribution of outcomes in venture capital follows a power law — a small number of investments generate the vast majority of returns.',
+                date: '3 days ago', favorite: true
+            },
+            {
+                id: 4, category: 'example', label: 'Example', emoji: '💡', title: 'Zero to One', chapter: 'Ch. 6',
+                content: 'PayPal started by focusing on the small market of eBay power sellers before expanding to the broader payments ecosystem.',
+                date: '5 days ago', favorite: false
+            },
+            {
+                id: 5, category: 'action', label: 'Action Step', emoji: '⚡', title: 'Zero to One', chapter: 'Ch. 7',
+                content: 'Identify a "secret" in your industry that most people don\'t believe. Then build a product that is 10x better than the next best alternative.',
+                date: '1 day ago', favorite: false
+            },
+            {
+                id: 6, category: 'insight', label: 'Personal Insight', emoji: '✨', title: 'Zero to One', chapter: 'Ch. 3',
+                content: 'This chapter made me realize that I\'ve been competing in crowded markets instead of creating new ones. I need to shift my mindset to building a monopoly.',
+                date: '4 days ago', favorite: true
+            },
+            {
+                id: 7, category: 'main-idea', label: 'Main Idea', emoji: '🎯', title: 'The Lean Startup', chapter: 'Ch. 1',
+                content: 'The Lean Startup methodology emphasizes validated learning, rapid experimentation, and iterative product releases to reduce waste and increase speed.',
+                date: '2 weeks ago', favorite: false
+            },
+            {
+                id: 8, category: 'lesson', label: 'Lesson', emoji: '📚', title: 'Atomic Habits', chapter: 'Ch. 4',
+                content: 'Habits are the compound interest of self-improvement. Small changes, repeated consistently, lead to remarkable results over time.',
+                date: '1 month ago', favorite: true
+            },
+            {
+                id: 9, category: 'concept', label: 'Concept', emoji: '🧠', title: 'Deep Work', chapter: 'Ch. 2',
+                content: 'Deep work is the ability to focus without distraction on a cognitively demanding task. It\'s a superpower in the modern economy.',
+                date: '3 weeks ago', favorite: false
+            },
+            {
+                id: 10, category: 'action', label: 'Action Step', emoji: '⚡', title: 'Good to Great', chapter: 'Ch. 5',
+                content: 'Identify your Hedgehog Concept: what you are deeply passionate about, what you can be the best in the world at, and what drives your economic engine.',
+                date: '6 days ago', favorite: false
+            },
+        ];
+
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let currentView = 'grid';
+        let selectedCards = new Set();
+        let deleteTargetId = null;
+
+        // ===========================
+        // DOM REFS
+        // ===========================
+        const sidebar = document.getElementById('foundrySidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const grid = document.getElementById('cardsGrid');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('searchInput');
+        const filterChips = document.querySelectorAll('.filter-chip');
+        const displayToggle = document.getElementById('displayToggle');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+        const toast = document.getElementById('toast');
+        const toastText = document.getElementById('toastText');
+        const deleteModal = document.getElementById('deleteModal');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalConfirm = document.getElementById('modalConfirm');
+
+        // ===========================
+        // TOAST
+        // ===========================
+        function showToast(msg, icon = '✓') {
+            toastText.textContent = msg;
+            toast.querySelector('.toast-icon').textContent = icon;
+            toast.classList.add('show');
+            clearTimeout(toast._hide);
+            toast._hide = setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        // ===========================
+        // SIDEBAR TOGGLE
+        // ===========================
+        function toggleSidebar(open) {
+            const isOpen = typeof open === 'boolean' ? open : sidebar.classList.toggle('open');
+            if (typeof open === 'boolean') {
+                if (open) sidebar.classList.add('open');
+                else sidebar.classList.remove('open');
+            }
+            overlay.classList.toggle('active', sidebar.classList.contains('open'));
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        toggleBtn.addEventListener('click', () => toggleSidebar());
+        overlay.addEventListener('click', () => toggleSidebar(false));
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 992 && sidebar.classList.contains('open')) {
+                toggleSidebar(false);
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ===========================
+        // RENDER CARDS
+        // ===========================
+        function renderCards(cards) {
+            if (!cards || cards.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            const isListView = currentView === 'list';
+            const gridClass = isListView ? 'cards-grid list-view' : 'cards-grid';
+            if (!grid.classList.contains('list-view') && isListView) {
+                grid.classList.add('list-view');
+            } else if (grid.classList.contains('list-view') && !isListView) {
+                grid.classList.remove('list-view');
+            }
+
+            let html = '';
+            const categoryColorMap = {
+                'main-idea': 'emerald',
+                'lesson': 'blue',
+                'concept': 'purple',
+                'example': 'orange',
+                'action': 'red',
+                'insight': 'gold'
+            };
+
+            cards.forEach((card, index) => {
+                const colorClass = categoryColorMap[card.category] || 'emerald';
+                const isFav = card.favorite ? 'active' : '';
+                const isSelected = selectedCards.has(card.id);
+
+                html += `
+                    <div class="knowledge-card" data-id="${card.id}" data-category="${card.category}">
+                        <div class="card-top">
+                            <span class="category-badge ${colorClass}">${card.emoji} ${card.label}</span>
+                            <div class="card-actions-top">
+                                <button class="favorite ${isFav}" data-action="favorite" title="Favorite">⭐</button>
+                                <button data-action="share" title="Share">↗</button>
+                                <button data-action="copy" title="Copy">📋</button>
+                                <button data-action="download" title="Download">⬇</button>
+                                <button data-action="edit" title="Edit">✎</button>
+                                <button data-action="delete" title="Delete" class="danger" style="color:#6B7280;">✕</button>
+                            </div>
+                        </div>
+                        <div class="book-ref">
+                            <span class="book-title">${card.title}</span>
+                            <span class="chapter">${card.chapter}</span>
+                        </div>
+                        <div class="card-content">${card.content}</div>
+                        <div class="card-footer">
+                            <span class="date">${card.date}</span>
+                            <div class="action-buttons">
+                                <button data-action="copy" title="Copy">📋</button>
+                                <button data-action="download" title="Download">⬇</button>
+                                <button data-action="share" title="Share">↗</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+
+            // GSAP stagger animation
+            const cardsEl = grid.querySelectorAll('.knowledge-card');
+            if (cardsEl.length) {
+                gsap.fromTo(cardsEl, {
+                    opacity: 0,
+                    y: 30,
+                    scale: 0.96,
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.5,
+                    stagger: 0.05,
+                    ease: 'power3.out',
+                    clearProps: 'opacity,y,scale',
+                });
+            }
+
+            // Bind card events
+            bindCardEvents();
+            // Update selection UI
+            updateBulkActions();
+        }
+
+        // ===========================
+        // FILTER & SEARCH
+        // ===========================
+        function getFilteredCards() {
+            let result = [...cardsData];
+
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'favorites') {
+                    result = result.filter(c => c.favorite === true);
+                } else if (currentFilter === 'recent') {
+                    // mock: just show last 5 by index
+                    result = result.slice(0, 5);
+                } else {
+                    result = result.filter(c => c.category === currentFilter);
+                }
+            }
+
+            if (searchQuery.trim()) {
+                const q = searchQuery.trim().toLowerCase();
+                result = result.filter(c =>
+                    c.title.toLowerCase().includes(q) ||
+                    c.content.toLowerCase().includes(q) ||
+                    c.label.toLowerCase().includes(q)
+                );
+            }
+
+            return result;
+        }
+
+        function updateUI() {
+            const filtered = getFilteredCards();
+            renderCards(filtered);
+            updateChipCounts();
+        }
+
+        function updateChipCounts() {
+            const all = cardsData.length;
+            const mainIdea = cardsData.filter(c => c.category === 'main-idea').length;
+            const lesson = cardsData.filter(c => c.category === 'lesson').length;
+            const concept = cardsData.filter(c => c.category === 'concept').length;
+            const example = cardsData.filter(c => c.category === 'example').length;
+            const action = cardsData.filter(c => c.category === 'action').length;
+            const insight = cardsData.filter(c => c.category === 'insight').length;
+            const favorites = cardsData.filter(c => c.favorite).length;
+            const recent = cardsData.slice(0, 5).length;
+
+            const map = {
+                all,
+                'main-idea': mainIdea,
+                lesson,
+                concept,
+                example,
+                action,
+                insight,
+                favorites,
+                recent
+            };
+
+            filterChips.forEach(chip => {
+                const key = chip.dataset.filter;
+                const countEl = chip.querySelector('.chip-count');
+                if (countEl && map[key] !== undefined) {
+                    countEl.textContent = map[key];
+                }
+            });
+        }
+
+        // ===========================
+        // CARD EVENTS (delegated)
+        // ===========================
+        function bindCardEvents() {
+            grid.querySelectorAll('.knowledge-card').forEach(card => {
+                const actions = card.querySelectorAll('[data-action]');
+                actions.forEach(btn => {
+                    btn.removeEventListener('click', handleCardAction);
+                    btn.addEventListener('click', handleCardAction);
+                });
+            });
+        }
+
+        function handleCardAction(e) {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            const card = btn.closest('.knowledge-card');
+            if (!card) return;
+            const action = btn.dataset.action;
+            const id = parseInt(card.dataset.id);
+            const cardData = cardsData.find(c => c.id === id);
+
+            // Micro feedback
+            gsap.to(btn, {
+                scale: 0.85,
+                duration: 0.10,
+                onComplete: () => gsap.to(btn, { scale: 1, duration: 0.25, ease: 'back.out(2)' })
+            });
+
+            switch (action) {
+                case 'favorite':
+                    if (cardData) {
+                        cardData.favorite = !cardData.favorite;
+                        btn.classList.toggle('active');
+                        showToast(cardData.favorite ? '⭐ Added to favorites' : '⭐ Removed from favorites');
+                        updateChipCounts();
+                        // Update the chip count for favorites
+                        const favChip = document.querySelector('.filter-chip[data-filter="favorites"] .chip-count');
+                        if (favChip) {
+                            const count = cardsData.filter(c => c.favorite).length;
+                            favChip.textContent = count;
+                        }
+                    }
+                    break;
+                case 'share':
+                    showToast('🔗 Share link copied to clipboard', '📤');
+                    break;
+                case 'copy':
+                    if (cardData) {
+                        navigator.clipboard.writeText(cardData.content).then(() => {
+                            showToast('📋 Copied to clipboard', '✓');
+                        }).catch(() => {
+                            showToast('📋 Copied to clipboard', '✓');
+                        });
+                    }
+                    break;
+                case 'download':
+                    showToast('⬇️ Downloading card…', '⬇️');
+                    break;
+                case 'edit':
+                    showToast('✎ Editing card…', '✎');
+                    break;
+                case 'delete':
+                    deleteTargetId = id;
+                    deleteModal.classList.add('open');
+                    gsap.fromTo('.modal-box', { scale: 0.92, opacity: 0 }, {
+                        scale: 1, opacity: 1,
+                        duration: 0.3, ease: 'power2.out'
+                    });
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // ===========================
+        // MODAL
+        // ===========================
+        function closeModal() {
+            deleteModal.classList.remove('open');
+            deleteTargetId = null;
+        }
+
+        modalCancel.addEventListener('click', closeModal);
+        deleteModal.addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+
+        modalConfirm.addEventListener('click', function () {
+            if (deleteTargetId !== null) {
+                const idx = cardsData.findIndex(c => c.id === deleteTargetId);
+                if (idx > -1) {
+                    const title = cardsData[idx].title;
+                    cardsData.splice(idx, 1);
+                    updateUI();
+                    showToast(`🗑️ Deleted card from "${title}"`, '🗑️');
+                    // Remove from selected set
+                    selectedCards.delete(deleteTargetId);
+                    updateBulkActions();
+                }
+                closeModal();
+            }
+        });
+
+        // ===========================
+        // FILTER CHIPS
+        // ===========================
+        filterChips.forEach(chip => {
+            chip.addEventListener('click', function () {
+                filterChips.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                updateUI();
+                gsap.fromTo(this, { scale: 0.92 }, { scale: 1, duration: 0.3, ease: 'back.out(2)' });
+            });
+        });
+
+        // ===========================
+        // SEARCH
+        // ===========================
+        searchInput.addEventListener('input', function () {
+            searchQuery = this.value;
+            updateUI();
+        });
+
+        // ===========================
+        // DISPLAY TOGGLE
+        // ===========================
+        displayToggle.querySelectorAll('.dt-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                displayToggle.querySelectorAll('.dt-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentView = this.dataset.view;
+                // Re-render with same filtered data
+                const filtered = getFilteredCards();
+                renderCards(filtered);
+                // Animate toggle
+                gsap.fromTo(grid, { scale: 0.98, opacity: 0.6 }, {
+                    scale: 1, opacity: 1, duration: 0.3,
+                    ease: 'power2.out'
+                });
+            });
+        });
+
+        // ===========================
+        // BULK ACTIONS
+        // ===========================
+        function updateBulkActions() {
+            const count = selectedCards.size;
+            if (count > 0) {
+                bulkActions.classList.add('visible');
+                selectedCount.textContent = count;
+            } else {
+                bulkActions.classList.remove('visible');
+            }
+        }
+
+        // Select/deselect on card click (toggle)
+        grid.addEventListener('click', function (e) {
+            const card = e.target.closest('.knowledge-card');
+            if (!card) return;
+            // Ignore if clicked on a button
+            if (e.target.closest('button')) return;
+
+            const id = parseInt(card.dataset.id);
+            if (selectedCards.has(id)) {
+                selectedCards.delete(id);
+                card.style.borderColor = 'rgba(255,255,255,0.05)';
+            } else {
+                selectedCards.add(id);
+                card.style.borderColor = '#00E5A8';
+                card.style.boxShadow = '0 0 0 1px #00E5A8, 0 8px 32px rgba(0,229,168,0.08)';
+            }
+            updateBulkActions();
+        });
+
+        // Bulk action buttons
+        document.getElementById('bulkFavorite').addEventListener('click', function () {
+            if (selectedCards.size === 0) return;
+            cardsData.forEach(c => {
+                if (selectedCards.has(c.id)) {
+                    c.favorite = !c.favorite;
+                }
+            });
+            showToast(`⭐ Updated favorites for ${selectedCards.size} cards`, '⭐');
+            selectedCards.clear();
+            updateUI();
+            updateBulkActions();
+        });
+
+        document.getElementById('bulkExport').addEventListener('click', function () {
+            if (selectedCards.size === 0) return;
+            showToast(`📥 Exporting ${selectedCards.size} cards as PDF (PRO)`, '📥');
+        });
+
+        document.getElementById('bulkDownload').addEventListener('click', function () {
+            if (selectedCards.size === 0) return;
+            showToast(`⬇️ Downloading ${selectedCards.size} cards`, '⬇️');
+        });
+
+        document.getElementById('bulkDelete').addEventListener('click', function () {
+            if (selectedCards.size === 0) return;
+            if (confirm(`Delete ${selectedCards.size} selected cards?`)) {
+                const ids = [...selectedCards];
+                cardsData = cardsData.filter(c => !ids.includes(c.id));
+                selectedCards.clear();
+                updateUI();
+                updateBulkActions();
+                showToast(`🗑️ Deleted ${ids.length} cards`, '🗑️');
+            }
+        });
+
+        // ===========================
+        // HEADER BUTTONS
+        // ===========================
+        document.getElementById('generateBtn').addEventListener('click', function () {
+            showToast('✨ Generating new knowledge cards…', '✨');
+            gsap.to(this, {
+                scale: 0.92, duration: 0.10, onComplete: () => gsap.to(this, {
+                    scale: 1,
+                    duration: 0.25, ease: 'back.out(2)'
+                })
+            });
+        });
+
+        document.getElementById('exportAllBtn').addEventListener('click', function () {
+            showToast('📥 Exporting all cards as PDF — PRO feature', '📥');
+            gsap.to(this, {
+                scale: 0.92, duration: 0.10, onComplete: () => gsap.to(this, {
+                    scale: 1,
+                    duration: 0.25, ease: 'back.out(2)'
+                })
+            });
+        });
+
+        document.getElementById('emptyGenerateBtn').addEventListener('click', function () {
+            showToast('✨ Generating first knowledge card…', '✨');
+            gsap.to(this, {
+                scale: 0.92, duration: 0.10, onComplete: () => gsap.to(this, {
+                    scale: 1,
+                    duration: 0.25, ease: 'back.out(2)'
+                })
+            });
+        });
+
+        // ===========================
+        // GSAP PAGE ENTRANCE
+        // ===========================
+        function initPageAnimations() {
+            const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+            tl.fromTo('#cardsHeader', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 })
+                .fromTo('.stat-card', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
+                    '-=0.2')
+                .fromTo('#cardsControls', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.1')
+                .fromTo('#cardsGrid', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.1')
+                .fromTo('#cardsRightbar', { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.5 }, '-=0.3');
+
+            // Animate counters
+            document.querySelectorAll('.counter').forEach(counter => {
+                const target = parseInt(counter.dataset.target);
+                gsap.fromTo(counter, { textContent: 0 }, {
+                    textContent: target,
+                    duration: 1.2,
+                    ease: 'power2.out',
+                    snap: { textContent: 1 },
+                    delay: 0.4,
+                    overwrite: 'auto',
+                });
+            });
+        }
+
+        // ===========================
+        // HOVER LIFT (GSAP)
+        // ===========================
+        function initHoverLift() {
+            document.querySelectorAll('.knowledge-card, .stat-card, .rightbar-card').forEach(el => {
+                el.addEventListener('mouseenter', function () {
+                    if (this.classList.contains('knowledge-card')) {
+                        gsap.to(this, { y: -6, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+                    } else {
+                        gsap.to(this, { y: -3, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+                    }
+                });
+                el.addEventListener('mouseleave', function () {
+                    gsap.to(this, { y: 0, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+                });
+            });
+        }
+
+        // ===========================
+        // KEYBOARD SHORTCUTS
+        // ===========================
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+            if (e.key === 'Escape') {
+                searchInput.blur();
+                if (deleteModal.classList.contains('open')) {
+                    closeModal();
+                }
+            }
+        });
+
+        // ===========================
+        // INIT
+        // ===========================
+        function init() {
+            updateUI();
+            initPageAnimations();
+            initHoverLift();
+
+            console.log('🔥 Foundry — Knowledge Cards loaded');
+            console.log('⌨️  Shortcuts: Cmd/Ctrl+K = focus search | ESC = blur / close modal');
+        }
+
+        if (document.readyState === 'complete') {
+            init();
+        } else {
+            window.addEventListener('load', init);
+        }
+
+        // Expose
+        window.__foundry = { cardsData, selectedCards, updateUI };
+
+    })();
+</script>
+{% endblock %}

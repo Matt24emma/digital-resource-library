@@ -1,0 +1,447 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}Payment Dashboard | Foundry Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8FAFC;
+        --bg-tertiary: #F1F5F9;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #2563EB;
+        --primary-hover: #1D4ED8;
+        --primary-light: #EFF6FF;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --font-heading: 'Poppins', sans-serif;
+        --font-body: 'Inter', sans-serif;
+    }
+
+    body { font-family: var(--font-body); background: var(--bg-secondary); color: var(--text-primary); }
+    h1, h2, h3 { font-family: var(--font-heading); }
+
+    /* Header */
+    .pm-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+    .pm-header h1 { font-size: 26px; font-weight: 700; color: var(--text-primary); margin: 0; }
+    .pm-header p { font-size: 14px; color: var(--text-secondary); margin: 4px 0 0; }
+    .pm-header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .btn:hover { background: var(--bg-tertiary); color: var(--text-primary); border-color: var(--text-muted); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: #fff; }
+    .btn-sm { padding: 6px 14px; font-size: 13px; }
+
+    /* Range selector */
+    .pm-range { display: flex; gap: 4px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
+    .pm-range a { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; }
+    .pm-range a:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .pm-range a.active { background: var(--primary); color: #fff; }
+
+    /* KPIs */
+    .pm-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .pm-kpi { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: border-color 0.2s, transform 0.2s; }
+    .pm-kpi:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .pm-kpi .k-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--primary-light); color: var(--primary); margin-bottom: 10px; }
+    .pm-kpi .k-icon.green { background: rgba(34,197,94,0.1); color: var(--success); }
+    .pm-kpi .k-icon.amber { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .pm-kpi .k-icon.purple { background: rgba(167,139,250,0.12); color: #A78BFA; }
+    .pm-kpi .k-number { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+    .pm-kpi .k-label { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    .pm-kpi .k-context { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* Gateway Health */
+    .pm-gateway-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .pm-gateway { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+    .pm-gateway .gw-name { font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .pm-gateway .gw-status { font-size: 13px; margin-top: 6px; display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+    .pm-gateway .gw-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .pm-gateway .gw-status .dot.green { background: var(--success); }
+    .pm-gateway .gw-status .dot.amber { background: var(--warning); }
+    .pm-gateway .gw-status .dot.red { background: var(--danger); }
+    .pm-gateway .gw-detail { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* Card panel */
+    .pm-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .pm-card-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pm-card-header h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0; }
+    .pm-card-header p { font-size: 13px; color: var(--text-secondary); margin: 2px 0 0; }
+    .pm-card-body { padding: 18px 22px; }
+
+    /* Chart */
+    .pm-chart-wrap { height: 280px; position: relative; }
+    .pm-chart-empty { height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; }
+    .pm-chart-empty .icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
+    .pm-chart-empty p { font-size: 14px; margin: 0; }
+
+    /* Tables */
+    .pm-table-wrap { overflow-x: auto; }
+    .pm-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 720px; }
+    .pm-table thead { background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+    .pm-table thead th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); white-space: nowrap; }
+    .pm-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.2s; }
+    .pm-table tbody tr:hover { background: var(--bg-tertiary); }
+    .pm-table tbody td { padding: 12px 16px; vertical-align: middle; color: var(--text-secondary); }
+    .pm-table .user-cell { display: flex; align-items: center; gap: 10px; }
+    .pm-table .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
+    .pm-table .u-name { font-weight: 500; color: var(--text-primary); font-size: 14px; }
+    .pm-table .u-email { font-size: 12px; color: var(--text-muted); }
+    .pm-table .u-phone { font-size: 13px; color: var(--text-primary); font-family: monospace; }
+
+    .badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: capitalize; }
+    .badge.pending { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .badge.success { background: rgba(34,197,94,0.1); color: var(--success); }
+    .badge.failed { background: rgba(239,68,68,0.1); color: var(--danger); }
+    .badge.cancelled { background: var(--bg-tertiary); color: var(--text-muted); border: 1px solid var(--border); }
+    .badge.refunded { background: rgba(167,139,250,0.12); color: #A78BFA; }
+
+    /* Filters */
+    .pm-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+    .pm-search { flex: 1 1 220px; position: relative; min-width: 200px; }
+    .pm-search input { width: 100%; padding: 8px 12px 8px 36px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 14px; outline: none; }
+    .pm-search input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .pm-search .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .pm-filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); font-size: 13px; cursor: pointer; }
+
+    /* Empty */
+    .pm-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 14px; }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .pm-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        .pm-gateway-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+        .pm-header { flex-direction: column; align-items: stretch; }
+        .pm-header-actions { width: 100%; flex-direction: column; }
+        .pm-header-actions > * { width: 100%; }
+        .pm-range { width: 100%; justify-content: center; flex-wrap: wrap; }
+        .pm-kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+        .pm-kpi { padding: 16px; }
+        .pm-kpi .k-number { font-size: 22px; }
+        .pm-filters { flex-direction: column; }
+    }
+    @media (max-width: 480px) {
+        .pm-kpi-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block admin_contents %}
+<!-- Header -->
+<div class="pm-header">
+    <div>
+        <h1>Payment Dashboard</h1>
+        <p>Monitor transactions, payment health and financial operations.</p>
+    </div>
+    <div class="pm-header-actions">
+        <div class="pm-range">
+            <a href="?range=today" class="{% if range_filter == 'today' %}active{% endif %}">Today</a>
+            <a href="?range=7d" class="{% if range_filter == '7d' %}active{% endif %}">7 Days</a>
+            <a href="?range=30d" class="{% if range_filter == '30d' %}active{% endif %}">30 Days</a>
+            <a href="?range=90d" class="{% if range_filter == '90d' %}active{% endif %}">90 Days</a>
+            <a href="?range=all" class="{% if range_filter == 'all' %}active{% endif %}">All</a>
+        </div>
+        <a href="{% url 'export_leads_pdf' %}?period={{ range_filter }}" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            Export
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="pm-kpi-grid">
+    <div class="pm-kpi">
+        <div class="k-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+        </div>
+        <div class="k-number">{{ total_transactions }}</div>
+        <div class="k-label">Total Transactions</div>
+        <div class="k-context">In selected period</div>
+    </div>
+    <div class="pm-kpi">
+        <div class="k-icon green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="k-number">{{ successful_payments }}</div>
+        <div class="k-label">Successful Payments</div>
+        <div class="k-context">Completed transactions</div>
+    </div>
+    <div class="pm-kpi">
+        <div class="k-icon amber">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <div class="k-number">${{ payment_volume|floatformat:2 }}</div>
+        <div class="k-label">Payment Volume</div>
+        <div class="k-context">Total revenue collected</div>
+    </div>
+    <div class="pm-kpi">
+        <div class="k-icon purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-3 3 3 4-4 3 3h4"/></svg>
+        </div>
+        <div class="k-number">${{ avg_tx_value|floatformat:2 }}</div>
+        <div class="k-label">Avg Transaction Value</div>
+        <div class="k-context">Average per successful payment</div>
+    </div>
+</div>
+
+<!-- Payment Intent Tracker (KEY TABLE) -->
+<div class="pm-card">
+    <div class="pm-card-header">
+        <div>
+            <h3>Payment Intent Tracker</h3>
+            <p>Who clicked the payment button, and what happened next. <strong>{{ total_clicks }}</strong> total attempts, <strong>{{ pending_clicks }}</strong> still pending.</p>
+        </div>
+    </div>
+    {% if payment_intents %}
+    <div class="pm-table-wrap">
+        <table class="pm-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Reference</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payment_intents %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar">{{ p.name|first|upper }}</div>
+                            <span class="u-name">{{ p.name }}</span>
+                        </div>
+                    </td>
+                    <td><span class="u-email">{{ p.email }}</span></td>
+                    <td><span class="u-phone">{{ p.phone }}</span></td>
+                    <td><strong style="color: var(--text-primary);">${{ p.amount|floatformat:2 }}</strong></td>
+                    <td>
+                        {% if p.status == "pending" %}
+                        <span class="badge pending">Clicked (Pending)</span>
+                        {% elif p.status == "success" %}
+                        <span class="badge success">Paid</span>
+                        {% elif p.status == "failed" %}
+                        <span class="badge failed">Failed</span>
+                        {% elif p.status == "refunded" %}
+                        <span class="badge refunded">Refunded</span>
+                        {% else %}
+                        <span class="badge cancelled">{{ p.status|title }}</span>
+                        {% endif %}
+                    </td>
+                    <td><code style="font-size: 12px; color: var(--text-muted);">{{ p.reference|truncatechars:20 }}</code></td>
+                    <td>{{ p.date|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="pm-empty">No payment attempts recorded yet. When users click the Upgrade button, they'll appear here.</div>
+    {% endif %}
+</div>
+
+<!-- Gateway Health -->
+<div class="pm-gateway-grid">
+    <div class="pm-gateway">
+        <div class="gw-name">💳 Paystack</div>
+        <div class="gw-status"><span class="dot green"></span> Operational</div>
+        <div class="gw-detail">Primary payment gateway</div>
+    </div>
+    <div class="pm-gateway">
+        <div class="gw-name">🏦 Bank Transfer</div>
+        <div class="gw-status"><span class="dot green"></span> Operational</div>
+        <div class="gw-detail">No recent errors</div>
+    </div>
+    <div class="pm-gateway">
+        <div class="gw-name">📱 Mobile Money</div>
+        <div class="gw-status">
+            {% if failed_payments %}
+            <span class="dot amber"></span> Degraded
+            {% else %}
+            <span class="dot green"></span> Operational
+            {% endif %}
+        </div>
+        <div class="gw-detail">{{ failed_payments|length }} recent error{{ failed_payments|length|pluralize }}</div>
+    </div>
+</div>
+
+<!-- Payment Activity Chart -->
+<div class="pm-card">
+    <div class="pm-card-header">
+        <div>
+            <h3>Payment Activity</h3>
+            <p>Transaction volume over the last 14 days.</p>
+        </div>
+    </div>
+    <div class="pm-card-body">
+        <div class="pm-chart-wrap">
+            {% if chart_data %}
+            <canvas id="paymentChart"></canvas>
+            {% else %}
+            <div class="pm-chart-empty">
+                <div class="icon">💳</div>
+                <p>Payment activity will appear here once transactions are processed.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="pm-card">
+    <div class="pm-card-header">
+        <div>
+            <h3>Recent Transactions</h3>
+            <p>Latest successful and failed payments.</p>
+        </div>
+    </div>
+    {% if recent_transactions %}
+    <div class="pm-table-wrap">
+        <table class="pm-table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Reference</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in recent_transactions %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar">{{ tx.user.username|first|upper }}</div>
+                            <div>
+                                <div class="u-name">{{ tx.user.get_full_name|default:tx.user.username }}</div>
+                                <div class="u-email">{{ tx.user.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><strong style="color: var(--text-primary);">${{ tx.amount|floatformat:2 }}</strong></td>
+                    <td><span class="badge {{ tx.status }}">{{ tx.get_status_display }}</span></td>
+                    <td><code style="font-size: 12px; color: var(--text-muted);">{{ tx.reference|truncatechars:20 }}</code></td>
+                    <td>{{ tx.transaction_date|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="pm-empty">No transactions in this period.</div>
+    {% endif %}
+</div>
+
+<!-- Failed Payments -->
+<div class="pm-card">
+    <div class="pm-card-header">
+        <div>
+            <h3>Failed Payments</h3>
+            <p>Payment failures requiring attention.</p>
+        </div>
+    </div>
+    {% if failed_payments %}
+    <div class="pm-table-wrap">
+        <table class="pm-table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Reason</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fp in failed_payments %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar">{{ fp.user.username|first|upper }}</div>
+                            <div>
+                                <div class="u-name">{{ fp.user.get_full_name|default:fp.user.username }}</div>
+                                <div class="u-email">{{ fp.user.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><strong style="color: var(--text-primary);">${{ fp.amount|floatformat:2 }}</strong></td>
+                    <td><span style="font-size: 13px; color: var(--text-muted);">{{ fp.failure_reason|default:"No reason recorded" }}</span></td>
+                    <td>{{ fp.transaction_date|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="pm-empty">No failed payments. 🎉</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        'use strict';
+        var paymentData = null;
+        {% if chart_data %}
+        paymentData = {{ chart_data|safe }};
+        {% endif %}
+
+        if (paymentData && document.getElementById('paymentChart')) {
+            var ctx = document.getElementById('paymentChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: paymentData.labels,
+                    datasets: [
+                        {
+                            label: 'Successful',
+                            data: paymentData.successful,
+                            borderColor: '#22C55E',
+                            backgroundColor: 'rgba(34,197,94,0.08)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#22C55E',
+                        },
+                        {
+                            label: 'Failed',
+                            data: paymentData.failed,
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239,68,68,0.06)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#EF4444',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#64748B', boxWidth: 12, padding: 14 } }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(15,23,42,0.06)' }, ticks: { color: '#94A3B8' } },
+                        y: { grid: { color: 'rgba(15,23,42,0.06)' }, ticks: { color: '#94A3B8', stepSize: 1 } }
+                    }
+                }
+            });
+        }
+    })();
+</script>
+{% endblock %}

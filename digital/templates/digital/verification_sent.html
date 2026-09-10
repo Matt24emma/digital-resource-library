@@ -1,0 +1,12 @@
+{% extends "digital/base.html" %}
+
+{% block content %}
+<div class="auth-container"
+    style="max-width: 400px; margin: 40px auto; padding: 20px; background: #1a1a1a; border-radius: 12px;">
+    <h2>Verify Your Email</h2>
+    <p>We've sent a verification link to your email address. Please click the link to activate your account.</p>
+    <p>If you didn't receive it, check your spam folder or <a href="{% url 'resend_verification' %}">request a new
+            link</a>.</p>
+    <p><a href="{% url 'login' %}">← Back to login</a></p>
+</div>
+{% endblock %}

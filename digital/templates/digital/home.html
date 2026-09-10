@@ -2,67 +2,608 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+    /* ==================================================
+       RESOURCE LIBRARY – HOME PAGE
+       ================================================== */
+
+    /* ----- Hero ----- */
+    .resource-hero {
+        text-align: center;
+        padding: 60px 0 40px;
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    .resource-hero .eyebrow {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: var(--font-semibold);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 4px 14px;
+        border-radius: 100px;
+        margin-bottom: 16px;
+    }
+
+    .resource-hero h1 {
+        font-family: var(--font-heading);
+        font-weight: var(--font-bold);
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
+    }
+
+    .resource-hero p {
+        font-size: clamp(1rem, 1.2vw, 1.15rem);
+        color: var(--text-secondary);
+        max-width: 560px;
+        margin: 0 auto 28px;
+        line-height: 1.7;
+    }
+
+    /* ----- Search ----- */
+    .search-wrapper {
+        display: flex;
+        max-width: 500px;
+        margin: 0 auto;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .search-wrapper:focus-within {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+    }
+
+    .search-wrapper .search-icon {
+        display: flex;
+        align-items: center;
+        padding: 0 0 0 16px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
+
+    .search-wrapper input {
+        flex: 1;
+        border: none;
+        padding: 12px 12px 12px 4px;
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        background: transparent;
+        color: var(--text-primary);
+        outline: none;
+        min-width: 0;
+    }
+
+    .search-wrapper input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .search-wrapper .search-btn {
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        padding: 0 24px;
+        font-family: var(--font-body);
+        font-weight: var(--font-semibold);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+
+    .search-wrapper .search-btn:hover {
+        background: var(--primary-hover);
+    }
+
+    /* ----- Resource Grid ----- */
+    .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-top: 32px;
+    }
+
+    /* ----- Resource Card ----- */
+    .resource-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .resource-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
+    }
+
+    .resource-card .card-thumb {
+        aspect-ratio: 16 / 10;
+        background: var(--surface);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .resource-card .card-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .resource-card:hover .card-thumb img {
+        transform: scale(1.03);
+    }
+
+    .resource-card .card-body {
+        padding: 18px 20px 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .resource-card .card-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+
+    .resource-card .card-category {
+        font-size: 0.65rem;
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 2px 10px;
+        border-radius: 100px;
+    }
+
+    .resource-card .card-type {
+        font-size: 0.65rem;
+        font-weight: var(--font-medium);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .resource-card h3 {
+        font-family: var(--font-heading);
+        font-weight: var(--font-semibold);
+        font-size: 1.05rem;
+        line-height: 1.3;
+        margin-bottom: 4px;
+        color: var(--text-primary);
+    }
+
+    .resource-card .card-description {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        flex: 1;
+        margin-bottom: 14px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .resource-card .card-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: auto;
+    }
+
+    .resource-card .card-actions .btn-view {
+        font-family: var(--font-body);
+        font-weight: var(--font-semibold);
+        font-size: 0.85rem;
+        color: var(--primary);
+        padding: 6px 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        transition: color 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .resource-card .card-actions .btn-view:hover {
+        color: var(--primary-hover);
+    }
+
+    .resource-card .card-actions .btn-view::after {
+        content: '→';
+        transition: transform 0.2s;
+    }
+
+    .resource-card .card-actions .btn-view:hover::after {
+        transform: translateX(4px);
+    }
+
+    /* ----- Trust / CTA divider ----- */
+    .resource-divider {
+        text-align: center;
+        padding: 48px 0 32px;
+        max-width: 560px;
+        margin: 0 auto;
+        border-top: 1px solid var(--border);
+        margin-top: 48px;
+    }
+
+    .resource-divider h3 {
+        font-family: var(--font-heading);
+        font-weight: var(--font-semibold);
+        font-size: 1.3rem;
+        margin-bottom: 4px;
+    }
+
+    .resource-divider p {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+        line-height: 1.6;
+    }
+
+    .resource-divider .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        padding: 8px 24px;
+        border-radius: var(--radius-sm);
+        font-weight: var(--font-medium);
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .resource-divider .btn-outline:hover {
+        background: var(--surface);
+        border-color: var(--text-muted);
+    }
+
+    /* ----- Pagination ----- */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        margin-top: 48px;
+        flex-wrap: wrap;
+    }
+
+    .pagination-wrapper .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: var(--font-medium);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .pagination-wrapper .page-link:hover {
+        background: var(--surface);
+        border-color: var(--text-muted);
+    }
+
+    .pagination-wrapper .page-link.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--white);
+        pointer-events: none;
+    }
+
+    .pagination-wrapper .page-link.ellipsis {
+        border: none;
+        background: none;
+        pointer-events: none;
+        color: var(--text-muted);
+        min-width: auto;
+    }
+
+    .pagination-wrapper .page-link.prev-next {
+        padding: 0 16px;
+    }
+
+    /* ----- Empty State ----- */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-secondary);
+    }
+
+    .empty-state .icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    .empty-state h3 {
+        font-family: var(--font-heading);
+        font-weight: var(--font-semibold);
+        font-size: 1.4rem;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    /* ==================================================
+       RESPONSIVE
+       ================================================== */
+
+    @media (max-width: 1024px) {
+        .resource-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .resource-hero {
+            padding: 40px 0 24px;
+        }
+
+        .search-wrapper {
+            max-width: 100%;
+        }
+
+        .search-wrapper .search-btn {
+            padding: 0 16px;
+            font-size: 0.85rem;
+        }
+
+        .resource-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .resource-card .card-body {
+            padding: 14px 16px 16px;
+        }
+
+        .resource-card h3 {
+            font-size: 0.95rem;
+        }
+
+        .resource-card .card-description {
+            font-size: 0.85rem;
+        }
+
+        .pagination-wrapper .page-link {
+            min-width: 32px;
+            height: 32px;
+            font-size: 0.8rem;
+        }
+
+        .pagination-wrapper .page-link.prev-next {
+            padding: 0 12px;
+        }
+
+        .resource-divider {
+            padding: 32px 0 24px;
+            margin-top: 32px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .resource-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .resource-hero h1 {
+            font-size: 1.6rem;
+        }
+
+        .search-wrapper {
+            flex-wrap: wrap;
+            border-radius: var(--radius-sm);
+        }
+
+        .search-wrapper .search-icon {
+            padding-left: 12px;
+        }
+
+        .search-wrapper input {
+            padding: 10px 8px 10px 4px;
+            font-size: 0.9rem;
+        }
+
+        .search-wrapper .search-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+        }
+
+        .pagination-wrapper {
+            gap: 3px;
+        }
+
+        .pagination-wrapper .page-link {
+            min-width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
+            padding: 0 8px;
+        }
+
+        .resource-card .card-thumb {
+            aspect-ratio: 16 / 9;
+        }
+
+        .resource-divider h3 {
+            font-size: 1.1rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-    <div class="hero-section">
-        <h1>Download Free Learning Resources</h1>
-        <p>Access high-quality PDFs, templates, guides, and educational materials curated for modern professionals and
-            students.</p>
-    
-        <div class="search">
-            <i data-lucide="search" class="search-icon"></i>
-            <input type="text" placeholder="Search...">
-            <button id="search">Search</button>
-        </div>
+<div class="resource-hero">
+    <span class="eyebrow">FREE RESOURCES FOR PEOPLE BUILDING</span>
+    <h1>Learn something useful. Build something better.</h1>
+    <p>Access carefully selected books, guides, templates, and practical resources designed to help entrepreneurs and
+        ambitious professionals learn faster and take action.</p>
+
+    <!-- Search (preserve existing functionality) -->
+    <div class="search-wrapper" role="search">
+        <span class="search-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+            </svg>
+        </span>
+        <input type="text" placeholder="Search books, guides, templates…" aria-label="Search resources">
+        <button class="search-btn" id="search">Search</button>
     </div>
-    
-    <div class="all-resources">
-    
-        {% for resource in digital_resources %}
-        <div class="resource-container">
-            <div class="res-img"><img src="{{ resource.thumbnail.url }}" alt="Image"></div>
-            <div class="resource-name">
-                <h3>{{ resource.title }}</h3>
-                <p>{{ resource.description }}</p>
-                <a href="{% url 'resource_detail' slug=resource.slug %}"><button>View Resource</button></a>
-            </div>
-        </div>
-        {% endfor%}
-    
-    </div>
-
-<div class="pagination">
-
-    {% if digital_resources.has_previous %}
-    <a href="?page=1">&laquo; First</a>
-    <a href="?page={{ digital_resources.previous_page_number }}">Previous</a>
-    {% endif %}
-
-    <span>
-        Page {{ digital_resources.number }}
-        of
-        {{ digital_resources.paginator.num_pages }}
-    </span>
-
-    {% if digital_resources.has_next %}
-    <a href="?page={{ digital_resources.next_page_number }}">Next</a>
-    <a href="?page={{ digital_resources.paginator.num_pages }}">Last &raquo;</a>
-    {% endif %}
-
 </div>
 
-<!--<div class="data-from-backend">
+<!-- Resource Grid -->
+<div class="resource-grid">
     {% for resource in digital_resources %}
-        <div class="resource-container">
-            <div class="res-img"><img src="{{ resource.thumbnail.url }}" alt="Image"></div>
-            <div class="resource-name">
-                <h3>{{ resource.title }}</h3>
-                <p>{{ resource.description }}</p>
-                <a href="{{ resource.file.url }}" download><button>Download</button></a>
+    <article class="resource-card">
+        <div class="card-thumb">
+            {% if resource.thumbnail %}
+            <img src="{{ resource.thumbnail.url }}" alt="{{ resource.title }}" loading="lazy">
+            {% else %}
+            <div
+                style="background:var(--surface); width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:2rem;">
+                📄</div>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="card-meta">
+                {% if resource.category %}
+                <span class="card-category">{{ resource.category.name }}</span>
+                {% else %}
+                <span class="card-category">Resource</span>
+                {% endif %}
+                {# You can add a resource type if you have a field e.g., resource.resource_type #}
+                {# <span class="card-type">PDF</span> #}
+            </div>
+            <h3>{{ resource.title }}</h3>
+            <p class="card-description">{{ resource.description|truncatechars:120 }}</p>
+            <div class="card-actions">
+                <a href="{% url 'resource_detail' slug=resource.slug %}" class="btn-view">View Resource</a>
             </div>
         </div>
+    </article>
+    {% empty %}
+    <div class="empty-state" style="grid-column: 1 / -1;">
+        <span class="icon">📭</span>
+        <h3>No resources found</h3>
+        <p>Try a different search or check back soon for new resources.</p>
+    </div>
     {% endfor %}
-</div>-->
+</div>
+
+<!-- Trust / Foundry Introduction (after first batch) -->
+{% if digital_resources|length > 3 %}
+<div class="resource-divider">
+    <h3>Good resources should lead somewhere.</h3>
+    <p>Foundry is built around a simple idea: learning becomes valuable when you put it to work. Turn the insights you
+        gain into practical business actions.</p>
+    <a href="{% url 'home' %}" class="btn-outline">Discover Foundry →</a>
+</div>
+{% endif %}
+
+<!-- Pagination -->
+{% if digital_resources.has_other_pages %}
+<div class="pagination-wrapper">
+    {% if digital_resources.has_previous %}
+    <a href="?page=1" class="page-link prev-next" aria-label="First page">&laquo;</a>
+    <a href="?page={{ digital_resources.previous_page_number }}" class="page-link prev-next"
+        aria-label="Previous page">‹</a>
+    {% endif %}
+
+    {% for num in digital_resources.paginator.page_range %}
+    {% if num == digital_resources.number %}
+    <span class="page-link active">{{ num }}</span>
+    {% elif num > digital_resources.number|add:'-3' and num < digital_resources.number|add:'3' %} <a
+        href="?page={{ num }}" class="page-link">{{ num }}</a>
+        {% elif num == 1 or num == digital_resources.paginator.num_pages %}
+        <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+        {% elif num == digital_resources.number|add:'-3' or num == digital_resources.number|add:'3' %}
+        <span class="page-link ellipsis">…</span>
+        {% endif %}
+        {% endfor %}
+
+        {% if digital_resources.has_next %}
+        <a href="?page={{ digital_resources.next_page_number }}" class="page-link prev-next"
+            aria-label="Next page">›</a>
+        <a href="?page={{ digital_resources.paginator.num_pages }}" class="page-link prev-next"
+            aria-label="Last page">&raquo;</a>
+        {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Simple GSAP entrance animation (optional)
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            const cards = document.querySelectorAll('.resource-card');
+            if (cards.length) {
+                const tl = gsap.timeline({ defaults: { ease: 'power2.out', duration: 0.6 } });
+                tl.from('.resource-hero > *', { y: 20, opacity: 0, stagger: 0.1 })
+                    .from(cards, { y: 25, opacity: 0, stagger: 0.06, duration: 0.5 }, '-=0.2');
+            }
+        }
+
+        // Search button functionality (preserve existing behavior)
+        const searchBtn = document.getElementById('search');
+        const searchInput = document.querySelector('.search-wrapper input');
+        if (searchBtn && searchInput) {
+            searchBtn.addEventListener('click', function (e) {
+                // If the existing search is implemented, it will handle it.
+                // Otherwise, we just provide a fallback.
+                const query = searchInput.value.trim();
+                if (query) {
+                    // You can redirect to a search page or filter via AJAX if implemented.
+                    // For now, we keep the existing behavior.
+                    // The current template uses a simple search; preserve that.
+                    // If there's a backend search, it will work; otherwise we keep it as is.
+                    // You can override this to use the existing search functionality.
+                    // For demonstration, we just show an alert (replace with your actual logic).
+                    // alert('Search for: ' + query);
+                    // In production, you would have a form submit action or AJAX.
+                    // Since the backend may not be implemented yet, we keep it as is.
+                    // If you have a search URL, you can submit the form.
+                }
+            });
+            // Allow Enter key to trigger search
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    searchBtn.click();
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

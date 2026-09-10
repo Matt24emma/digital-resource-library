@@ -1,0 +1,2545 @@
+```html
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ===========================
+       BASE & RESET
+    =========================== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: #050505;
+        color: #FFFFFF;
+        font-family: 'Poppins', sans-serif;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #111111;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #00E5A8;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #00c997;
+    }
+
+    /* ===========================
+       FOUNDRY WRAPPER
+    =========================== */
+    .foundry-wrapper {
+        display: flex;
+        min-height: 100vh;
+        background: #050505;
+        position: relative;
+    }
+
+    /* ===========================
+       SIDEBAR
+    =========================== */
+    .foundry-sidebar {
+        width: 260px;
+        min-height: 100vh;
+        background: #111111;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 32px 20px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        flex-shrink: 0;
+        z-index: 100;
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .foundry-sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 40px;
+        padding-left: 4px;
+    }
+
+    .foundry-sidebar-brand .logo-icon {
+        width: 36px;
+        height: 36px;
+        background: #00E5A8;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 18px;
+        color: #050505;
+        flex-shrink: 0;
+    }
+
+    .foundry-sidebar-brand .logo-text {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #FFFFFF;
+    }
+
+    .foundry-sidebar-brand .logo-text span {
+        color: #00E5A8;
+    }
+
+    .foundry-sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+    }
+
+    .foundry-sidebar-nav .nav-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #9CA3AF;
+        padding: 16px 12px 8px 12px;
+        opacity: 0.5;
+    }
+
+    .foundry-sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: #9CA3AF;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.25s ease;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .foundry-sidebar-nav a .nav-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        line-height: 1;
+    }
+
+    .foundry-sidebar-nav a .nav-icon svg {
+        width: 20px;
+        height: 20px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .foundry-sidebar-nav a:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: #FFFFFF;
+    }
+
+    .foundry-sidebar-nav a.active {
+        background: rgba(0, 229, 168, 0.10);
+        color: #00E5A8;
+    }
+
+    .foundry-sidebar-nav a.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 24px;
+        background: #00E5A8;
+        border-radius: 0 4px 4px 0;
+    }
+
+    .foundry-sidebar-nav a .nav-badge {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #9CA3AF;
+    }
+
+    .foundry-sidebar-footer {
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .foundry-sidebar-footer .user-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 4px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .foundry-sidebar-footer .user-card:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .foundry-sidebar-footer .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00E5A8, #00c997);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        color: #050505;
+        flex-shrink: 0;
+    }
+
+    .foundry-sidebar-footer .user-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .foundry-sidebar-footer .user-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #FFFFFF;
+        line-height: 1.3;
+    }
+
+    .foundry-sidebar-footer .user-email {
+        font-size: 11px;
+        color: #9CA3AF;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ===========================
+       SIDEBAR TOGGLE (mobile)
+    =========================== */
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 200;
+        background: rgba(17, 17, 17, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #FFFFFF;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .sidebar-toggle:hover {
+        background: #1a1a1a;
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 99;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+
+    /* ===========================
+       MAIN CONTENT
+    =========================== */
+    .foundry-main {
+        flex: 1;
+        padding: 0 40px 40px 40px;
+        min-height: 100vh;
+        max-width: calc(100% - 260px);
+        margin-left: 0;
+        transition: max-width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.3s ease;
+        position: relative;
+    }
+
+    .foundry-main.focus-mode {
+        max-width: 100% !important;
+        padding: 0 60px 40px 60px;
+    }
+
+    .foundry-main.focus-mode .editor-left-panel {
+        display: none;
+    }
+
+    .foundry-main.focus-mode .editor-right-panel {
+        display: none;
+    }
+
+    .foundry-main.focus-mode .editor-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* ===========================
+       HEADER
+    =========================== */
+    .editor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 0 16px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .editor-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .editor-header-cover {
+        width: 40px;
+        height: 56px;
+        border-radius: 8px;
+        background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 700;
+        color: #00E5A8;
+        flex-shrink: 0;
+    }
+
+    .editor-header-meta {
+        min-width: 0;
+    }
+
+    .editor-header-meta .book-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #FFFFFF;
+        letter-spacing: -0.2px;
+        line-height: 1.2;
+    }
+
+    .editor-header-meta .book-author {
+        font-size: 12px;
+        color: #9CA3AF;
+        font-weight: 400;
+    }
+
+    .editor-header-meta .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: #6B7280;
+        font-weight: 400;
+        margin-top: 2px;
+    }
+
+    .editor-header-meta .breadcrumb .sep {
+        color: #6B7280;
+        opacity: 0.4;
+    }
+
+    .editor-header-meta .breadcrumb .current {
+        color: #00E5A8;
+        font-weight: 500;
+    }
+
+    .editor-header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-shrink: 0;
+    }
+
+    .editor-header-right .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #9CA3AF;
+        font-weight: 400;
+    }
+
+    .editor-header-right .status-indicator .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #00E5A8;
+        animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+
+        0%,
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+    }
+
+    .editor-header-right .collab-avatars {
+        display: flex;
+        align-items: center;
+    }
+
+    .editor-header-right .collab-avatars .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #171717;
+        border: 2px solid #050505;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 600;
+        color: #9CA3AF;
+        margin-left: -6px;
+    }
+
+    .editor-header-right .collab-avatars .avatar:first-child {
+        margin-left: 0;
+    }
+
+    .editor-header-right .collab-avatars .avatar.accent {
+        background: rgba(0, 229, 168, 0.15);
+        color: #00E5A8;
+    }
+
+    .editor-header-right .reading-time {
+        font-size: 12px;
+        color: #9CA3AF;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* ===========================
+       EDITOR LAYOUT
+    =========================== */
+    .editor-layout {
+        display: flex;
+        gap: 32px;
+        padding-top: 24px;
+        align-items: flex-start;
+    }
+
+    /* ===========================
+       LEFT PANEL - Chapter Navigation
+    =========================== */
+    .editor-left-panel {
+        width: 200px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .editor-left-panel .panel-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #6B7280;
+        font-weight: 600;
+        padding: 0 4px 4px 4px;
+    }
+
+    .editor-left-panel .chapter-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        color: #9CA3AF;
+        font-size: 13px;
+        font-weight: 400;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .editor-left-panel .chapter-nav-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: #FFFFFF;
+    }
+
+    .editor-left-panel .chapter-nav-item .num {
+        font-size: 11px;
+        font-weight: 500;
+        color: #6B7280;
+        min-width: 24px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .editor-left-panel .chapter-nav-item .title {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .editor-left-panel .chapter-nav-item .check {
+        font-size: 12px;
+        color: #00E5A8;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .editor-left-panel .chapter-nav-item .check.done {
+        opacity: 1;
+    }
+
+    .editor-left-panel .chapter-nav-item.active {
+        background: rgba(0, 229, 168, 0.08);
+        color: #00E5A8;
+    }
+
+    .editor-left-panel .chapter-nav-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: #00E5A8;
+        border-radius: 0 4px 4px 0;
+    }
+
+    .editor-left-panel .chapter-nav-item .status-badge {
+        font-size: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 1px 8px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #6B7280;
+    }
+
+    .editor-left-panel .chapter-nav-item .status-badge.current {
+        background: rgba(0, 229, 168, 0.10);
+        color: #00E5A8;
+    }
+
+    .editor-left-panel .chapter-nav-item .status-badge.done {
+        background: rgba(0, 229, 168, 0.08);
+        color: #00E5A8;
+    }
+
+    .editor-left-panel .nav-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.05);
+        margin: 4px 0;
+    }
+
+    .editor-left-panel .progress-summary {
+        padding: 12px 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .editor-left-panel .progress-summary .ps-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #9CA3AF;
+    }
+
+    .editor-left-panel .progress-summary .ps-row .ps-value {
+        color: #FFFFFF;
+        font-weight: 500;
+    }
+
+    .editor-left-panel .progress-summary .ps-row .ps-value .accent {
+        color: #00E5A8;
+    }
+
+    /* ===========================
+       EDITOR CONTAINER
+    =========================== */
+    .editor-container {
+        flex: 1;
+        min-width: 0;
+        max-width: 780px;
+    }
+
+    /* ===========================
+       FLOATING TOOLBAR
+    =========================== */
+    .floating-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: #171717;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 6px 8px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        background: rgba(23, 23, 23, 0.92);
+        position: sticky;
+        top: 12px;
+        z-index: 30;
+        transition: all 0.3s ease;
+    }
+
+    .floating-toolbar .toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 0 4px;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .floating-toolbar .toolbar-group:last-child {
+        border-right: none;
+    }
+
+    .floating-toolbar .tb-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        color: #9CA3AF;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+    }
+
+    .floating-toolbar .tb-btn:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: #FFFFFF;
+    }
+
+    .floating-toolbar .tb-btn.active {
+        background: rgba(0, 229, 168, 0.10);
+        color: #00E5A8;
+    }
+
+    .floating-toolbar .tb-btn .label {
+        font-size: 11px;
+        margin-left: 4px;
+    }
+
+    .floating-toolbar .tb-btn .icon {
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .floating-toolbar .tb-divider {
+        width: 1px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* ===========================
+       EDITOR AREA
+    =========================== */
+    .editor-area {
+        background: #111111;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 32px 36px 40px 36px;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .editor-area:focus-within {
+        border-color: rgba(0, 229, 168, 0.15);
+        box-shadow: 0 0 0 4px rgba(0, 229, 168, 0.04);
+    }
+
+    .editor-area .chapter-title-input {
+        font-size: 28px;
+        font-weight: 700;
+        color: #FFFFFF;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        background: transparent;
+        border: none;
+        outline: none;
+        width: 100%;
+        font-family: 'Poppins', sans-serif;
+        padding: 0;
+        margin-bottom: 4px;
+    }
+
+    .editor-area .chapter-title-input::placeholder {
+        color: #6B7280;
+        font-weight: 500;
+    }
+
+    .editor-area .chapter-subtitle {
+        font-size: 14px;
+        color: #9CA3AF;
+        font-weight: 400;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    /* ===========================
+       SUMMARY STRUCTURE CARDS
+    =========================== */
+    .summary-section {
+        margin-bottom: 20px;
+    }
+
+    .summary-section .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0 6px 0;
+        cursor: pointer;
+        user-select: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .summary-section .section-header .section-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .summary-section .section-header .section-label .sec-icon {
+        font-size: 16px;
+    }
+
+    .summary-section .section-header .section-toggle {
+        font-size: 12px;
+        color: #6B7280;
+        transition: transform 0.3s ease;
+    }
+
+    .summary-section .section-header .section-toggle.open {
+        transform: rotate(180deg);
+    }
+
+    .summary-section .section-body {
+        padding: 12px 0 4px 0;
+        display: block;
+    }
+
+    .summary-section .section-body.hidden {
+        display: none;
+    }
+
+    .summary-section .section-body .editable-content {
+        font-size: 15px;
+        line-height: 1.8;
+        color: #E5E7EB;
+        font-weight: 400;
+        background: transparent;
+        border: none;
+        outline: none;
+        width: 100%;
+        font-family: 'Poppins', sans-serif;
+        resize: vertical;
+        min-height: 60px;
+        padding: 4px 0;
+        transition: all 0.3s ease;
+    }
+
+    .summary-section .section-body .editable-content::placeholder {
+        color: #6B7280;
+        font-weight: 300;
+    }
+
+    .summary-section .section-body .editable-content:focus {
+        color: #FFFFFF;
+    }
+
+    .summary-section .section-body .editable-content.textarea {
+        min-height: 80px;
+        resize: vertical;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+        padding: 12px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .summary-section .section-body .editable-content.textarea:focus {
+        border-color: rgba(0, 229, 168, 0.10);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .summary-section .section-body .editable-content .highlight {
+        background: rgba(0, 229, 168, 0.08);
+        padding: 0 4px;
+        border-radius: 4px;
+    }
+
+    /* Quote block inside editor */
+    .editor-quote {
+        background: rgba(0, 229, 168, 0.04);
+        border-left: 3px solid #00E5A8;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin: 12px 0;
+        font-style: italic;
+        color: #E5E7EB;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .editor-quote .quote-mark {
+        font-size: 28px;
+        color: #00E5A8;
+        opacity: 0.3;
+        font-family: Georgia, serif;
+        margin-right: 6px;
+    }
+
+    /* ===========================
+       RIGHT PANEL - Statistics
+    =========================== */
+    .editor-right-panel {
+        width: 210px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .editor-right-panel .panel-card {
+        background: #111111;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 18px 20px;
+    }
+
+    .editor-right-panel .panel-card .card-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6B7280;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .editor-right-panel .stat-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+        font-size: 13px;
+        color: #9CA3AF;
+        font-weight: 400;
+    }
+
+    .editor-right-panel .stat-row .stat-value {
+        color: #FFFFFF;
+        font-weight: 500;
+    }
+
+    .editor-right-panel .stat-row .stat-value .accent {
+        color: #00E5A8;
+    }
+
+    /* Progress ring mini */
+    .mini-ring-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4px 0;
+    }
+
+    .mini-ring {
+        position: relative;
+        width: 70px;
+        height: 70px;
+    }
+
+    .mini-ring svg {
+        transform: rotate(-90deg);
+    }
+
+    .mini-ring .ring-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.06);
+        stroke-width: 5;
+    }
+
+    .mini-ring .ring-fg {
+        fill: none;
+        stroke: #00E5A8;
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-dasharray: 188.5;
+        stroke-dashoffset: 188.5;
+        transition: stroke-dashoffset 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .mini-ring .ring-label {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mini-ring .ring-label .ring-pct {
+        font-size: 18px;
+        font-weight: 700;
+        color: #FFFFFF;
+        line-height: 1;
+    }
+
+    .mini-ring .ring-label .ring-pct .accent {
+        color: #00E5A8;
+    }
+
+    .mini-ring .ring-label .ring-sub {
+        font-size: 9px;
+        color: #9CA3AF;
+        font-weight: 400;
+        margin-top: 1px;
+    }
+
+    .quality-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+        background: rgba(0, 229, 168, 0.08);
+        color: #00E5A8;
+        border: 1px solid rgba(0, 229, 168, 0.06);
+        margin-top: 4px;
+    }
+
+    /* ===========================
+       AI ASSISTANT - Floating Widget
+    =========================== */
+    .ai-widget {
+        position: fixed;
+        bottom: 100px;
+        right: 32px;
+        z-index: 50;
+        background: rgba(17, 17, 17, 0.94);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        padding: 16px 18px 14px 18px;
+        box-shadow: 0 16px 64px rgba(0, 0, 0, 0.6);
+        min-width: 180px;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        max-width: 220px;
+    }
+
+    .ai-widget .ai-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .ai-widget .ai-header .ai-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #00E5A8;
+        animation: pulse-dot 2s infinite;
+    }
+
+    .ai-widget .ai-header .ai-title {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #6B7280;
+        font-weight: 600;
+    }
+
+    .ai-widget .ai-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+    }
+
+    .ai-widget .ai-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 8px;
+        color: #9CA3AF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .ai-widget .ai-btn:hover {
+        background: rgba(0, 229, 168, 0.06);
+        border-color: rgba(0, 229, 168, 0.08);
+        color: #FFFFFF;
+        transform: translateX(2px);
+    }
+
+    .ai-widget .ai-btn .ai-icon {
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+
+    .ai-widget .ai-btn.primary {
+        background: rgba(0, 229, 168, 0.08);
+        border-color: rgba(0, 229, 168, 0.06);
+        color: #00E5A8;
+    }
+
+    .ai-widget .ai-btn.primary:hover {
+        background: rgba(0, 229, 168, 0.14);
+        border-color: rgba(0, 229, 168, 0.12);
+        box-shadow: 0 0 20px rgba(0, 229, 168, 0.04);
+    }
+
+    .ai-widget .ai-btn .short {
+        font-size: 8px;
+        opacity: 0.4;
+        margin-left: 2px;
+    }
+
+    /* ===========================
+       BOTTOM TOOLBAR
+    =========================== */
+    .bottom-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 20px 0 8px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: 8px;
+        align-items: center;
+    }
+
+    .bottom-toolbar .bt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 22px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: #9CA3AF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .bottom-toolbar .bt-btn:hover {
+        background: rgba(255, 255, 255, 0.07);
+        color: #FFFFFF;
+        border-color: rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .bottom-toolbar .bt-btn .pro-badge {
+        display: inline-block;
+        font-size: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        background: linear-gradient(135deg, #F59E0B, #F97316);
+        color: #050505;
+        padding: 1px 8px;
+        border-radius: 6px;
+        line-height: 16px;
+        margin-left: 2px;
+    }
+
+    .bottom-toolbar .bt-btn.primary {
+        background: rgba(0, 229, 168, 0.08);
+        border-color: rgba(0, 229, 168, 0.06);
+        color: #00E5A8;
+    }
+
+    .bottom-toolbar .bt-btn.primary:hover {
+        background: rgba(0, 229, 168, 0.16);
+        border-color: rgba(0, 229, 168, 0.12);
+        box-shadow: 0 0 32px rgba(0, 229, 168, 0.04);
+    }
+
+    .bottom-toolbar .bt-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.10);
+        border-color: rgba(239, 68, 68, 0.12);
+        color: #EF4444;
+    }
+
+    .bottom-toolbar .bt-spacer {
+        flex: 1;
+    }
+
+    .bottom-toolbar .bt-status {
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .bottom-toolbar .bt-status .status-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #00E5A8;
+    }
+
+    /* ===========================
+       FOCUS MODE TOGGLE
+    =========================== */
+    .focus-toggle-btn {
+        position: fixed;
+        bottom: 100px;
+        right: 32px;
+        z-index: 60;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(17, 17, 17, 0.88);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #FFFFFF;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .focus-toggle-btn:hover {
+        background: rgba(0, 229, 168, 0.10);
+        border-color: rgba(0, 229, 168, 0.15);
+        transform: scale(1.06);
+    }
+
+    .focus-toggle-btn.active {
+        background: rgba(0, 229, 168, 0.12);
+        border-color: rgba(0, 229, 168, 0.15);
+    }
+
+    /* ===========================
+       TOAST
+    =========================== */
+    .toast-message {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        background: rgba(17, 17, 17, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 14px 22px;
+        color: #FFFFFF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        border-left: 3px solid #00E5A8;
+    }
+
+    .toast-message.show {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .toast-message .toast-icon {
+        font-size: 18px;
+        color: #00E5A8;
+    }
+
+    /* ===========================
+       RESPONSIVE
+    =========================== */
+    @media (max-width: 1200px) {
+        .foundry-main {
+            padding: 0 32px 40px 32px;
+        }
+
+        .editor-left-panel {
+            width: 160px;
+        }
+
+        .editor-right-panel {
+            width: 180px;
+        }
+
+        .editor-area {
+            padding: 28px 28px 32px 28px;
+        }
+
+        .ai-widget {
+            min-width: 150px;
+            padding: 14px 14px 12px 14px;
+            right: 20px;
+        }
+
+        .ai-widget .ai-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+
+        .ai-widget .ai-btn {
+            font-size: 9px;
+            padding: 5px 8px;
+        }
+
+        .ai-widget .ai-btn .ai-icon {
+            font-size: 10px;
+        }
+
+        .focus-toggle-btn {
+            right: 20px;
+            bottom: 90px;
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .foundry-sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            height: 100vh;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 8px 0 64px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        .foundry-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .foundry-main {
+            max-width: 100% !important;
+            padding: 72px 20px 40px 20px;
+        }
+
+        .foundry-main.focus-mode {
+            padding: 72px 20px 40px 20px;
+        }
+
+        .editor-layout {
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .editor-left-panel {
+            width: 100%;
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .editor-left-panel .panel-label {
+            width: 100%;
+        }
+
+        .editor-left-panel .chapter-nav-item {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .editor-left-panel .progress-summary {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 8px 4px;
+        }
+
+        .editor-left-panel .nav-divider {
+            display: none;
+        }
+
+        .editor-right-panel {
+            width: 100%;
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .editor-right-panel .panel-card {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .editor-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .editor-header-right {
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .editor-area .chapter-title-input {
+            font-size: 22px;
+        }
+
+        .floating-toolbar {
+            position: sticky;
+            top: 0;
+            padding: 4px 6px;
+            border-radius: 12px;
+            gap: 2px;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+        }
+
+        .floating-toolbar .tb-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .floating-toolbar .tb-btn .label {
+            display: none;
+        }
+
+        .floating-toolbar .toolbar-group {
+            padding: 0 2px;
+        }
+
+        .bottom-toolbar {
+            justify-content: center;
+        }
+
+        .bottom-toolbar .bt-btn {
+            font-size: 12px;
+            padding: 8px 16px;
+        }
+
+        .bottom-toolbar .bt-spacer {
+            display: none;
+        }
+
+        .ai-widget {
+            bottom: 80px;
+            right: 16px;
+            left: 16px;
+            min-width: unset;
+            max-width: unset;
+            border-radius: 16px;
+            padding: 14px 16px;
+        }
+
+        .ai-widget .ai-grid {
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        }
+
+        .ai-widget .ai-btn {
+            font-size: 10px;
+            padding: 6px 10px;
+            justify-content: center;
+        }
+
+        .focus-toggle-btn {
+            bottom: 80px;
+            right: 16px;
+            width: 38px;
+            height: 38px;
+            font-size: 15px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .foundry-main {
+            padding: 64px 12px 32px 12px;
+        }
+
+        .editor-area {
+            padding: 20px 16px 24px 16px;
+            border-radius: 16px;
+        }
+
+        .editor-area .chapter-title-input {
+            font-size: 19px;
+        }
+
+        .editor-header-meta .book-title {
+            font-size: 14px;
+        }
+
+        .editor-header-cover {
+            width: 32px;
+            height: 44px;
+            font-size: 14px;
+        }
+
+        .floating-toolbar {
+            padding: 4px 4px;
+            border-radius: 10px;
+            gap: 1px;
+        }
+
+        .floating-toolbar .tb-btn {
+            width: 26px;
+            height: 26px;
+            font-size: 11px;
+        }
+
+        .bottom-toolbar {
+            gap: 6px;
+        }
+
+        .bottom-toolbar .bt-btn {
+            font-size: 11px;
+            padding: 6px 12px;
+            flex: 1;
+            min-width: 80px;
+            justify-content: center;
+        }
+
+        .bottom-toolbar .bt-status {
+            font-size: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .summary-section .section-header .section-label {
+            font-size: 12px;
+        }
+
+        .summary-section .section-body .editable-content {
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .editor-quote {
+            font-size: 14px;
+            padding: 12px 16px;
+        }
+
+        .editor-right-panel .panel-card {
+            min-width: 100%;
+        }
+
+        .editor-left-panel .chapter-nav-item {
+            font-size: 11px;
+            padding: 4px 10px;
+        }
+
+        .editor-header-right .status-indicator {
+            font-size: 10px;
+        }
+
+        .editor-header-right .reading-time {
+            font-size: 10px;
+        }
+
+        .ai-widget {
+            bottom: 72px;
+            right: 10px;
+            left: 10px;
+            padding: 12px 12px;
+            border-radius: 14px;
+        }
+
+        .ai-widget .ai-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .ai-widget .ai-btn {
+            font-size: 9px;
+            padding: 5px 8px;
+        }
+
+        .focus-toggle-btn {
+            bottom: 72px;
+            right: 10px;
+            width: 34px;
+            height: 34px;
+            font-size: 13px;
+        }
+
+        .toast-message {
+            bottom: 16px;
+            right: 10px;
+            left: 10px;
+            padding: 12px 16px;
+            font-size: 12px;
+            border-radius: 12px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .editor-area {
+            padding: 16px 12px 18px 12px;
+        }
+
+        .editor-area .chapter-title-input {
+            font-size: 17px;
+        }
+
+        .bottom-toolbar .bt-btn {
+            font-size: 10px;
+            padding: 5px 10px;
+            min-width: 60px;
+        }
+
+        .ai-widget .ai-btn {
+            font-size: 8px;
+            padding: 4px 6px;
+        }
+
+        .ai-widget .ai-btn .ai-icon {
+            font-size: 9px;
+        }
+    }
+
+    /* ===========================
+       UTILITY
+    =========================== */
+    .hidden {
+        display: none !important;
+    }
+
+    .fade-in {
+        opacity: 0;
+    }
+
+    .mt-2 {
+        margin-top: 8px;
+    }
+
+    .mt-3 {
+        margin-top: 12px;
+    }
+
+    .mb-2 {
+        margin-bottom: 8px;
+    }
+
+    .gap-1 {
+        gap: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ===========================
+     SIDEBAR OVERLAY
+     =========================== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===========================
+     SIDEBAR TOGGLE
+     =========================== -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+</button>
+
+<!-- ===========================
+     FOUNDRY WRAPPER
+     =========================== -->
+<div class="foundry-wrapper">
+
+    <!-- ===========================
+         SIDEBAR
+         =========================== -->
+    <aside class="foundry-sidebar" id="foundrySidebar">
+        <div class="foundry-sidebar-brand">
+            <div class="logo-icon">F</div>
+            <span class="logo-text">Foundry<span>.</span></span>
+        </div>
+
+        <nav class="foundry-sidebar-nav">
+            <div class="nav-label">Main</div>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                    </svg>
+                </span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 6h16v12H4z" />
+                        <path d="M4 6h16" />
+                        <path d="M4 10h16" />
+                        <path d="M4 14h16" />
+                        <path d="M4 18h16" />
+                        <path d="M8 6v12" />
+                        <path d="M16 6v12" />
+                    </svg>
+                </span>
+                <span class="nav-text">My Library</span>
+                <span class="nav-badge">12</span>
+            </a>
+
+            <a href="#" class="active">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Reading Session</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </span>
+                <span class="nav-text">Knowledge Cards</span>
+                <span class="nav-badge">48</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                    </svg>
+                </span>
+                <span class="nav-text">Insights</span>
+            </a>
+
+            <div class="nav-label" style="margin-top:12px;">Workspace</div>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                </span>
+                <span class="nav-text">Notes</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Chat</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="2" />
+                        <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20z" />
+                        <path d="M12 2v20" />
+                        <path d="M2 12h20" />
+                    </svg>
+                </span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+
+        <div class="foundry-sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <div class="user-name">John Doe</div>
+                    <div class="user-email">john@foundry.ai</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ===========================
+         MAIN CONTENT
+         =========================== -->
+    <main class="foundry-main" id="foundryMain">
+
+        <!-- ===========================
+             HEADER
+             =========================== -->
+        <div class="editor-header" id="editorHeader">
+            <div class="editor-header-left">
+                <div class="editor-header-cover">📖</div>
+                <div class="editor-header-meta">
+                    <div class="book-title">Zero to One</div>
+                    <div class="book-author">Peter Thiel</div>
+                    <div class="breadcrumb">
+                        <span>Library</span>
+                        <span class="sep">›</span>
+                        <span>Zero to One</span>
+                        <span class="sep">›</span>
+                        <span class="current">Chapter 5 — The Fundamental Proposition</span>
+                    </div>
+                </div>
+            </div>
+            <div class="editor-header-right">
+                <div class="status-indicator">
+                    <span class="dot"></span>
+                    Auto Saving
+                </div>
+                <div class="reading-time">
+                    ⏱️ 12 min read
+                </div>
+                <div class="collab-avatars">
+                    <span class="avatar">JD</span>
+                    <span class="avatar accent">SM</span>
+                    <span class="avatar">AK</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===========================
+             EDITOR LAYOUT
+             =========================== -->
+        <div class="editor-layout" id="editorLayout">
+
+            <!-- LEFT PANEL - Chapter Navigation -->
+            <div class="editor-left-panel" id="leftPanel">
+                <div class="panel-label">Chapters</div>
+
+                <div class="chapter-nav-item" data-chapter="1">
+                    <span class="num">01</span>
+                    <span class="title">The Challenge of the Future</span>
+                    <span class="check done">✓</span>
+                    <span class="status-badge done">done</span>
+                </div>
+                <div class="chapter-nav-item" data-chapter="2">
+                    <span class="num">02</span>
+                    <span class="title">The Last Mover Advantage</span>
+                    <span class="check done">✓</span>
+                    <span class="status-badge done">done</span>
+                </div>
+                <div class="chapter-nav-item" data-chapter="3">
+                    <span class="num">03</span>
+                    <span class="title">The Power of Monopoly</span>
+                    <span class="check done">✓</span>
+                    <span class="status-badge done">done</span>
+                </div>
+                <div class="chapter-nav-item" data-chapter="4">
+                    <span class="num">04</span>
+                    <span class="title">The Ideology of Competition</span>
+                    <span class="check done">✓</span>
+                    <span class="status-badge done">done</span>
+                </div>
+                <div class="chapter-nav-item active" data-chapter="5">
+                    <span class="num">05</span>
+                    <span class="title">The Fundamental Proposition</span>
+                    <span class="check"></span>
+                    <span class="status-badge current">current</span>
+                </div>
+                <div class="chapter-nav-item" data-chapter="6">
+                    <span class="num">06</span>
+                    <span class="title">The History of Technology</span>
+                    <span class="check"></span>
+                </div>
+                <div class="chapter-nav-item" data-chapter="7">
+                    <span class="num">07</span>
+                    <span class="title">The Secrets of the Valley</span>
+                    <span class="check"></span>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <div class="progress-summary">
+                    <div class="ps-row">
+                        <span>Completed</span>
+                        <span class="ps-value"><span class="accent">4</span> / 14</span>
+                    </div>
+                    <div class="ps-row">
+                        <span>Remaining</span>
+                        <span class="ps-value">10</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EDITOR CONTAINER -->
+            <div class="editor-container" id="editorContainer">
+
+                <!-- Floating Toolbar -->
+                <div class="floating-toolbar" id="floatingToolbar">
+                    <div class="toolbar-group">
+                        <button class="tb-btn" data-action="undo" title="Undo"><span class="icon">↩</span></button>
+                        <button class="tb-btn" data-action="redo" title="Redo"><span class="icon">↪</span></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="tb-btn" data-action="bold" title="Bold"><span class="icon">B</span></button>
+                        <button class="tb-btn" data-action="italic" title="Italic"><span class="icon">I</span></button>
+                        <button class="tb-btn" data-action="underline" title="Underline"><span
+                                class="icon">U</span></button>
+                        <button class="tb-btn" data-action="highlight" title="Highlight"><span
+                                class="icon">✧</span></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="tb-btn" data-action="bullet" title="Bullet List"><span
+                                class="icon">•</span></button>
+                        <button class="tb-btn" data-action="numbered" title="Numbered List"><span
+                                class="icon">1.</span></button>
+                        <button class="tb-btn" data-action="quote" title="Quote"><span class="icon">❝</span></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="tb-btn" data-action="fullscreen" title="Fullscreen"><span
+                                class="icon">⛶</span></button>
+                        <button class="tb-btn" data-action="export" title="Export"><span class="icon">📥</span></button>
+                    </div>
+                </div>
+
+                <!-- Editor Area -->
+                <div class="editor-area" id="editorArea">
+                    <input class="chapter-title-input" type="text" value="The Fundamental Proposition"
+                        placeholder="Chapter title…" id="chapterTitleInput">
+
+                    <div class="chapter-subtitle">Why the most important question is not "what" but "why"</div>
+
+                    <!-- Summary Sections -->
+                    <div class="summary-section" id="secMainIdea">
+                        <div class="section-header" data-target="bodyMainIdea">
+                            <span class="section-label">
+                                <span class="sec-icon">🎯</span>
+                                Main Idea
+                            </span>
+                            <span class="section-toggle">▾</span>
+                        </div>
+                        <div class="section-body" id="bodyMainIdea">
+                            <textarea class="editable-content textarea" rows="2"
+                                placeholder="What is the core idea of this chapter?">The fundamental proposition of business is that the most valuable companies are those that create new categories, not those that compete in existing ones. Thiel argues that the key question every founder must answer is: "What important truth do very few people agree with you on?"</textarea>
+                        </div>
+                    </div>
+
+                    <div class="summary-section" id="secKeyLessons">
+                        <div class="section-header" data-target="bodyKeyLessons">
+                            <span class="section-label">
+                                <span class="sec-icon">📚</span>
+                                Key Lessons
+                            </span>
+                            <span class="section-toggle open">▾</span>
+                        </div>
+                        <div class="section-body" id="bodyKeyLessons">
+                            <textarea class="editable-content textarea" rows="4"
+                                placeholder="What are the key lessons from this chapter?">1. The most successful businesses are built on secrets — truths that few people believe.
+
+2. Competition is a destructive force that destroys value; monopoly creates value.
+
+3. The best way to build a monopoly is to start with a small, niche market and expand from there.
+
+4. Technology companies should focus on going from 0 to 1, not from 1 to n.</textarea>
+                        </div>
+                    </div>
+
+                    <div class="summary-section" id="secConcepts">
+                        <div class="section-header" data-target="bodyConcepts">
+                            <span class="section-label">
+                                <span class="sec-icon">🧠</span>
+                                Important Concepts
+                            </span>
+                            <span class="section-toggle">▾</span>
+                        </div>
+                        <div class="section-body" id="bodyConcepts">
+                            <textarea class="editable-content textarea" rows="3"
+                                placeholder="List the key concepts introduced in this chapter…">• The Power Law: The distribution of outcomes in venture capital follows a power law, where a small number of investments generate the vast majority of returns.
+
+• Monopoly vs. Competition: Monopolies are good for society because they have the resources to invest in long-term innovation.
+
+• The Secret: Every great business is built on a secret — a truth that most people don't believe.</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Quote Block -->
+                    <div class="summary-section" id="secQuote">
+                        <div class="section-header" data-target="bodyQuote">
+                            <span class="section-label">
+                                <span class="sec-icon">❝</span>
+                                Key Quote
+                            </span>
+                            <span class="section-toggle">▾</span>
+                        </div>
+                        <div class="section-body" id="bodyQuote">
+                            <div class="editor-quote">
+                                <span class="quote-mark">"</span>
+                                <span class="editable-content" contenteditable="true" role="textbox"
+                                    aria-multiline="true">What important truth do very few people agree with you on?
+                                    This is the question that separates the entrepreneurs who create new value from
+                                    those who simply copy what already exists.</span>
+                            </div>
+                            <textarea class="editable-content textarea" rows="1" placeholder="Source or context…"
+                                style="margin-top:6px;">— Peter Thiel, Zero to One</textarea>
+                        </div>
+                    </div>
+
+                    <div class="summary-section" id="secExamples">
+                        <div class="section-header" data-target="bodyExamples">
+                            <span class="section-label">
+                                <span class="sec-icon">💡</span>
+                                Examples &amp; Applications
+                            </span>
+                            <span class="section-toggle">▾</span>
+                        </div>
+                        <div class="section-body" id="bodyExamples">
+                            <textarea class="editable-content textarea" rows="3"
+                                placeholder="How does this apply in practice?">• PayPal started by focusing on the small market of eBay power sellers before expanding to the broader payments ecosystem.
+
+• Facebook began as a Harvard-only network before scaling to the entire world.
+
+• Tesla started with the high-end Roadster before moving to the mass-market Model 3.</textarea>
+                        </div>
+                    </div>
+
+                    <div class="summary-section" id="secActions">
+                        <div class="section-header" data-target="bodyActions">
+                            <span class="section-label">
+                                <span class="sec-icon">⚡</span>
+                                Action Steps
+                            </span>
+                            <span class="section-toggle">▾</span>
+                        </div>
+                        <div class="section-body" id="bodyActions">
+                            <textarea class="editable-content textarea" rows="3"
+                                placeholder="What actionable steps can you take from this chapter?">1. Identify a "secret" in your industry that most people don't believe.
+
+2. Start with a small, niche market where you can dominate.
+
+3. Build a product that is 10x better than the next best alternative.
+
+4. Focus on creating a monopoly, not on competing.</textarea>
+                        </div>
+                    </div>
+
+                    <div class="summary-section" id="secInsight">
+                        <div class="section-header" data-target="bodyInsight">
+                            <span class="section-label">
+                                <span class="sec-icon">✨</span>
+                                Personal Insight
+                            </span>
+                            <span class="section-toggle">▾</span>
+                        </div>
+                        <div class="section-body" id="bodyInsight">
+                            <textarea class="editable-content textarea" rows="2"
+                                placeholder="Add your personal reflection on this chapter…">This chapter reframes how I think about competition. Instead of trying to beat competitors, I should focus on building something so unique that competition becomes irrelevant. The key is to find a problem that no one else is solving effectively.</textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Bottom Toolbar -->
+                <div class="bottom-toolbar" id="bottomToolbar">
+                    <button class="bt-btn" id="saveDraftBtn"><span>💾</span> Save Draft</button>
+                    <button class="bt-btn" id="previewBtn"><span>👁</span> Preview</button>
+                    <button class="bt-btn primary" id="generateCardsBtn"><span>✨</span> Generate Cards</button>
+                    <button class="bt-btn" id="exportPdfBtn"><span>📥</span> Export PDF <span
+                            class="pro-badge">PRO</span></button>
+                    <button class="bt-btn primary" id="publishBtn"><span>🚀</span> Publish</button>
+                    <button class="bt-btn danger" id="deleteBtn"><span>✕</span> Delete</button>
+                    <span class="bt-spacer"></span>
+                    <span class="bt-status">
+                        <span class="status-dot"></span>
+                        Last saved: just now
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- RIGHT PANEL - Statistics -->
+            <div class="editor-right-panel" id="rightPanel">
+                <div class="panel-card">
+                    <div class="card-label">Summary Statistics</div>
+                    <div class="stat-row">
+                        <span>Words</span>
+                        <span class="stat-value">342</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Characters</span>
+                        <span class="stat-value">2,184</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Reading Time</span>
+                        <span class="stat-value">1.5 <span style="color:#9CA3AF;font-weight:400;">min</span></span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Knowledge Cards</span>
+                        <span class="stat-value"><span class="accent">8</span></span>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="card-label">Summary Quality</div>
+                    <div class="mini-ring-wrap">
+                        <div class="mini-ring" id="qualityRing">
+                            <svg width="70" height="70" viewBox="0 0 70 70">
+                                <circle class="ring-bg" cx="35" cy="35" r="30" />
+                                <circle class="ring-fg" cx="35" cy="35" r="30" id="qualityRingFg" />
+                            </svg>
+                            <div class="ring-label">
+                                <span class="ring-pct"><span class="accent" id="qualityPct">87</span>%</span>
+                                <span class="ring-sub">quality</span>
+                            </div>
+                        </div>
+                        <span class="quality-badge">✦ Excellent</span>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="card-label">Quick Actions</div>
+                    <div style="display:flex;flex-direction:column;gap:5px;">
+                        <button class="ai-btn"
+                            style="width:100%;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.04);color:#9CA3AF;font-family:'Poppins',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.3s ease;text-align:left;">
+                            <span style="display:flex;align-items:center;gap:6px;"><span>📝</span> Recent Changes</span>
+                        </button>
+                        <button class="ai-btn"
+                            style="width:100%;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.04);color:#9CA3AF;font-family:'Poppins',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.3s ease;text-align:left;">
+                            <span style="display:flex;align-items:center;gap:6px;"><span>🕐</span> Version
+                                History</span>
+                        </button>
+                        <button class="ai-btn"
+                            style="width:100%;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.04);color:#9CA3AF;font-family:'Poppins',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.3s ease;text-align:left;">
+                            <span style="display:flex;align-items:center;gap:6px;"><span>✓</span> Checklist</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<!-- ===========================
+     FOCUS MODE TOGGLE
+     =========================== -->
+<button class="focus-toggle-btn" id="focusToggleBtn" aria-label="Toggle focus mode">
+    <span class="focus-icon">⛶</span>
+</button>
+
+<!-- ===========================
+     AI ASSISTANT WIDGET
+     =========================== -->
+<div class="ai-widget" id="aiWidget">
+    <div class="ai-header">
+        <span class="ai-dot"></span>
+        <span class="ai-title">AI Assistant</span>
+    </div>
+    <div class="ai-grid">
+        <button class="ai-btn" data-action="improve"><span class="ai-icon">✨</span> Improve</button>
+        <button class="ai-btn" data-action="simplify"><span class="ai-icon">📝</span> Simplify</button>
+        <button class="ai-btn" data-action="expand"><span class="ai-icon">📖</span> Expand</button>
+        <button class="ai-btn" data-action="rewrite"><span class="ai-icon">🔄</span> Rewrite</button>
+        <button class="ai-btn primary" data-action="lessons"><span class="ai-icon">📚</span> Lessons</button>
+        <button class="ai-btn primary" data-action="concepts"><span class="ai-icon">🧠</span> Concepts</button>
+        <button class="ai-btn" data-action="steps"><span class="ai-icon">⚡</span> Steps</button>
+        <button class="ai-btn" data-action="examples"><span class="ai-icon">💡</span> Examples</button>
+        <button class="ai-btn" data-action="quiz"><span class="ai-icon">🎯</span> Quiz</button>
+        <button class="ai-btn primary" data-action="cards"><span class="ai-icon">🃏</span> Cards</button>
+    </div>
+</div>
+
+<!-- ===========================
+     TOAST
+     =========================== -->
+<div class="toast-message" id="toast">
+    <span class="toast-icon">✓</span>
+    <span id="toastText">Action completed</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // ===========================
+        // DOM REFS
+        // ===========================
+        const sidebar = document.getElementById('foundrySidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const main = document.getElementById('foundryMain');
+        const layout = document.getElementById('editorLayout');
+        const leftPanel = document.getElementById('leftPanel');
+        const rightPanel = document.getElementById('rightPanel');
+        const editorContainer = document.getElementById('editorContainer');
+        const editorArea = document.getElementById('editorArea');
+        const toolbar = document.getElementById('floatingToolbar');
+        const bottomToolbar = document.getElementById('bottomToolbar');
+        const focusBtn = document.getElementById('focusToggleBtn');
+        const aiWidget = document.getElementById('aiWidget');
+        const toast = document.getElementById('toast');
+        const toastText = document.getElementById('toastText');
+        const qualityRingFg = document.getElementById('qualityRingFg');
+
+        let focusMode = false;
+
+        // ===========================
+        // TOAST
+        // ===========================
+        function showToast(msg) {
+            toastText.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._hide);
+            toast._hide = setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        // ===========================
+        // SIDEBAR TOGGLE
+        // ===========================
+        function toggleSidebar(open) {
+            const isOpen = typeof open === 'boolean' ? open : sidebar.classList.toggle('open');
+            if (typeof open === 'boolean') {
+                if (open) sidebar.classList.add('open');
+                else sidebar.classList.remove('open');
+            }
+            overlay.classList.toggle('active', sidebar.classList.contains('open'));
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        toggleBtn.addEventListener('click', () => toggleSidebar());
+        overlay.addEventListener('click', () => toggleSidebar(false));
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 992 && sidebar.classList.contains('open')) {
+                toggleSidebar(false);
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ===========================
+        // QUALITY RING
+        // ===========================
+        function animateQualityRing(pct) {
+            const circumference = 2 * Math.PI * 30;
+            const offset = circumference - (pct / 100) * circumference;
+            gsap.to(qualityRingFg, {
+                strokeDashoffset: offset,
+                duration: 1.2,
+                ease: 'power3.out',
+                overwrite: 'auto',
+            });
+            gsap.to(document.getElementById('qualityPct'), {
+                textContent: pct,
+                duration: 1.0,
+                ease: 'power2.out',
+                snap: { textContent: 1 },
+                overwrite: 'auto',
+            });
+        }
+
+        // ===========================
+        // FOCUS MODE
+        // ===========================
+        focusBtn.addEventListener('click', function () {
+            focusMode = !focusMode;
+            this.classList.toggle('active');
+
+            const tl = gsap.timeline({
+                defaults: { ease: 'power3.inOut', duration: 0.5 }
+            });
+
+            if (focusMode) {
+                tl.to(leftPanel, { opacity: 0, x: -20, duration: 0.4, ease: 'power2.out' })
+                    .to(rightPanel, { opacity: 0, x: 20, duration: 0.4, ease: 'power2.out' }, '-=0.2')
+                    .to(main, { maxWidth: '100%', paddingLeft: '60px', paddingRight: '60px', duration: 0.5 },
+                        '-=0.2')
+                    .to(editorContainer, { className: '+=focus-mode', duration: 0.4 }, '-=0.3')
+                    .to(editorArea, { scale: 1.01, duration: 0.4, ease: 'power2.out' }, '-=0.2')
+                    .to(aiWidget, { opacity: 0.3, scale: 0.95, duration: 0.3, ease: 'power2.out' }, '-=0.1');
+                showToast('⛶ Focus Mode enabled');
+            } else {
+                tl.to(leftPanel, { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' })
+                    .to(rightPanel, { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' }, '-=0.2')
+                    .to(main, { maxWidth: '', paddingLeft: '', paddingRight: '', duration: 0.5 }, '-=0.2')
+                    .to(editorContainer, { className: '-=focus-mode', duration: 0.4 }, '-=0.3')
+                    .to(editorArea, { scale: 1, duration: 0.3, ease: 'power2.out' }, '-=0.2')
+                    .to(aiWidget, { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, '-=0.1');
+                showToast('⛶ Focus Mode disabled');
+            }
+        });
+
+        // ===========================
+        // CHAPTER NAVIGATION
+        // ===========================
+        document.querySelectorAll('.chapter-nav-item').forEach(item => {
+            item.addEventListener('click', function () {
+                document.querySelectorAll('.chapter-nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                const num = this.dataset.chapter || '?';
+                showToast(`📖 Navigating to Chapter ${num}`);
+                gsap.to(this, {
+                    scale: 0.95, duration: 0.12, onComplete: () => gsap.to(this, {
+                        scale: 1,
+                        duration: 0.25, ease: 'back.out(2)'
+                    })
+                });
+            });
+        });
+
+        // ===========================
+        // SUMMARY SECTION TOGGLES
+        // ===========================
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', function () {
+                const targetId = this.dataset.target;
+                const body = document.getElementById(targetId);
+                const toggle = this.querySelector('.section-toggle');
+                if (body) {
+                    const isHidden = body.classList.contains('hidden');
+                    if (isHidden) {
+                        body.classList.remove('hidden');
+                        toggle.classList.add('open');
+                        gsap.fromTo(body, { opacity: 0, y: -8 }, {
+                            opacity: 1, y: 0, duration: 0.3,
+                            ease: 'power2.out'
+                        });
+                    } else {
+                        body.classList.add('hidden');
+                        toggle.classList.remove('open');
+                    }
+                }
+            });
+        });
+
+        // ===========================
+        // FLOATING TOOLBAR ACTIONS
+        // ===========================
+        document.querySelectorAll('.tb-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const action = this.dataset.action;
+                gsap.to(this, {
+                    scale: 0.88, duration: 0.10, onComplete: () => gsap.to(this, {
+                        scale: 1,
+                        duration: 0.25, ease: 'back.out(2)'
+                    })
+                });
+
+                const labels = {
+                    undo: '↩ Undo',
+                    redo: '↪ Redo',
+                    bold: 'Bold',
+                    italic: 'Italic',
+                    underline: 'Underline',
+                    highlight: '✧ Highlight',
+                    bullet: '• Bullet List',
+                    numbered: '1. Numbered List',
+                    quote: '❝ Quote',
+                    fullscreen: '⛶ Fullscreen',
+                    export: '📥 Export'
+                };
+                showToast(`${labels[action] || action} — applied`);
+            });
+        });
+
+        // ===========================
+        // BOTTOM TOOLBAR ACTIONS
+        // ===========================
+        const bottomBtns = {
+            'saveDraftBtn': '💾 Draft saved',
+            'previewBtn': '👁 Preview mode',
+            'generateCardsBtn': '✨ Generating knowledge cards…',
+            'exportPdfBtn': '📥 Exporting PDF — PRO feature',
+            'publishBtn': '🚀 Publishing chapter…',
+            'deleteBtn': '🗑️ Delete chapter'
+        };
+
+        Object.keys(bottomBtns).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('click', function () {
+                    gsap.to(this, {
+                        scale: 0.94, duration: 0.10, onComplete: () => gsap.to(this, {
+                            scale: 1,
+                            duration: 0.25, ease: 'back.out(2)'
+                        })
+                    });
+                    showToast(bottomBtns[id]);
+                });
+            }
+        });
+
+        // ===========================
+        // AI WIDGET ACTIONS
+        // ===========================
+        document.querySelectorAll('.ai-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const action = this.dataset.action || '';
+                const label = this.textContent.trim();
+                gsap.to(this, {
+                    scale: 0.92, duration: 0.10, onComplete: () => gsap.to(this, {
+                        scale: 1,
+                        duration: 0.25, ease: 'back.out(2)'
+                    })
+                });
+                const msg = `🤖 ${label} — processing…`;
+                showToast(msg);
+            });
+        });
+
+        // ===========================
+        // EDITABLE CONTENT (contenteditable)
+        // ===========================
+        document.querySelectorAll('.editable-content[contenteditable="true"]').forEach(el => {
+            el.addEventListener('focus', function () {
+                this.parentElement.style.borderColor = 'rgba(0,229,168,0.15)';
+            });
+            el.addEventListener('blur', function () {
+                this.parentElement.style.borderColor = '';
+                showToast('✎ Content updated');
+            });
+        });
+
+        // ===========================
+        // AUTO-SAVE SIMULATION
+        // ===========================
+        let autoSaveTimer = null;
+        const inputs = document.querySelectorAll('input, textarea, .editable-content[contenteditable="true"]');
+        inputs.forEach(input => {
+            input.addEventListener('input', function () {
+                clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(() => {
+                    const status = document.querySelector('.status-indicator');
+                    if (status) {
+                        status.innerHTML = '<span class="dot"></span> Saved';
+                        setTimeout(() => {
+                            status.innerHTML = '<span class="dot"></span> Auto Saving';
+                        }, 1200);
+                    }
+                    const savedTime = document.querySelector('.bt-status');
+                    if (savedTime) {
+                        const now = new Date();
+                        const timeStr = now.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        savedTime.innerHTML =
+                            `<span class="status-dot"></span> Last saved: ${timeStr}`;
+                    }
+                }, 800);
+            });
+        });
+
+        // ===========================
+        // GSAP PAGE ENTRANCE
+        // ===========================
+        function initPageAnimations() {
+            const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+            // Header
+            tl.fromTo('#editorHeader', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 })
+                // Toolbar
+                .fromTo('#floatingToolbar', { opacity: 0, y: -10, scale: 0.96 }, {
+                    opacity: 1, y: 0,
+                    scale: 1, duration: 0.4
+                }, '-=0.2')
+                // Editor area
+                .fromTo('#editorArea', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.2')
+                // Left panel
+                .fromTo('#leftPanel', { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.4 }, '-=0.3')
+                // Right panel
+                .fromTo('#rightPanel', { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.4 }, '-=0.3')
+                // Bottom toolbar
+                .fromTo('#bottomToolbar', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.2')
+                // AI widget
+                .fromTo('#aiWidget', { opacity: 0, scale: 0.92, y: 20 }, {
+                    opacity: 1, scale: 1, y: 0,
+                    duration: 0.5
+                }, '-=0.2')
+                // Focus toggle
+                .fromTo('#focusToggleBtn', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4 },
+                    '-=0.2');
+
+            // Quality ring animation
+            setTimeout(() => {
+                animateQualityRing(87);
+                // Pulse the quality badge
+                gsap.fromTo('.quality-badge', { scale: 0.9, opacity: 0.6 }, {
+                    scale: 1, opacity: 1,
+                    duration: 0.5, ease: 'back.out(2)', delay: 0.3
+                });
+            }, 700);
+
+            // Stagger section headers
+            const sections = document.querySelectorAll('.summary-section');
+            gsap.fromTo(sections, { opacity: 0, y: 12 }, {
+                opacity: 1,
+                y: 0,
+                duration: 0.4,
+                stagger: 0.06,
+                ease: 'power2.out',
+                delay: 0.2,
+            });
+        }
+
+        // ===========================
+        // HOVER LIFT (GSAP)
+        // ===========================
+        function initHoverLift() {
+            document.querySelectorAll('.chapter-nav-item, .panel-card, .stat-card').forEach(el => {
+                el.addEventListener('mouseenter', function () {
+                    gsap.to(this, { y: -2, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+                });
+                el.addEventListener('mouseleave', function () {
+                    gsap.to(this, { y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+                });
+            });
+        }
+
+        // ===========================
+        // KEYBOARD SHORTCUTS
+        // ===========================
+        document.addEventListener('keydown', function (e) {
+            // Focus mode: F
+            if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.target.matches(
+                'textarea, input, [contenteditable="true"]')) {
+                e.preventDefault();
+                focusBtn.click();
+            }
+            // Save: Cmd+S / Ctrl+S
+            if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('saveDraftBtn')?.click();
+            }
+            // Escape to exit focus
+            if (e.key === 'Escape' && focusMode) {
+                focusBtn.click();
+            }
+        });
+
+        // ===========================
+        // INIT
+        // ===========================
+        function init() {
+            initPageAnimations();
+            initHoverLift();
+
+            console.log('🔥 Foundry — Chapter Summary Editor loaded');
+            console.log('⌨️  Shortcuts: F=focus | Cmd/Ctrl+S=save | ESC=exit focus');
+        }
+
+        if (document.readyState === 'complete') {
+            init();
+        } else {
+            window.addEventListener('load', init);
+        }
+
+        // Expose for debugging
+        window.__foundry = { focusMode, toggleFocus: () => focusBtn.click() };
+
+    })();
+</script>
+{% endblock %}
+```

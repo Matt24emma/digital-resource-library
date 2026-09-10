@@ -1,0 +1,1017 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}Foundry · Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================================================
+       DASHBOARD STYLES – Foundry Design System
+       Fully Responsive – No Horizontal Overflow
+       ================================================== */
+
+    /* ----- Reset / Box Sizing ----- */
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    /* ----- Dashboard Container ----- */
+    .dashboard {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 12px;
+        /* fluid padding */
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .dashboard {
+            padding: 0 24px;
+        }
+    }
+
+    /* ----- Hero / Header ----- */
+    .dash-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .dash-hero h1 {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-bold);
+        font-size: clamp(1.4rem, 4vw, 2.4rem);
+        letter-spacing: -0.02em;
+        margin-bottom: 2px;
+        word-break: break-word;
+        line-height: 1.2;
+    }
+
+    .dash-hero .greeting {
+        color: var(--text-secondary);
+        font-size: var(--fs-md);
+    }
+
+    .dash-hero .greeting strong {
+        color: var(--text-primary);
+        font-weight: var(--fw-semibold);
+    }
+
+    .dash-hero .badge-premium {
+        background: var(--primary-light);
+        color: var(--primary);
+        padding: 4px 14px;
+        border-radius: 100px;
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-sm);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 480px) {
+        .dash-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .dash-hero .badge-premium {
+            align-self: flex-start;
+            white-space: normal;
+            word-break: break-word;
+        }
+    }
+
+    /* ----- Stats Grid ----- */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        min-width: 0;
+        /* prevent overflow */
+    }
+
+    .stat-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .stat-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--primary-light);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .stat-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .stat-info .stat-number {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-bold);
+        font-size: var(--fs-xl);
+        line-height: 1.2;
+        color: var(--text-primary);
+        word-break: break-word;
+    }
+
+    .stat-info .stat-label {
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        word-break: break-word;
+    }
+
+    @media (max-width: 480px) {
+        .stat-card {
+            padding: 12px 14px;
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .stat-info .stat-number {
+            font-size: var(--fs-lg);
+        }
+    }
+
+    /* ----- Quick Actions ----- */
+    .quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 32px;
+    }
+
+    .quick-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--white);
+        font-family: var(--font-body);
+        font-weight: var(--fw-medium);
+        font-size: var(--fs-sm);
+        color: var(--text-primary);
+        transition: all 0.2s;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .quick-btn:hover {
+        background: var(--surface);
+        border-color: var(--text-muted);
+        transform: translateY(-1px);
+    }
+
+    .quick-btn.primary {
+        background: var(--primary);
+        color: var(--white);
+        border-color: var(--primary);
+    }
+
+    .quick-btn.primary:hover {
+        background: var(--primary-hover);
+        border-color: var(--primary-hover);
+    }
+
+    .quick-btn .badge-pro {
+        background: var(--primary);
+        color: var(--white);
+        font-size: 0.6rem;
+        font-weight: var(--fw-bold);
+        padding: 0 6px;
+        border-radius: 100px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 480px) {
+        .quick-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .quick-btn {
+            justify-content: center;
+            white-space: normal;
+            word-break: break-word;
+        }
+    }
+
+    /* ----- Dashboard Grid (two columns) ----- */
+    .dash-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    @media (max-width: 1024px) {
+        .dash-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+
+    /* ----- Section Blocks ----- */
+    .section-block {
+        margin-bottom: 28px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .section-header h2 {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-lg);
+        color: var(--text-primary);
+        margin: 0;
+        word-break: break-word;
+    }
+
+    .section-header .view-all {
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-medium);
+        color: var(--text-secondary);
+        transition: color 0.2s;
+        text-decoration: none;
+        flex-shrink: 0;
+    }
+
+    .section-header .view-all:hover {
+        color: var(--primary);
+    }
+
+    /* ----- Book Cards ----- */
+    .book-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+    }
+
+    .book-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        transition: box-shadow 0.25s, border-color 0.25s;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .book-card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
+    }
+
+    .book-cover {
+        aspect-ratio: 16 / 10;
+        background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        border-bottom: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .book-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .book-body {
+        padding: 12px 14px 14px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .book-body .book-title {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-md);
+        margin-bottom: 2px;
+        word-break: break-word;
+    }
+
+    .book-body .book-author {
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+        word-break: break-word;
+    }
+
+    .book-body .book-meta {
+        font-size: var(--fs-xs);
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .book-body .btn-continue {
+        margin-top: auto;
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-sm);
+        cursor: pointer;
+        text-align: left;
+        padding: 0;
+        transition: color 0.2s;
+        align-self: flex-start;
+    }
+
+    .book-body .btn-continue:hover {
+        color: var(--primary-hover);
+    }
+
+    @media (max-width: 480px) {
+        .book-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+    }
+
+    /* ----- Summary Cards ----- */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 14px;
+    }
+
+    .summary-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 14px 16px 12px;
+        transition: box-shadow 0.2s, border-color 0.2s;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .summary-card:hover {
+        box-shadow: var(--shadow-sm);
+        border-color: var(--primary);
+    }
+
+    .summary-card .pin {
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+
+    .summary-card .excerpt {
+        font-size: var(--fs-sm);
+        color: var(--text-primary);
+        line-height: 1.5;
+        flex: 1;
+        margin-bottom: 6px;
+        word-break: break-word;
+    }
+
+    .summary-card .source {
+        font-size: var(--fs-xs);
+        color: var(--text-muted);
+        font-style: italic;
+        word-break: break-word;
+    }
+
+    @media (max-width: 480px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+    }
+
+    /* ----- Reading Progress ----- */
+    .progress-ring-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .ring-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        flex-shrink: 0;
+    }
+
+    .ring-container svg {
+        transform: rotate(-90deg);
+        width: 120px;
+        height: 120px;
+    }
+
+    .ring-container .ring-bg {
+        fill: none;
+        stroke: var(--surface);
+        stroke-width: 8;
+    }
+
+    .ring-container .ring-fg {
+        fill: none;
+        stroke: var(--primary);
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.8s ease;
+    }
+
+    .ring-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .ring-center .percent {
+        display: block;
+        font-family: var(--font-heading);
+        font-weight: var(--fw-bold);
+        font-size: var(--fs-xl);
+        line-height: 1.2;
+    }
+
+    .ring-center .label {
+        font-size: var(--fs-xs);
+        color: var(--text-secondary);
+    }
+
+    .progress-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .progress-stat {
+        display: flex;
+        justify-content: space-between;
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        gap: 8px;
+        word-break: break-word;
+    }
+
+    .progress-stat .stat-value {
+        font-weight: var(--fw-semibold);
+        color: var(--text-primary);
+        text-align: right;
+        word-break: break-word;
+    }
+
+    @media (max-width: 480px) {
+        .ring-container {
+            width: 100px;
+            height: 100px;
+        }
+
+        .ring-container svg {
+            width: 100px;
+            height: 100px;
+        }
+
+        .ring-center .percent {
+            font-size: var(--fs-lg);
+        }
+    }
+
+    /* ----- Activity Timeline ----- */
+    .timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .timeline-item {
+        display: flex;
+        gap: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+        min-width: 0;
+    }
+
+    .timeline-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .tl-icon {
+        width: 28px;
+        height: 28px;
+        background: var(--surface);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
+
+    .tl-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .tl-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .tl-content .tl-text {
+        font-size: var(--fs-sm);
+        color: var(--text-primary);
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    .tl-content .tl-text strong {
+        font-weight: var(--fw-semibold);
+    }
+
+    .tl-content .tl-time {
+        font-size: var(--fs-xs);
+        color: var(--text-muted);
+    }
+
+    /* ----- Premium CTA ----- */
+    .premium-cta {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 20px 16px;
+        text-align: center;
+    }
+
+    .premium-cta .premium-icon {
+        color: var(--primary);
+        margin-bottom: 6px;
+        width: 32px;
+        height: 32px;
+        display: inline-block;
+    }
+
+    .premium-cta h3 {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-lg);
+        margin-bottom: 4px;
+        word-break: break-word;
+    }
+
+    .premium-cta p {
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        margin-bottom: 14px;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .premium-cta .btn-upgrade {
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        padding: 8px 20px;
+        border-radius: var(--radius-sm);
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+        transition: background 0.2s;
+        display: inline-block;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .premium-cta .btn-upgrade:hover {
+        background: var(--primary-hover);
+    }
+
+    .premium-cta .note {
+        display: block;
+        margin-top: 6px;
+        font-size: var(--fs-xs);
+        color: var(--text-muted);
+        word-break: break-word;
+    }
+
+    @media (max-width: 480px) {
+        .premium-cta .btn-upgrade {
+            width: 100%;
+            text-align: center;
+            white-space: normal;
+        }
+    }
+
+    /* ----- Empty States ----- */
+    .empty-state {
+        text-align: center;
+        padding: 28px 16px;
+        color: var(--text-secondary);
+    }
+
+    .empty-state .empty-icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .empty-state h4 {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-lg);
+        color: var(--text-primary);
+        margin-bottom: 2px;
+        word-break: break-word;
+    }
+
+    .empty-state p {
+        font-size: var(--fs-sm);
+        max-width: 360px;
+        margin: 0 auto 10px;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .empty-state .btn-link {
+        color: var(--primary);
+        font-weight: var(--fw-medium);
+        text-decoration: none;
+        font-size: var(--fs-sm);
+        word-break: break-word;
+    }
+
+    .empty-state .btn-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="dashboard">
+
+    <!-- HERO / HEADER -->
+    <div class="dash-hero">
+        <div>
+            <h1>Dashboard</h1>
+            <div class="greeting">Good evening, <strong>{{ user_name }}</strong></div>
+            <span class="greeting" style="font-size: var(--fs-sm); color: var(--text-secondary);">Build your second
+                brain one chapter at a time.</span>
+        </div>
+        <div class="badge-premium">
+            {% if is_premium %}
+            <span>✅ Premium</span>
+            {% else %}
+            <span>🔓 Free Member</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- STATISTICS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ total_books }}</div>
+                <div class="stat-label">Books</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ total_summaries }}</div>
+                <div class="stat-label">Summaries</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="M8 10h.01" />
+                    <path d="M12 10h.01" />
+                    <path d="M16 10h.01" />
+                    <path d="M8 14h.01" />
+                    <path d="M12 14h.01" />
+                    <path d="M16 14h.01" />
+                </svg></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ total_cards }}</div>
+                <div class="stat-label">Knowledge Cards</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ downloads_used }}</div>
+                <div class="stat-label">Downloads this month</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+        <a href="{% url 'summaryForm' %}" class="quick-btn primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            New Summary
+        </a>
+        <a href="{% url 'library' %}" class="quick-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+            View Library
+        </a>
+        <a href="{% url 'reading_plans' %}" class="quick-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+            Reading Plans
+        </a>
+        <a href="{% url 'pricing' %}" class="quick-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Upgrade <span class="badge-pro">Pro</span>
+        </a>
+    </div>
+
+    <!-- TWO-COLUMN LAYOUT -->
+    <div class="dash-grid">
+
+        <!-- LEFT COLUMN -->
+        <div>
+
+            <!-- RECENT BOOKS -->
+            <section class="section-block">
+                <div class="section-header">
+                    <h2>Recent Books</h2>
+                    <a href="{% url 'library' %}" class="view-all">View all →</a>
+                </div>
+                {% if recent_books %}
+                <div class="book-grid">
+                    {% for book in recent_books %}
+                    <article class="book-card">
+                        <div class="book-cover">
+                            {% if book.thumbnail %}
+                            <img src="{{ book.thumbnail.url }}" alt="{{ book.title }}" loading="lazy">
+                            {% else %}
+                            <span>📕</span>
+                            {% endif %}
+                        </div>
+                        <div class="book-body">
+                            <div class="book-title">{{ book.title }}</div>
+                            <div class="book-author">{{ book.author|default:"Unknown Author" }}</div>
+                            <div class="book-meta">
+                                <span>{{ book.chapter_count|default:0 }} summaries</span>
+                                <span>Added {{ book.created_at|timesince }} ago</span>
+                            </div>
+                            <a href="{% url 'book_details' %}?book_id={{ book.id }}" class="btn-continue">Continue →</a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">📚</span>
+                    <h4>Your library is waiting</h4>
+                    <p>Add your first book and start building a reading plan.</p>
+                    <a href="/ebook/" class="btn-link">Upload a book →</a>
+                </div>
+                {% endif %}
+            </section>
+
+            <!-- RECENT SUMMARIES -->
+            <section class="section-block">
+                <div class="section-header">
+                    <h2>Recent Summaries</h2>
+                    <a href="{% url 'all_summaries' %}" class="view-all">View all →</a>
+                </div>
+                {% if recent_summaries %}
+                <div class="summary-grid">
+                    {% for summary in recent_summaries %}
+                    <div class="summary-card">
+                        <div class="pin">📌</div>
+                        <div class="excerpt">{{ summary.main_idea|truncatechars:80 }}</div>
+                        <div class="source">— {{ summary.book.title }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">✍️</span>
+                    <h4>No summaries yet</h4>
+                    <p>Create your first summary from a book in your library.</p>
+                    <a href="{% url 'summaryForm' %}" class="btn-link">Write a summary →</a>
+                </div>
+                {% endif %}
+            </section>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+
+            <!-- READING PROGRESS -->
+            <section class="section-block">
+                <div class="section-header">
+                    <h2>Reading Progress</h2>
+                </div>
+                {% if active_book %}
+                <div class="progress-ring-wrapper">
+                    <div class="ring-container">
+                        <svg viewBox="0 0 120 120" width="120" height="120">
+                            <circle class="ring-bg" cx="60" cy="60" r="52" />
+                            <circle class="ring-fg" cx="60" cy="60" r="52" stroke-dasharray="326.73"
+                                stroke-dashoffset="{{ reading_progress|default:326.73 }}" />
+                        </svg>
+                        <div class="ring-center">
+                            <span class="percent">{{ reading_progress|default:0 }}%</span>
+                            <span class="label">Complete</span>
+                        </div>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="progress-stat"><span>Current Book</span><span class="stat-value">{{ active_book.title|truncatechars:20 }}</span></div>
+                        <div class="progress-stat"><span>Total Chunks</span><span class="stat-value">{{ active_book.chunks.count|default:0 }}</span></div>
+                        <div class="progress-stat"><span>Read</span><span class="stat-value">0</span></div>
+                        <div class="progress-stat"><span>Status</span><span class="stat-value">{{active_book.status|capfirst }}</span></div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding: 16px;">
+                    <span class="empty-icon">📖</span>
+                    <h4>No active reading plan</h4>
+                    <p>Upload a book and set your reading pace to get started.</p>
+                    <a href="/ebook/" class="btn-link">Upload a book →</a>
+                </div>
+                {% endif %}
+            </section>
+
+            <!-- ACTIVITY TIMELINE -->
+            <section class="section-block">
+                <div class="section-header">
+                    <h2>Activity Timeline</h2>
+                </div>
+                <div class="timeline">
+                    {% for activity in activities %}
+                    <div class="timeline-item">
+                        <div class="tl-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9" />
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg>
+                        </div>
+                        <div class="tl-content">
+                            <div class="tl-text">{{ activity.get_action_display }}</div>
+                            {% if activity.description %}
+                            <div class="tl-text" style="font-size: var(--fs-xs); color: var(--text-secondary);">{{
+                                activity.description }}</div>
+                            {% endif %}
+                            <div class="tl-time">{{ activity.created_at|timesince }} ago</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state" style="padding: 16px;">
+                        <span class="empty-icon">📭</span>
+                        <p>No recent activity yet. Start by uploading a book or creating a summary!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- PREMIUM CTA -->
+            <section class="premium-cta">
+                <svg class="premium-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                <h3>Unlock Full Potential</h3>
+                <p>Export unlimited PDFs, generate AI‑powered insights, and access advanced analytics.</p>
+                <a href="{% url 'pricing' %}" class="btn-upgrade">Upgrade to Premium</a>
+                <span class="note">✓ 14‑day free trial · Cancel anytime</span>
+            </section>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            gsap.from('.stat-card', {
+                opacity: 0,
+                y: 16,
+                duration: 0.4,
+                stagger: 0.06,
+                ease: 'power2.out',
+                delay: 0.1
+            });
+            gsap.from('.book-card', {
+                opacity: 0,
+                y: 20,
+                duration: 0.4,
+                stagger: 0.05,
+                ease: 'power2.out',
+                delay: 0.2
+            });
+            gsap.from('.summary-card', {
+                opacity: 0,
+                scale: 0.95,
+                duration: 0.35,
+                stagger: 0.04,
+                ease: 'power2.out',
+                delay: 0.3
+            });
+            gsap.from('.timeline-item', {
+                opacity: 0,
+                x: -8,
+                duration: 0.35,
+                stagger: 0.05,
+                ease: 'power2.out',
+                delay: 0.4
+            });
+        }
+    });
+</script>
+{% endblock %}

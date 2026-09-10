@@ -1,0 +1,2254 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+       DESIGN SYSTEM
+       ============================================================ */
+    :root {
+        --bg-primary: #050505;
+        --bg-card: #111111;
+        --bg-secondary: #171717;
+        --accent: #00E5A8;
+        --white: #FFFFFF;
+        --muted: #9CA3AF;
+        --border: rgba(255, 255, 255, .08);
+        --radius: 16px;
+        --radius-sm: 10px;
+        --radius-xs: 6px;
+        --font: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --transition: 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.6);
+        --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.8);
+        --shadow-drawer: 8px 0 40px rgba(0, 0, 0, 0.6);
+        --sidebar-width: 260px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-primary);
+        color: var(--white);
+        font-family: var(--font);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* ============================================================
+       ADMIN LAYOUT
+       ============================================================ */
+    .admin-layout {
+        display: flex;
+        min-height: 100vh;
+        background: var(--bg-primary);
+    }
+
+    /* ---- Sidebar ---- */
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: var(--sidebar-width);
+        background: var(--bg-card);
+        border-right: 1px solid var(--border);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        padding: 24px 16px 20px 16px;
+        transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        overflow-y: auto;
+    }
+
+    .admin-sidebar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 4px 20px 4px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+
+    .admin-sidebar .brand .logo {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.3px;
+        color: var(--white);
+    }
+
+    .admin-sidebar .brand .badge {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: rgba(0, 229, 168, 0.15);
+        color: var(--accent);
+        padding: 2px 10px;
+        border-radius: 20px;
+        margin-left: auto;
+    }
+
+    .admin-sidebar .nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 auto 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .admin-sidebar .nav-list li {
+        margin: 0;
+    }
+
+    .admin-sidebar .nav-list a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: var(--radius-sm);
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 450;
+        transition: background var(--transition), color var(--transition);
+        cursor: pointer;
+        position: relative;
+    }
+
+    .admin-sidebar .nav-list a .nav-icon {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.6;
+        flex-shrink: 0;
+    }
+
+    .admin-sidebar .nav-list a .nav-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .admin-sidebar .nav-list a:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+    }
+
+    .admin-sidebar .nav-list a.active {
+        background: rgba(0, 229, 168, 0.08);
+        color: var(--white);
+        box-shadow: inset 0 0 0 1px rgba(0, 229, 168, 0.15);
+    }
+
+    .admin-sidebar .nav-list a.active .nav-icon {
+        opacity: 1;
+        color: var(--accent);
+    }
+
+    .admin-sidebar .nav-list a.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 20%;
+        height: 60%;
+        width: 3px;
+        background: var(--accent);
+        border-radius: 0 4px 4px 0;
+    }
+
+    .admin-sidebar .sidebar-footer {
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .admin-sidebar .sidebar-footer a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 14px;
+        border-radius: var(--radius-sm);
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 450;
+        transition: background var(--transition), color var(--transition);
+    }
+
+    .admin-sidebar .sidebar-footer a:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+    }
+
+    .admin-sidebar .sidebar-footer .logout-link {
+        color: #ef4444;
+    }
+
+    .admin-sidebar .sidebar-footer .logout-link:hover {
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
+    }
+
+    /* ---- Main Content ---- */
+    .admin-main {
+        margin-left: var(--sidebar-width);
+        flex: 1;
+        min-height: 100vh;
+        padding: 24px 32px 60px 32px;
+    }
+
+    /* ---- Top Bar ---- */
+    .admin-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .admin-topbar .left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .admin-topbar .left h1 {
+        font-size: 26px;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.3px;
+        color: var(--white);
+    }
+
+    .admin-topbar .left .subtitle {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .admin-topbar .right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .admin-topbar .right .status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--accent);
+        background: rgba(0, 229, 168, 0.08);
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-weight: 450;
+    }
+
+    .admin-topbar .right .status .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        display: inline-block;
+        animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+
+        0%,
+        100% {
+            opacity: 0.5;
+        }
+
+        50% {
+            opacity: 1;
+        }
+    }
+
+    .admin-topbar .right .date-range {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 4px 8px;
+    }
+
+    .admin-topbar .right .date-range select {
+        background: transparent;
+        border: none;
+        color: var(--white);
+        font-family: var(--font);
+        font-size: 13px;
+        outline: none;
+        padding: 4px 8px;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .admin-topbar .right .date-range select option {
+        background: var(--bg-secondary);
+        color: var(--white);
+    }
+
+    .admin-topbar .right .notif-btn {
+        position: relative;
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 50%;
+        transition: background var(--transition), color var(--transition);
+    }
+
+    .admin-topbar .right .notif-btn:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+    }
+
+    .admin-topbar .right .notif-btn .badge-dot {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        border: 2px solid var(--bg-primary);
+    }
+
+    .admin-topbar .right .admin-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--bg-secondary);
+        border: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--white);
+        cursor: pointer;
+        transition: border-color var(--transition);
+    }
+
+    .admin-topbar .right .admin-avatar:hover {
+        border-color: var(--accent);
+    }
+
+    .admin-topbar .right .admin-name {
+        font-size: 14px;
+        font-weight: 450;
+        color: var(--white);
+    }
+
+    /* ============================================================
+       BUTTONS
+       ============================================================ */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 22px;
+        border-radius: var(--radius-xs);
+        font-family: var(--font);
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background var(--transition), transform 0.2s ease, box-shadow var(--transition);
+        text-decoration: none;
+        min-height: 44px;
+        -webkit-tap-highlight-color: transparent;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn:active {
+        transform: translateY(0px);
+    }
+
+    .btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: #050505;
+        font-weight: 550;
+    }
+
+    .btn-primary:hover {
+        background: #00d49a;
+        color: #050505;
+        box-shadow: 0 4px 20px rgba(0, 229, 168, 0.25);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-danger {
+        background: rgba(239, 68, 68, 0.12);
+        color: #ef4444;
+    }
+
+    .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.22);
+    }
+
+    .btn-sm {
+        padding: 6px 16px;
+        font-size: 13px;
+        min-height: 36px;
+    }
+
+    .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    /* ============================================================
+       PAGE HEADER ACTIONS
+       ============================================================ */
+    .page-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    /* ============================================================
+       KPI CARDS
+       ============================================================ */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .kpi-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 18px 22px 20px 22px;
+        transition: border-color var(--transition), transform 0.2s ease;
+    }
+
+    .kpi-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .kpi-card .kpi-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .kpi-card .kpi-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+    }
+
+    .kpi-card .kpi-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .kpi-card .kpi-number {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--white);
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+    }
+
+    .kpi-card .kpi-label {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 400;
+        margin-top: 2px;
+    }
+
+    .kpi-card .kpi-context {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .kpi-card .kpi-empty {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0.6;
+    }
+
+    /* ============================================================
+       CHART CARDS
+       ============================================================ */
+    .chart-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 22px 24px 24px 24px;
+        margin-bottom: 24px;
+    }
+
+    .chart-card .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .chart-card .chart-header h3 {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--white);
+        margin: 0;
+    }
+
+    .chart-card .chart-header .sub {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 400;
+        margin: 0;
+    }
+
+    .chart-card .chart-container {
+        position: relative;
+        height: 280px;
+        width: 100%;
+    }
+
+    .chart-card .chart-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 280px;
+        color: var(--muted);
+        text-align: center;
+    }
+
+    .chart-card .chart-empty .empty-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+        opacity: 0.4;
+    }
+
+    .chart-card .chart-empty .empty-text {
+        font-size: 14px;
+        max-width: 300px;
+        line-height: 1.5;
+    }
+
+    /* ============================================================
+       MRR / ARR SECTION
+       ============================================================ */
+    .metric-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .metric-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 20px 24px 22px 24px;
+    }
+
+    .metric-card .metric-title {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 400;
+        margin-bottom: 4px;
+    }
+
+    .metric-card .metric-value {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--white);
+        letter-spacing: -0.3px;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+    }
+
+    .metric-card .metric-detail {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       TABLE
+       ============================================================ */
+    .table-wrap {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .table-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .table-wrap thead {
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table-wrap th {
+        text-align: left;
+        padding: 14px 20px;
+        font-weight: 500;
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table-wrap td {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+        color: var(--white);
+        vertical-align: middle;
+    }
+
+    .table-wrap tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table-wrap tbody tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-wrap .customer-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .table-wrap .customer-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--bg-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        font-size: 12px;
+        color: var(--white);
+        flex-shrink: 0;
+        text-transform: uppercase;
+    }
+
+    .table-wrap .customer-info .name {
+        font-weight: 450;
+        color: var(--white);
+    }
+
+    .table-wrap .customer-info .email {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .table-wrap .badge-status {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 450;
+    }
+
+    .table-wrap .badge-status.success {
+        background: rgba(0, 229, 168, 0.1);
+        color: var(--accent);
+    }
+
+    .table-wrap .badge-status.pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+
+    .table-wrap .badge-status.failed {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .table-wrap .badge-status.refunded {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+    }
+
+    /* ============================================================
+       FILTER BAR
+       ============================================================ */
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px 18px;
+        margin-bottom: 24px;
+    }
+
+    .filter-bar .filter-search {
+        flex: 1;
+        min-width: 200px;
+        position: relative;
+    }
+
+    .filter-bar .filter-search input {
+        width: 100%;
+        padding: 8px 14px 8px 38px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--white);
+        font-family: var(--font);
+        font-size: 14px;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition);
+        min-height: 40px;
+    }
+
+    .filter-bar .filter-search input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 229, 168, 0.08);
+    }
+
+    .filter-bar .filter-search input::placeholder {
+        color: rgba(255, 255, 255, 0.25);
+    }
+
+    .filter-bar .filter-search .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        pointer-events: none;
+    }
+
+    .filter-bar .filter-search .search-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .filter-bar .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .filter-bar .filter-select {
+        padding: 8px 32px 8px 14px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--white);
+        font-family: var(--font);
+        font-size: 13px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color var(--transition);
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        min-height: 40px;
+    }
+
+    .filter-bar .filter-select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 229, 168, 0.08);
+    }
+
+    .filter-bar .filter-select option {
+        background: var(--bg-secondary);
+        color: var(--white);
+    }
+
+    .filter-bar .filter-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .filter-bar .filter-actions .btn {
+        min-height: 40px;
+        padding: 0 18px;
+        font-size: 13px;
+    }
+
+    /* ============================================================
+       EMPTY STATE
+       ============================================================ */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px 50px 20px;
+    }
+
+    .empty-state .empty-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 16px auto;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+    }
+
+    .empty-state .empty-icon svg {
+        width: 28px;
+        height: 28px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .empty-state h3 {
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--white);
+        margin: 0 0 4px 0;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0 0 20px 0;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+
+    /* ============================================================
+       MODALS
+       ============================================================ */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+        padding: 24px;
+    }
+
+    .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 32px 36px 36px 36px;
+        max-width: 520px;
+        width: 100%;
+        box-shadow: var(--shadow-modal);
+        transform: scale(0.92) translateY(16px);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+        opacity: 0;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-overlay.open .modal {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+
+    .modal .modal-close {
+        float: right;
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0 0 0 12px;
+        line-height: 1;
+        transition: color var(--transition);
+    }
+
+    .modal .modal-close:hover {
+        color: var(--white);
+    }
+
+    .modal h2 {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        letter-spacing: -0.3px;
+        color: var(--white);
+    }
+
+    .modal .modal-sub {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0 0 24px 0;
+        font-weight: 400;
+    }
+
+    .modal .form-group {
+        margin-bottom: 20px;
+    }
+
+    .modal .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 450;
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 6px;
+    }
+
+    .modal .form-group input,
+    .modal .form-group select {
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--white);
+        font-family: var(--font);
+        font-size: 14px;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .modal .form-group input:focus,
+    .modal .form-group select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 229, 168, 0.08);
+    }
+
+    .modal .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .modal .form-actions .btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* ============================================================
+       TOAST
+       ============================================================ */
+    .toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 360px;
+        pointer-events: none;
+    }
+
+    .toast {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 14px 20px;
+        box-shadow: var(--shadow-card);
+        backdrop-filter: blur(16px);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        pointer-events: auto;
+        transform: translateX(calc(100% + 40px));
+        opacity: 0;
+        transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .toast.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    .toast .toast-icon {
+        color: var(--accent);
+        font-size: 18px;
+    }
+
+    .toast .toast-body .toast-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--white);
+    }
+
+    .toast .toast-body .toast-desc {
+        font-size: 13px;
+        color: var(--muted);
+    }
+
+    .toast .toast-close {
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 18px;
+        padding: 0 4px;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 1200px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .metric-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-main {
+            padding: 20px 24px 60px 24px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .admin-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .admin-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.open {
+            display: block;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar-toggle {
+            display: inline-flex;
+        }
+
+        .admin-main {
+            margin-left: 0;
+            padding: 16px 20px 60px 20px;
+        }
+
+        .admin-topbar .right .date-range {
+            display: none;
+        }
+
+        .admin-topbar .right .admin-name {
+            display: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .kpi-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .kpi-card {
+            padding: 14px 16px 16px 16px;
+        }
+
+        .kpi-card .kpi-number {
+            font-size: 22px;
+        }
+
+        .admin-topbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .admin-topbar .right {
+            justify-content: space-between;
+        }
+
+        .admin-topbar .right .date-range {
+            display: none;
+        }
+
+        .admin-main {
+            padding: 12px 14px 60px 14px;
+        }
+
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-bar .filter-search {
+            min-width: 100%;
+        }
+
+        .filter-bar .filter-group {
+            flex-wrap: wrap;
+        }
+
+        .filter-bar .filter-group .filter-select {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table-wrap table {
+            min-width: 600px;
+        }
+
+        .modal {
+            padding: 24px 20px 28px 20px;
+            border-radius: var(--radius-sm);
+        }
+
+        .modal .form-actions {
+            flex-direction: column;
+        }
+
+        .modal .form-actions .btn {
+            width: 100%;
+        }
+
+        .metric-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-card .chart-container {
+            height: 200px;
+        }
+
+        .page-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-topbar .right .status {
+            font-size: 12px;
+            padding: 2px 10px;
+        }
+
+        .chart-card {
+            padding: 16px 16px 18px 16px;
+        }
+    }
+
+    /* ============================================================
+       REDUCED MOTION
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        .kpi-card:hover,
+        .btn:hover,
+        .table-wrap tbody tr:hover td {
+            transform: none !important;
+        }
+
+        .modal,
+        .admin-sidebar {
+            transition: none !important;
+        }
+    }
+
+    /* ============================================================
+       UTILITY
+       ============================================================ */
+    .text-muted {
+        color: var(--muted);
+    }
+
+    .text-accent {
+        color: var(--accent);
+    }
+
+    .mt-8 {
+        margin-top: 8px;
+    }
+
+    .mt-12 {
+        margin-top: 12px;
+    }
+
+    .mt-16 {
+        margin-top: 16px;
+    }
+
+    .mb-8 {
+        margin-bottom: 8px;
+    }
+
+    .flex {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .gap-12 {
+        gap: 12px;
+    }
+
+    .w-full {
+        width: 100%;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .sidebar-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    @media (max-width: 992px) {
+        .sidebar-toggle {
+            display: inline-flex;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="adminSidebar" role="navigation" aria-label="Admin navigation">
+        <div class="brand">
+            <span class="logo">FOUNDRY</span>
+            <span class="badge">SUPER ADMIN</span>
+        </div>
+
+        <ul class="nav-list">
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <path d="M3 9h18M9 21V9" />
+                        </svg></span>
+                    Dashboard
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></span>
+                    Users
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                            <path d="M1 10h22" />
+                        </svg></span>
+                    Subscriptions
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                        </svg></span>
+                    Revenue
+                </a></li>
+            <li><a href="#" class="active" aria-current="page">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M12 2a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2V4a2 2 0 012-2z" />
+                            <path
+                                d="M7.5 6.5l-2-2M16.5 6.5l2-2M4 12h2M18 12h2M6.5 16.5l-2 2M17.5 16.5l2 2M12 18a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2v-2a2 2 0 012-2z" />
+                        </svg></span>
+                    AI Usage
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M4 4h16v16H4z" />
+                            <path d="M9 8h6M9 12h4M9 16h2" />
+                        </svg></span>
+                    Books
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
+                            <path d="M8 8h8M8 12h8M8 16h5" />
+                        </svg></span>
+                    Knowledge Cards
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                            <path d="M1 10h22" />
+                            <path d="M7 15h.01M11 15h.01" />
+                        </svg></span>
+                    Payments
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                        </svg></span>
+                    System Settings
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                            <path d="M7 10l5 5 5-5" />
+                            <path d="M12 15V3" />
+                        </svg></span>
+                    Support
+                </a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="#">
+                <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4l2 2" />
+                    </svg></span>
+                Admin Profile
+            </a>
+            <a href="#">
+                <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                    </svg></span>
+                Settings
+            </a>
+            <a href="{% url 'logout' %}" class="logout-link">
+                <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                        <path d="M16 17l5-5-5-5" />
+                        <path d="M21 12H9" />
+                    </svg></span>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main" id="adminMain">
+
+        <!-- Top Bar -->
+        <header class="admin-topbar">
+            <div class="left">
+                <h1>AI Usage</h1>
+                <span class="subtitle">Monitor AI generation activity across Foundry.</span>
+            </div>
+            <div class="right">
+                <span class="status"><span class="dot"></span> Operational</span>
+                <div class="date-range">
+                    <svg width="16" height="16" viewBox="0 0 24 24" stroke="var(--muted)" fill="none"
+                        stroke-width="1.8">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <path d="M16 2v4M8 2v4M3 10h18" />
+                    </svg>
+                    <select aria-label="Select date range">
+                        <option value="today">Today</option>
+                        <option value="7d">7 Days</option>
+                        <option value="30d" selected>30 Days</option>
+                        <option value="90d">90 Days</option>
+                        <option value="12m">12 Months</option>
+                        <option value="ytd">Year to Date</option>
+                        <option value="all">All Time</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="exportRevenueBtn">Export</button>
+                <button class="notif-btn" aria-label="Notifications">
+                    <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none"
+                        stroke-width="1.8">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 01-3.46 0" />
+                    </svg>
+                    <span class="badge-dot"></span>
+                </button>
+                <div class="admin-avatar" aria-label="Admin avatar">SA</div>
+                <span class="admin-name">Admin</span>
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-expanded="false">
+                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Actions -->
+        <div class="page-actions">
+            <button class="btn btn-secondary btn-sm" id="exportRevenueBtn">Export Usage Data</button>
+            <button class="btn btn-secondary btn-sm" disabled>Refresh</button>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid" id="kpiGrid">
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                        </svg></div>
+                </div>
+                <div class="kpi-number">
+                    {% if total_revenue %}
+                    {{ total_revenue|floatformat:2 }}
+                    {% else %}
+                    <span class="kpi-empty">—</span>
+                    {% endif %}
+                </div>
+                <div class="kpi-label">Total Revenue</div>
+                <div class="kpi-context">{% if total_revenue %}All time{% else %}No data available{% endif %}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                            <path d="M1 10h22" />
+                        </svg></div>
+                </div>
+                <div class="kpi-number">
+                    {% if mrr %}
+                    {{ mrr|floatformat:2 }}
+                    {% else %}
+                    <span class="kpi-empty">—</span>
+                    {% endif %}
+                </div>
+                <div class="kpi-label">MRR</div>
+                <div class="kpi-context">{% if mrr %}Current month{% else %}No data available{% endif %}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                        </svg></div>
+                </div>
+                <div class="kpi-number">
+                    {% if arr %}
+                    {{ arr|floatformat:2 }}
+                    {% else %}
+                    <span class="kpi-empty">—</span>
+                    {% endif %}
+                </div>
+                <div class="kpi-label">ARR</div>
+                <div class="kpi-context">{% if arr %}Annualized{% else %}No data available{% endif %}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M3 12h4l3-3 3 3 4-4 3 3h4" />
+                        </svg></div>
+                </div>
+                <div class="kpi-number">
+                    {% if revenue_growth %}
+                    {{ revenue_growth|floatformat:1 }}%
+                    {% else %}
+                    <span class="kpi-empty">—</span>
+                    {% endif %}
+                </div>
+                <div class="kpi-label">Revenue Growth</div>
+                <div class="kpi-context">{% if revenue_growth %}vs previous period{% else %}No data available{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="chart-card" id="revenueChartCard">
+            <div class="chart-header">
+                <div>
+                    <h3>Revenue</h3>
+                    <span class="sub">Revenue performance over time.</span>
+                </div>
+            </div>
+            <div class="chart-container">
+                {% if revenue_chart_data %}
+                <canvas id="revenueChart"></canvas>
+                {% else %}
+                <div class="chart-empty">
+                    <div class="empty-icon">📊</div>
+                    <div class="empty-text">Revenue data will appear here once payment transactions are connected.</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- MRR & ARR -->
+        <div class="metric-grid">
+            <div class="metric-card">
+                <div class="metric-title">Monthly Recurring Revenue</div>
+                <div class="metric-value">
+                    {% if mrr %}
+                    {{ mrr|floatformat:2 }}
+                    {% else %}
+                    <span style="font-size:16px;color:var(--muted);">—</span>
+                    {% endif %}
+                </div>
+                <div class="metric-detail">
+                    {% if mrr %}
+                    <span>Current MRR</span>
+                    {% else %}
+                    <span style="color:var(--muted);">No data available</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Annual Recurring Revenue</div>
+                <div class="metric-value">
+                    {% if arr %}
+                    {{ arr|floatformat:2 }}
+                    {% else %}
+                    <span style="font-size:16px;color:var(--muted);">—</span>
+                    {% endif %}
+                </div>
+                <div class="metric-detail">
+                    {% if arr %}
+                    <span>Annualized subscription revenue</span>
+                    {% else %}
+                    <span style="color:var(--muted);">No data available</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Breakdown -->
+        <div class="chart-card" id="breakdownCard">
+            <div class="chart-header">
+                <div>
+                    <h3>Revenue Breakdown</h3>
+                    <span class="sub">Revenue by category.</span>
+                </div>
+            </div>
+            <div class="chart-container" style="height:200px;">
+                {% if breakdown_data %}
+                <canvas id="breakdownChart"></canvas>
+                {% else %}
+                <div class="chart-empty">
+                    <div class="empty-icon">📊</div>
+                    <div class="empty-text">Breakdown data not available.</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Revenue by Plan -->
+        <div class="chart-card" id="planRevenueCard">
+            <div class="chart-header">
+                <div>
+                    <h3>Revenue by Plan</h3>
+                    <span class="sub">Subscription revenue distribution.</span>
+                </div>
+            </div>
+            {% if plan_revenue_data %}
+            <div class="table-wrap" style="border:none;border-radius:0;margin-bottom:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Subscribers</th>
+                            <th>Revenue</th>
+                            <th>MRR</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for plan in plan_revenue_data %}
+                        <tr>
+                            <td>{{ plan.name }}</td>
+                            <td>{{ plan.subscribers }}</td>
+                            <td>${{ plan.revenue|floatformat:2 }}</td>
+                            <td>${{ plan.mrr|floatformat:2 }}</td>
+                            <td>{{ plan.percentage|floatformat:1 }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="chart-empty" style="height:80px;">
+                <div class="empty-text">Plan revenue data not available.</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Customer Revenue Table -->
+        <div class="chart-card" id="customerRevenueCard">
+            <div class="chart-header">
+                <div>
+                    <h3>Top Customers</h3>
+                    <span class="sub">Highest revenue-generating customers.</span>
+                </div>
+            </div>
+            {% if top_customers %}
+            <div class="table-wrap" style="border:none;border-radius:0;margin-bottom:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Plan</th>
+                            <th>Revenue</th>
+                            <th>Payments</th>
+                            <th>Last Payment</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in top_customers %}
+                        <tr>
+                            <td>
+                                <div class="customer-cell">
+                                    <div class="customer-avatar">{{ customer.name|slice:":1"|default:"U" }}</div>
+                                    <div class="customer-info">
+                                        <div class="name">{{ customer.name }}</div>
+                                        <div class="email">{{ customer.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ customer.plan }}</td>
+                            <td>${{ customer.revenue|floatformat:2 }}</td>
+                            <td>{{ customer.payments }}</td>
+                            <td>{{ customer.last_payment }}</td>
+                            <td><span class="badge-status {{ customer.status_class }}">{{ customer.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="chart-empty" style="height:80px;">
+                <div class="empty-text">Customer revenue analytics are not available yet.</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="chart-card" id="transactionsCard">
+            <div class="chart-header">
+                <div>
+                    <h3>Transactions</h3>
+                    <span class="sub">Recent payment activity.</span>
+                </div>
+            </div>
+            {% if transactions %}
+            <div class="table-wrap" style="border:none;border-radius:0;margin-bottom:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Transaction</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Plan</th>
+                            <th>Date</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transactions %}
+                        <tr>
+                            <td>{{ tx.id }}</td>
+                            <td>{{ tx.customer }}</td>
+                            <td>${{ tx.amount|floatformat:2 }}</td>
+                            <td>{{ tx.plan }}</td>
+                            <td>{{ tx.date }}</td>
+                            <td>{{ tx.payment_method }}</td>
+                            <td><span class="badge-status {{ tx.status_class }}">{{ tx.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="chart-empty" style="height:80px;">
+                <div class="empty-text">No transaction data available.</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Refunds -->
+        <div class="chart-card" id="refundsCard">
+            <div class="chart-header">
+                <div>
+                    <h3>Refunds</h3>
+                    <span class="sub">Refund activity.</span>
+                </div>
+            </div>
+            {% if refunds %}
+            <div class="table-wrap" style="border:none;border-radius:0;margin-bottom:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Refund ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for refund in refunds %}
+                        <tr>
+                            <td>{{ refund.id }}</td>
+                            <td>{{ refund.customer }}</td>
+                            <td>${{ refund.amount|floatformat:2 }}</td>
+                            <td>{{ refund.date }}</td>
+                            <td><span class="badge-status refunded">Refunded</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="chart-empty" style="height:80px;">
+                <div class="empty-text">No refund data available.</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Financial Activity Timeline -->
+        <div class="chart-card" id="activityCard">
+            <div class="chart-header">
+                <div>
+                    <h3>Financial Activity</h3>
+                    <span class="sub">Recent revenue events.</span>
+                </div>
+            </div>
+            {% if revenue_events %}
+            <div style="padding:4px 0;">
+                {% for event in revenue_events %}
+                <div
+                    style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+                    <div
+                        style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;">
+                        {{ event.icon }}</div>
+                    <div style="flex:1;">
+                        <div style="font-size:14px;color:var(--white);">{{ event.title }}</div>
+                        <div style="font-size:12px;color:var(--muted);">{{ event.time }}</div>
+                    </div>
+                    <div style="font-size:13px;color:var(--muted);">{{ event.amount }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="chart-empty" style="height:60px;">
+                <div class="empty-text">No recent revenue events.</div>
+            </div>
+            {% endif %}
+        </div>
+
+    </main>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+    <div class="modal">
+        <button class="modal-close" data-close-modal aria-label="Close">&times;</button>
+        <h2 id="exportModalTitle">Export Revenue Data</h2>
+        <p class="modal-sub">Create a downloadable report of your financial activity.</p>
+
+        <div class="form-group">
+            <label for="exportFormat">Format</label>
+            <select class="form-control" id="exportFormat">
+                <option value="csv">CSV</option>
+                <option value="excel">Excel</option>
+                <option value="pdf">PDF</option>
+                <option value="json">JSON</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="exportDateRange">Date Range</label>
+            <select class="form-control" id="exportDateRange">
+                <option value="7d">Last 7 Days</option>
+                <option value="30d" selected>Last 30 Days</option>
+                <option value="90d">Last 90 Days</option>
+                <option value="ytd">Year to Date</option>
+                <option value="all">All Time</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Include</label>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:4px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--white);">
+                    <input type="checkbox" checked> Transactions
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--white);">
+                    <input type="checkbox" checked> Subscriptions
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--white);">
+                    <input type="checkbox" checked> Revenue
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--white);">
+                    <input type="checkbox" checked> Refunds
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--white);">
+                    <input type="checkbox" checked> Customers
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" id="generateExportBtn">Generate Export</button>
+            <button class="btn btn-secondary" data-close-modal>Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Chart data, safely serialized for JS via json_script (Django-recommended pattern) -->
+{{ revenue_chart_data|json_script:"revenue-chart-data" }}
+{{ breakdown_data|json_script:"breakdown-chart-data" }}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // SIDEBAR TOGGLE
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggleBtn = document.getElementById('sidebarToggle');
+
+        function toggleSidebar(open) {
+            const isOpen = typeof open === 'boolean' ? open : sidebar.classList.contains('open');
+            if (isOpen) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            } else {
+                sidebar.classList.add('open');
+                overlay.classList.add('open');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+            }
+        }
+
+        toggleBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        overlay.addEventListener('click', function () {
+            toggleSidebar(false);
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                toggleSidebar(false);
+            }
+        });
+
+        // MODALS
+        function openModal(modalId) {
+            const overlay = document.getElementById(modalId);
+            if (!overlay) return;
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.fromTo(overlay.querySelector('.modal'), { scale: 0.92, y: 20, opacity: 0 },
+                    { scale: 1, y: 0, opacity: 1, duration: 0.4, ease: 'power3.out' });
+            }
+        }
+
+        function closeModal(overlay) {
+            if (!overlay) return;
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.to(overlay.querySelector('.modal'), {
+                    scale: 0.92,
+                    y: 20,
+                    opacity: 0,
+                    duration: 0.25,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        overlay.classList.remove('open');
+                        document.body.style.overflow = '';
+                    }
+                });
+            } else {
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.querySelectorAll('[data-close-modal]').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const overlay = this.closest('.modal-overlay');
+                if (overlay) closeModal(overlay);
+            });
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function (e) {
+                if (e.target === this) closeModal(this);
+            });
+        });
+
+        // EXPORT MODAL
+        document.querySelectorAll('#exportRevenueBtn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                openModal('exportModal');
+            });
+        });
+
+        document.getElementById('generateExportBtn').addEventListener('click', function () {
+            const btn = this;
+            const orig = btn.textContent;
+            btn.textContent = 'Preparing Report...';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.textContent = '✓ Report Ready';
+                btn.style.background = 'var(--accent)';
+                btn.style.color = '#050505';
+                showToast('success', 'Export Ready', 'Your revenue report is ready for download.');
+                setTimeout(() => {
+                    btn.textContent = 'Download';
+                    btn.disabled = false;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 800);
+            }, 1200);
+        });
+
+        // TOAST
+        const toastContainer = document.getElementById('toastContainer');
+
+        function showToast(type, title, desc) {
+            const iconMap = { success: '✓', error: '✕', info: 'ℹ' };
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <span class="toast-icon">${iconMap[type] || 'ℹ'}</span>
+                <div class="toast-body">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-desc">${desc}</div>
+                </div>
+                <button class="toast-close" aria-label="Close notification">&times;</button>
+            `;
+            toastContainer.appendChild(toast);
+
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.fromTo(toast, { x: 'calc(100% + 40px)', opacity: 0 },
+                    { x: 0, opacity: 1, duration: 0.45, ease: 'power3.out' });
+            } else {
+                toast.style.transform = 'translateX(0)';
+                toast.style.opacity = '1';
+            }
+
+            toast.querySelector('.toast-close').addEventListener('click', function () {
+                dismissToast(toast);
+            });
+
+            setTimeout(() => { dismissToast(toast); }, 5000);
+        }
+
+        function dismissToast(toast) {
+            if (!toast.parentNode) return;
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.to(toast, {
+                    x: 'calc(100% + 40px)', opacity: 0, duration: 0.35, ease: 'power2.in',
+                    onComplete: () => { if (toast.parentNode) toast.remove(); }
+                });
+            } else {
+                toast.remove();
+            }
+        }
+
+        // CHARTS (only if data exists) — read from the json_script tags above,
+        // not interpolated directly, so there's no template-syntax or
+        // JSON-escaping risk regardless of what the view passes in.
+        function readJsonScript(id) {
+            const el = document.getElementById(id);
+            if (!el) return null;
+            try {
+                return JSON.parse(el.textContent);
+            } catch (e) {
+                console.error('Failed to parse chart data for #' + id, e);
+                return null;
+            }
+        }
+
+        const revenueChartData = readJsonScript('revenue-chart-data');
+        const breakdownData = readJsonScript('breakdown-chart-data');
+
+        if (revenueChartData && document.getElementById('revenueChart')) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: revenueChartData.labels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revenueChartData.values,
+                        borderColor: '#00E5A8',
+                        backgroundColor: 'rgba(0,229,168,0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#00E5A8'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.06)' },
+                            ticks: { color: '#9CA3AF' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.06)' },
+                            ticks: { color: '#9CA3AF' }
+                        }
+                    }
+                }
+            });
+        }
+
+        if (breakdownData && document.getElementById('breakdownChart')) {
+            const ctx = document.getElementById('breakdownChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: breakdownData.labels,
+                    datasets: [{
+                        data: breakdownData.values,
+                        backgroundColor: ['#00E5A8', '#f59e0b', '#60a5fa', '#ef4444'],
+                        borderColor: '#050505',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#9CA3AF', boxWidth: 12, padding: 12 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // COUNT-UP ANIMATION (only for real numbers)
+        function animateCountUp() {
+            const cards = document.querySelectorAll('.kpi-number');
+            cards.forEach(el => {
+                const text = el.textContent.trim();
+                // Check if it's a number (not a dash or text)
+                const num = parseFloat(text.replace(/[^0-9.-]/g, ''));
+                if (isNaN(num)) return;
+                const target = num;
+                const duration = 1000;
+                const startTime = performance.now();
+
+                function update(now) {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const current = eased * target;
+                    el.textContent = current.toFixed(2);
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    } else {
+                        el.textContent = target.toFixed(2);
+                    }
+                }
+                requestAnimationFrame(update);
+            });
+        }
+
+        // GSAP REVEALS
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            gsap.from('.admin-sidebar', {
+                opacity: 0,
+                x: -20,
+                duration: 0.5,
+                ease: 'power3.out',
+                delay: 0.1
+            });
+            gsap.from('.admin-topbar', {
+                opacity: 0,
+                y: -10,
+                duration: 0.4,
+                ease: 'power3.out',
+                delay: 0.2
+            });
+            gsap.from('.page-actions', {
+                opacity: 0,
+                y: 12,
+                duration: 0.4,
+                ease: 'power3.out',
+                delay: 0.25
+            });
+            gsap.from('.kpi-card', {
+                opacity: 0,
+                y: 20,
+                duration: 0.5,
+                ease: 'power3.out',
+                delay: 0.3,
+                stagger: 0.08
+            });
+            gsap.from('.chart-card', {
+                opacity: 0,
+                y: 20,
+                duration: 0.5,
+                ease: 'power3.out',
+                delay: 0.5,
+                stagger: 0.08
+            });
+            gsap.from('.metric-card', {
+                opacity: 0,
+                y: 16,
+                duration: 0.4,
+                ease: 'power3.out',
+                delay: 0.6,
+                stagger: 0.06
+            });
+        }
+
+        // INIT
+        setTimeout(animateCountUp, 400);
+        console.log('💰 Foundry AI Usage Analytics initialized.');
+    })();
+</script>
+{% endblock %}

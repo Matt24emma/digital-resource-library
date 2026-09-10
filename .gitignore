@@ -6,22 +6,29 @@ __pycache__/
 # Virtual Environment
 venv/
 .env
+.env.*
+!.env.example
 
 # Django
 db.sqlite3
+*.sqlite3
 
-# Media uploads
+# Media uploads (both root and Resources)
+media/
 Resources/media/
 
 # Static collected files
 staticfiles/
 
-# VS Code
-.vscode/
+# Build artifacts
+build/
+dist/
+*.egg-info/
 
-# PyCharm
+# IDE
+.vscode/
 .idea/
 
-# Operating System
+# OS
 .DS_Store
 Thumbs.db

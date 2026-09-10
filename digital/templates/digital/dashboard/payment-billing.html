@@ -1,0 +1,357 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ===========================
+       LIGHT FOUNDRY BILLING THEME
+    =========================== */
+    :root {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8FAFC;
+        --bg-tertiary: #F1F5F9;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #2563EB;
+        --primary-hover: #1D4ED8;
+        --primary-light: #EFF6FF;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--bg-secondary); color: var(--text-primary); }
+    h1, h2, h3 { font-family: 'Poppins', sans-serif; }
+
+    .foundry-wrapper { max-width: 1200px; margin: 0 auto; padding: 32px 24px 80px; }
+    
+    .billing-header { display: flex; align-items: flex-end; justify-content: space-between; padding: 28px 0 20px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 16px; }
+    .billing-header-left h1 { font-size: 36px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-primary); line-height: 1.1; margin-bottom: 2px; }
+    .billing-header-left h1 .accent { color: var(--primary); }
+    .billing-header-left .subtitle { font-size: 16px; color: var(--text-secondary); font-weight: 400; }
+    .billing-header-right { display: flex; gap: 12px; flex-shrink: 0; align-items: center; }
+
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 10px; font-weight: 500; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+    .btn:hover { border-color: var(--text-muted); background: var(--bg-secondary); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+    .btn-danger { background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+    .billing-layout { display: flex; gap: 32px; padding-top: 24px; align-items: flex-start; }
+    .billing-main { flex: 1; min-width: 0; }
+    .billing-sidebar { width: 220px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
+
+    .plan-hero { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 20px; padding: 32px 36px; margin-bottom: 28px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); }
+    .plan-badge { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 16px; border-radius: 20px; border: 1px solid rgba(37, 99, 235, 0.1); margin-bottom: 12px; }
+    .plan-name { font-size: 28px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; line-height: 1.1; }
+    .plan-price { font-size: 18px; font-weight: 400; color: var(--text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .plan-price .price { font-size: 32px; font-weight: 700; color: var(--primary); }
+    .plan-price .period { font-size: 14px; color: var(--text-muted); font-weight: 400; }
+    .plan-status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #DCFCE7; color: #166534; border: 1px solid rgba(34, 197, 94, 0.1); margin-top: 6px; }
+    .plan-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
+    .plan-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+
+    .usage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .usage-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+    .usage-icon { font-size: 20px; display: block; margin-bottom: 4px; color: var(--primary); opacity: 0.7; }
+    .usage-label { font-size: 12px; color: var(--text-secondary); font-weight: 400; margin-bottom: 2px; }
+    .usage-value { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
+    .usage-badge { display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; padding: 1px 10px; border-radius: 10px; background: var(--primary-light); color: var(--primary); margin-top: 4px; }
+
+    .section-label { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; letter-spacing: -0.2px; display: flex; align-items: center; gap: 8px; }
+    .section-label .label-sub { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+
+    .comparison-table { width: 100%; border-collapse: collapse; background: var(--bg-primary); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 28px; }
+    .comparison-table th, .comparison-table td { padding: 14px 20px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 400; color: var(--text-primary); }
+    .comparison-table th { font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.4px; background: var(--bg-secondary); }
+    .comparison-table tr.current-plan td { background: var(--primary-light); border-left: 2px solid var(--primary); }
+    .comparison-table .check { color: var(--success); font-size: 16px; }
+    .comparison-table .lock { color: var(--text-muted); font-size: 14px; }
+
+    .payment-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 16px; padding: 22px 26px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
+    .payment-card .payment-info { display: flex; align-items: center; gap: 16px; }
+    .payment-card .card-icon { font-size: 32px; color: var(--text-muted); }
+    .card-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .card-number { font-size: 13px; color: var(--text-secondary); }
+
+    .history-section { margin-bottom: 8px; }
+    .history-table-wrap { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); background: var(--bg-primary); }
+    .history-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+    .history-table th, .history-table td { padding: 14px 20px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 400; color: var(--text-primary); }
+    .history-table th { font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.4px; background: var(--bg-secondary); }
+    .status-badge { display: inline-block; padding: 2px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background: #DCFCE7; color: #166534; }
+    .status-badge.pending { background: #FEF3C7; color: #92400E; }
+    .status-badge.refunded { background: #FEE2E2; color: #991B1B; }
+
+    .sidebar-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); margin-bottom: 16px; }
+    .card-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; }
+    .sidebar-stat { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+    .sidebar-stat:last-child { border-bottom: none; }
+    .stat-value { color: var(--text-primary); font-weight: 500; }
+    .stat-value .accent { color: var(--primary); }
+
+    .benefit-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+    .benefit-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); padding: 4px 0; }
+    .b-icon { font-size: 14px; color: var(--success); width: 20px; text-align: center; }
+
+    .upgrade-mini { background: var(--primary-light); border-radius: 12px; padding: 14px 16px; text-align: center; margin-top: 8px; }
+    .mini-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .mini-desc { font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; }
+    .btn-upgrade-sm { padding: 6px 20px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-weight: 600; font-size: 12px; cursor: pointer; }
+
+    /* Responsive */
+    @media (max-width: 992px) { .billing-layout { flex-direction: column; } .billing-sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; gap: 12px; } .billing-sidebar .sidebar-card { flex: 1; min-width: 180px; } }
+    @media (max-width: 768px) { .billing-header { flex-direction: column; align-items: flex-start; } .plan-hero { padding: 24px; } .plan-actions { flex-direction: column; } .plan-actions .btn { width: 100%; justify-content: center; } }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="foundry-wrapper">
+    <!-- Header -->
+    <div class="billing-header">
+        <div class="billing-header-left">
+            <h1>Subscription &amp; <span class="accent">Billing</span></h1>
+            <div class="subtitle">Manage your plan and account.</div>
+        </div>
+        <div class="billing-header-right">
+            <button class="btn" id="manageBillingBtn">⚙️ Manage Billing</button>
+        </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="billing-layout">
+        <!-- Main -->
+        <div class="billing-main">
+
+            <!-- Current Plan -->
+            <div class="plan-hero">
+                <div class="plan-badge">{% if is_premium %}✦ Premium{% else %}Free{% endif %}</div>
+                <div class="plan-name">{{ plan_name }}</div>
+                <div class="plan-price">
+                    <span class="price">{{ plan_price }}</span>
+                    <span class="period">{{ plan_period }}</span>
+                </div>
+                <div class="plan-status">
+                    <span class="dot"></span>
+                    {{ plan_status }}{% if is_premium %} • Renews on {{ renewal_date }}{% endif %}
+                </div>
+                <div class="plan-actions">
+                    {% if is_premium %}
+                        <button class="btn btn-primary" id="upgradeBtn">⬆ Upgrade Plan</button>
+                        <button class="btn" id="manageSubBtn">📋 Manage Subscription</button>
+                        <button class="btn btn-danger" id="cancelBtn">✕ Cancel Plan</button>
+                    {% else %}
+                        <button class="btn btn-primary" id="upgradeBtn">⬆ Upgrade to Premium</button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Usage Cards -->
+            <div class="usage-grid">
+                <div class="usage-card">
+                    <span class="usage-icon">⬇️</span>
+                    <div class="usage-label">Downloads Used</div>
+                    <div class="usage-value">{{ downloads_used }}{% if not is_premium %} <span style="font-size:12px; color:var(--text-muted);">/ 5</span>{% endif %}</div>
+                    {% if is_premium %}<span class="usage-badge">Unlimited</span>{% endif %}
+                </div>
+                <div class="usage-card">
+                    <span class="usage-icon">📚</span>
+                    <div class="usage-label">Books Uploaded</div>
+                    <div class="usage-value">{{ total_books }}</div>
+                    {% if is_premium %}<span class="usage-badge">Unlimited</span>{% endif %}
+                </div>
+                <div class="usage-card">
+                    <span class="usage-icon">📝</span>
+                    <div class="usage-label">Summaries</div>
+                    <div class="usage-value">{{ total_summaries }}</div>
+                </div>
+                <div class="usage-card">
+                    <span class="usage-icon">🧠</span>
+                    <div class="usage-label">Knowledge Cards</div>
+                    <div class="usage-value">{{ total_cards }}</div>
+                </div>
+                <div class="usage-card">
+                    <span class="usage-icon">💾</span>
+                    <div class="usage-label">Storage Used</div>
+                    <div class="usage-value">{{ storage_used_mb }} <span style="font-size:12px; color:var(--text-muted);">MB</span></div>
+                </div>
+                <div class="usage-card">
+                    <span class="usage-icon">🤖</span>
+                    <div class="usage-label">AI Requests</div>
+                    <div class="usage-value">{{ ai_requests }}</div>
+                </div>
+            </div>
+
+            <!-- Plan Comparison -->
+            <div class="section-label">Plan Comparison <span class="label-sub">— Compare features</span></div>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Free</th>
+                        <th>Premium {% if is_premium %}<span style="color: var(--primary); font-size: 10px; font-weight: 600;">Current</span>{% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="{% if is_premium %}current-plan{% endif %}">
+                        <td>Books Uploaded</td>
+                        <td>3</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr class="{% if is_premium %}current-plan{% endif %}">
+                        <td>Knowledge Cards</td>
+                        <td>20 / month</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr class="{% if is_premium %}current-plan{% endif %}">
+                        <td>PDF Exports</td>
+                        <td><span class="lock">🔒</span> Basic</td>
+                        <td><span class="check">✓</span> Unlimited</td>
+                    </tr>
+                    <tr class="{% if is_premium %}current-plan{% endif %}">
+                        <td>Export Formats</td>
+                        <td>PDF only</td>
+                        <td><span class="check">✓</span> PDF, PNG, ZIP, DOCX</td>
+                    </tr>
+                    <tr class="{% if is_premium %}current-plan{% endif %}">
+                        <td>AI Priority</td>
+                        <td><span class="lock">🔒</span> Standard</td>
+                        <td><span class="check">✓</span> Priority</td>
+                    </tr>
+                    <tr class="{% if is_premium %}current-plan{% endif %}">
+                        <td>Price</td>
+                        <td>Free</td>
+                        <td><span style="color: var(--primary); font-weight: 700;">$29/mo</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Payment Method -->
+            <div class="section-label">Payment Method <span class="label-sub">— Manage your payment details</span></div>
+            <div class="payment-card">
+                <div class="payment-info">
+                    <span class="card-icon">💳</span>
+                    <div class="card-details">
+                        <div class="card-name">{% if is_premium %}Visa •••• 4242{% else %}No card on file{% endif %}</div>
+                        <div class="card-number">{% if is_premium %}Expires 12/2028{% else %}Add a card to upgrade{% endif %}</div>
+                    </div>
+                </div>
+                <div class="payment-actions">
+                    {% if is_premium %}
+                        <button class="btn">🔄 Update Card</button>
+                        <button class="btn btn-danger">✕ Remove</button>
+                    {% else %}
+                        <button class="btn btn-primary" id="addCardBtn">💳 Add Card</button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Billing History -->
+            {% if billing_history %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in billing_history %}
+                    <tr>
+                        <td>{{ invoice.invoice_number }}</td>
+                        <td>${{ invoice.amount }}</td>
+                        <td>{{ invoice.issue_date|date:"M j, Y" }}</td>
+                        <td><span class="status-badge">{{ invoice.status }}</span></td>
+                        <td>
+                            <a href="#" class="btn btn-sm">📥 Receipt</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div style="padding: 30px; text-align: center; color: var(--text-muted);">
+                <p>No invoices yet.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="billing-sidebar">
+            <div class="sidebar-card">
+                <div class="card-label">Account Status</div>
+                <div class="sidebar-stat"><span>Subscription</span><span class="stat-value" style="color: var(--success);">{{ plan_status }}</span></div>
+                <div class="sidebar-stat"><span>Health</span><span class="stat-value">✅ Good</span></div>
+                <div class="sidebar-stat"><span>Storage Remaining</span><span class="stat-value"><span class="accent">{{ storage_used_mb }}</span> MB</span></div>
+                <div class="sidebar-stat"><span>Days Until Renewal</span><span class="stat-value"><span class="accent">30</span> days</span></div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="card-label">⭐ Premium Benefits</div>
+                <div class="benefit-list">
+                    <div class="benefit-item"><span class="b-icon">✓</span> Unlimited Downloads</div>
+                    <div class="benefit-item"><span class="b-icon">✓</span> Unlimited PDF Export</div>
+                    <div class="benefit-item"><span class="b-icon">✓</span> Unlimited Knowledge Cards</div>
+                    <div class="benefit-item"><span class="b-icon">✓</span> Priority AI</div>
+                    <div class="benefit-item"><span class="b-icon">✓</span> Priority Support</div>
+                </div>
+            </div>
+
+            {% if not is_premium %}
+            <div class="sidebar-card">
+                <div class="upgrade-mini">
+                    <div class="mini-title">🚀 Upgrade to Pro</div>
+                    <div class="mini-desc">Get unlimited everything &amp; premium features</div>
+                    <button class="btn-upgrade-sm" id="upgradeMiniBtn">Upgrade Now</button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Simulate actions with a toast or redirect (you can wire these to real endpoints later)
+        const toast = document.getElementById('toast'); // if you have a toast element; otherwise use simple alert
+
+        function showToast(msg) {
+            alert(msg); // Replace with your toast component if available
+        }
+
+        document.getElementById('upgradeBtn').addEventListener('click', function() {
+            // Redirect to pricing or initialize payment
+            window.location.href = "{% url 'pricing' %}";
+        });
+
+        document.getElementById('upgradeMiniBtn')?.addEventListener('click', function() {
+            window.location.href = "{% url 'pricing' %}";
+        });
+
+        document.getElementById('addCardBtn')?.addEventListener('click', function() {
+            showToast('Add card flow not implemented yet.');
+        });
+
+        document.getElementById('cancelBtn')?.addEventListener('click', function() {
+            if (confirm('Are you sure you want to cancel your subscription?')) {
+                // Implement a cancel endpoint
+                showToast('Cancellation initiated.');
+            }
+        });
+
+        // Manage billing button
+        document.getElementById('manageBillingBtn')?.addEventListener('click', function() {
+            showToast('Billing settings coming soon.');
+        });
+    });
+</script>
+{% endblock %}

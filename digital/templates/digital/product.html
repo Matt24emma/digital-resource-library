@@ -1,0 +1,1016 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}Foundry · Everything you need to turn reading into action.{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================================================
+       PRODUCT PAGE – ADDITIONAL STYLES
+       ================================================== */
+
+    /* ---- Section spacing & layout ---- */
+    .product-section {
+        padding: 80px 0;
+    }
+
+    .product-section--light {
+        background: var(--background);
+    }
+
+    .product-container {
+        max-width: var(--container-width);
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* ---- Section labels ---- */
+    .product-eyebrow {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: var(--font-semibold);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 4px 14px;
+        border-radius: 100px;
+        margin-bottom: 16px;
+    }
+
+    .product-headline {
+        font-family: var(--font-heading);
+        font-weight: var(--font-bold);
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
+
+    .product-headline--large {
+        font-size: clamp(2.4rem, 5vw, 3.6rem);
+    }
+
+    .product-sub {
+        font-size: clamp(1rem, 1.2vw, 1.2rem);
+        color: var(--text-secondary);
+        max-width: 640px;
+        line-height: 1.7;
+        margin-bottom: 8px;
+    }
+
+    .product-sub--centered {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+
+    /* ---- Product UI cards ---- */
+    .product-ui {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        padding: 24px 28px 28px;
+        transition: box-shadow 0.3s ease;
+        max-width: 640px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .product-ui--full {
+        max-width: 100%;
+    }
+
+    .product-ui-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .product-ui-header .ui-label {
+        font-size: 0.75rem;
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+    }
+
+    .product-ui-header .ui-badge {
+        font-size: 0.7rem;
+        font-weight: var(--font-semibold);
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 2px 12px;
+        border-radius: 100px;
+        white-space: nowrap;
+    }
+
+    .product-ui .ui-title {
+        font-family: var(--font-heading);
+        font-weight: var(--font-semibold);
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+    }
+
+    .product-ui .ui-meta {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+    }
+
+    .product-ui .ui-block {
+        margin-bottom: 14px;
+    }
+
+    .product-ui .ui-block:last-child {
+        margin-bottom: 0;
+    }
+
+    .product-ui .ui-block strong {
+        display: block;
+        font-weight: var(--font-semibold);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+
+    .product-ui .ui-block p {
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .product-ui .ui-block p.text-secondary {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .product-ui .ui-action {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 14px;
+        margin-top: 14px;
+        border-top: 1px solid var(--border);
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .product-ui .ui-action .ui-progress {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: var(--font-medium);
+    }
+
+    /* ---- Library grid ---- */
+    .library-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 12px;
+    }
+
+    .library-item {
+        background: var(--background);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 16px 18px;
+        transition: border-color 0.2s ease;
+    }
+
+    .library-item:hover {
+        border-color: var(--primary);
+    }
+
+    .library-item .book-title {
+        font-weight: var(--font-semibold);
+        font-size: 0.95rem;
+    }
+
+    .library-item .book-meta {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+
+    .library-item .book-status {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: var(--font-semibold);
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 0 10px;
+        border-radius: 100px;
+        margin-top: 6px;
+    }
+
+    .library-item .book-status.done {
+        color: var(--success);
+        background: #dcfce7;
+    }
+
+    /* ---- Reading plan days ---- */
+    .plan-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        margin: 12px 0 8px;
+    }
+
+    .plan-day {
+        aspect-ratio: 1/1;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: var(--font-medium);
+        color: var(--text-muted);
+        background: var(--white);
+        transition: 0.2s ease;
+    }
+
+    .plan-day.done {
+        background: var(--primary-light);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .plan-day.current {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--white);
+    }
+
+    /* ---- Progress stats ---- */
+    .progress-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .progress-stat {
+        text-align: center;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 16px 12px;
+    }
+
+    .progress-stat .stat-number {
+        font-family: var(--font-heading);
+        font-weight: var(--font-bold);
+        font-size: 2rem;
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+
+    .progress-stat .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        font-weight: var(--font-medium);
+    }
+
+    /* ---- Knowledge flow ---- */
+    .knowledge-flow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-top: 24px;
+    }
+
+    .flow-step {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px 24px;
+        font-weight: var(--font-medium);
+        color: var(--text-primary);
+        width: 100%;
+        max-width: 280px;
+        text-align: center;
+        transition: border-color 0.2s ease;
+    }
+
+    .flow-step:hover {
+        border-color: var(--primary);
+    }
+
+    .flow-arrow {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+    }
+
+    /* ---- Delivery previews ---- */
+    .delivery-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-top: 20px;
+    }
+
+    .delivery-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 20px 22px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .delivery-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    .delivery-card .delivery-label {
+        font-size: 0.65rem;
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+    }
+
+    .delivery-card .delivery-preview {
+        background: var(--background);
+        border-radius: var(--radius-sm);
+        padding: 14px 16px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
+    .delivery-card .delivery-preview strong {
+        color: var(--text-primary);
+        font-weight: var(--font-semibold);
+    }
+
+    .delivery-card .delivery-preview .preview-meta {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+    }
+
+    .delivery-card .delivery-preview .preview-action {
+        display: inline-block;
+        margin-top: 6px;
+        font-weight: var(--font-semibold);
+        font-size: 0.75rem;
+        color: var(--primary);
+    }
+
+    /* ---- Playbook categories ---- */
+    .playbook-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .playbook-category {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 16px 18px;
+        text-align: center;
+        transition: border-color 0.2s ease;
+    }
+
+    .playbook-category:hover {
+        border-color: var(--primary);
+    }
+
+    .playbook-category .cat-name {
+        font-weight: var(--font-semibold);
+        font-size: 1rem;
+    }
+
+    .playbook-category .cat-count {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    /* ---- Two-column section layouts ---- */
+    .product-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+    }
+
+    .product-grid-2-center {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+    }
+
+    /* ---- Responsive adjustments ---- */
+    @media (max-width: 1024px) {
+        .progress-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .playbook-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .delivery-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .product-section {
+            padding: 56px 0;
+        }
+
+        .product-ui {
+            padding: 18px 16px 20px;
+        }
+
+        .plan-days {
+            gap: 4px;
+        }
+
+        .plan-day {
+            font-size: 0.6rem;
+        }
+
+        .progress-stats {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .progress-stat .stat-number {
+            font-size: 1.6rem;
+        }
+
+        .playbook-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .library-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .product-grid-2 {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+
+        .product-grid-2-center {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+
+        .product-grid-2-center>div:first-child {
+            order: 1;
+        }
+
+        .product-grid-2-center>div:last-child {
+            order: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .library-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .playbook-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .progress-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .product-ui .ui-action {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .product-ui .ui-action .foundry-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .flow-step {
+            max-width: 100%;
+        }
+
+        .product-ui-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .product-ui-header .ui-badge {
+            align-self: flex-start;
+        }
+
+        .product-grid-2 {
+            gap: 24px;
+        }
+
+        .product-grid-2-center {
+            gap: 24px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .progress-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ==========================================
+    1. HERO
+    ========================================== -->
+<section class="product-section" aria-labelledby="hero-headline">
+    <div class="product-container">
+        <div class="product-hero"
+            style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 800px; margin: 0 auto;">
+            <span class="product-eyebrow">THE FOUNDRY EXPERIENCE</span>
+            <h1 id="hero-headline" class="product-headline product-headline--large" style="margin-bottom: 8px;">
+                Your books. Your ideas. Your next move.
+            </h1>
+            <p class="product-sub product-sub--centered" style="max-width: 600px;">
+                Foundry transforms the books you read into a structured experience built around understanding, applying,
+                and acting on what matters.
+            </p>
+            <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; justify-content: center;">
+                <a href="{% url 'create_account' %}" class="foundry-btn foundry-btn--primary">Start Building</a>
+                <a href="{% url 'home' %}#how-it-works" class="foundry-btn foundry-btn--secondary">See How It Works</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+    2. LIBRARY
+    ========================================== -->
+<section class="product-section product-section--light" aria-labelledby="library-headline">
+    <div class="product-container">
+        <div class="product-grid-2">
+            <div>
+                <span class="product-eyebrow">YOUR KNOWLEDGE LIBRARY</span>
+                <h2 id="library-headline" class="product-headline">Keep your learning in one place.</h2>
+                <p class="product-sub">Upload the books that matter to your business and keep your learning organized in
+                    a single, focused library.</p>
+                <ul style="list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                    <li
+                        style="display: flex; gap: 8px; align-items: center; font-size: 0.95rem; color: var(--text-secondary);">
+                        ✓ Organize your books.
+                    </li>
+                    <li
+                        style="display: flex; gap: 8px; align-items: center; font-size: 0.95rem; color: var(--text-secondary);">
+                        ✓ Keep track of what you're reading.
+                    </li>
+                    <li
+                        style="display: flex; gap: 8px; align-items: center; font-size: 0.95rem; color: var(--text-secondary);">
+                        ✓ Return to completed books and their insights.
+                    </li>
+                    <li
+                        style="display: flex; gap: 8px; align-items: center; font-size: 0.95rem; color: var(--text-secondary);">
+                        ✓ See your learning journey at a glance.
+                    </li>
+                </ul>
+            </div>
+            <div class="product-ui" id="libraryUI">
+                <div class="product-ui-header">
+                    <span class="ui-label">My Library</span>
+                    <span class="ui-badge">2 books</span>
+                </div>
+                <div class="library-grid">
+                    <div class="library-item">
+                        <div class="book-title">$100M Offers</div>
+                        <div class="book-meta">Alex Hormozi · 14 Day Build</div>
+                        <span class="book-status">Day 4 of 14</span>
+                    </div>
+                    <div class="library-item">
+                        <div class="book-title">The Psychology of Money</div>
+                        <div class="book-meta">Morgan Housel · Completed</div>
+                        <span class="book-status done">Completed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+    3. READING PLANS
+    ========================================== -->
+<section class="product-section" aria-labelledby="plans-headline">
+    <div class="product-container">
+        <div class="product-grid-2">
+            <div>
+                <span class="product-eyebrow">READING PLANS</span>
+                <h2 id="plans-headline" class="product-headline">Turn a book into a journey you can actually finish.
+                </h2>
+                <p class="product-sub">Instead of facing hundreds of pages at once, create a structured reading plan
+                    that breaks the book into manageable sessions.</p>
+                <p class="product-sub" style="margin-top: 8px;">Choose how you want to move through the book and let
+                    Foundry turn it into a clear path from the first chapter to the last.</p>
+            </div>
+            <div class="product-ui" id="plansUI">
+                <div class="product-ui-header">
+                    <span class="ui-label">14 Day Build</span>
+                    <span class="ui-badge">4 / 14 days complete</span>
+                </div>
+                <div class="plan-days">
+                    <span class="plan-day done">✓</span>
+                    <span class="plan-day done">✓</span>
+                    <span class="plan-day done">✓</span>
+                    <span class="plan-day current">4</span>
+                    <span class="plan-day">5</span>
+                    <span class="plan-day">6</span>
+                    <span class="plan-day">7</span>
+                    <span class="plan-day">8</span>
+                    <span class="plan-day">9</span>
+                    <span class="plan-day">10</span>
+                    <span class="plan-day">11</span>
+                    <span class="plan-day">12</span>
+                    <span class="plan-day">13</span>
+                    <span class="plan-day">14</span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 4px;">4 /
+                    14 DAYS COMPLETE</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+    4. DAILY BUILDS
+    ========================================== -->
+<section class="product-section product-section--light" aria-labelledby="daily-headline">
+    <div class="product-container">
+        <div class="product-grid-2">
+            <div>
+                <span class="product-eyebrow">DAILY BUILDS</span>
+                <h2 id="daily-headline" class="product-headline">Don't just remember the idea. Do something with it.
+                </h2>
+                <p class="product-sub">Every reading session turns an important idea into a practical action you can
+                    apply to your business.</p>
+            </div>
+            <div class="product-ui" id="dailyUI">
+                <div class="product-ui-header">
+                    <span class="ui-label">Today's Build</span>
+                    <span class="ui-badge">Chapter 4 · The Value Equation</span>
+                </div>
+                <div class="ui-block">
+                    <strong>The Idea</strong>
+                    <p>People don't buy products. They buy the outcome they believe the product can create.</p>
+                </div>
+                <div class="ui-block">
+                    <strong>Why It Matters</strong>
+                    <p class="text-secondary">The way you communicate value can change how customers perceive your
+                        offer.</p>
+                </div>
+                <div class="ui-block">
+                    <strong>Your Action</strong>
+                    <p>Rewrite your current offer around the result your customer wants.</p>
+                </div>
+                <div class="ui-action">
+                    <span class="ui-progress">Action pending</span>
+                    <button class="foundry-btn foundry-btn--primary foundry-btn--sm mark-complete">Mark
+                        Complete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+    5. INSIGHTS
+    ========================================== -->
+<section class="product-section" aria-labelledby="insights-headline">
+    <div class="product-container">
+        <div class="product-grid-2">
+            <div>
+                <span class="product-eyebrow">FOCUSED INSIGHTS</span>
+                <h2 id="insights-headline" class="product-headline">Find what matters without getting lost in the pages.
+                </h2>
+                <p class="product-sub">Foundry helps you focus on the ideas that deserve your attention, so your reading
+                    becomes more intentional and useful.</p>
+                <p class="product-sub" style="margin-top: 8px;">Instead of collecting endless notes, build a focused
+                    understanding of the ideas that can actually influence the way you work.</p>
+            </div>
+            <div class="product-ui" id="insightsUI">
+                <div class="product-ui-header">
+                    <span class="ui-label">Chapter 4</span>
+                    <span class="ui-badge">The Value Equation</span>
+                </div>
+                <div class="ui-block">
+                    <strong>Key Idea</strong>
+                    <p>Value increases when the desired outcome becomes clearer and more compelling.</p>
+                </div>
+                <div class="ui-block">
+                    <strong>Why It Matters</strong>
+                    <p class="text-secondary">Understanding perceived value helps you think differently about your
+                        offer.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+    6. PROGRESS
+    ========================================== -->
+<section class="product-section product-section--light" aria-labelledby="progress-headline">
+    <div class="product-container">
+        <div style="text-align: center; max-width: 700px; margin: 0 auto;">
+            <span class="product-eyebrow">YOUR PROGRESS</span>
+            <h2 id="progress-headline" class="product-headline">See your momentum as you build.</h2>
+            <p class="product-sub product-sub--centered">Your progress should be visible. Track the books you're working
+                through, the sessions you've completed, and the actions you've taken along the way.</p>
+        </div>
+        <div class="product-ui product-ui--full" style="margin-top: 32px; max-width: 800px;" id="progressUI">
+            <div class="product-ui-header">
+                <span class="ui-label">Your Progress</span>
+                <span class="ui-badge">28% book completed</span>
+            </div>
+            <div class="progress-stats">
+                <div class="progress-stat">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Book in progress</div>
+                </div>
+                <div class="progress-stat">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Sessions completed</div>
+                </div>
+                <div class="progress-stat">
+                    <div class="stat-number">7</div>
+                    <div class="stat-label">Actions completed</div>
+                </div>
+                <div class="progress-stat">
+                    <div class="stat-number">28%</div>
+                    <div class="stat-label">Book completed</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 16px; color: var(--text-secondary); font-size: 0.95rem;">
+                Small actions compound. What starts as one chapter becomes a habit of learning, applying, and building.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+    7. KNOWLEDGE TO ACTION
+    ========================================== -->
+<section class="product-section" aria-labelledby="action-headline">
+    <div class="product-container">
+        <div style="text-align: center; max-width: 640px; margin: 0 auto;">
+            <span class="product-eyebrow">FROM KNOWLEDGE TO ACTION</span>
+            <h2 id="action-headline" class="product-headline">The value of a book is what you do with it.</h2>
+            <p class="product-sub product-sub--centered">Foundry is designed to close the gap between consuming
+                knowledge and putting it to work.</p>
+        </div>
+        <div class="knowledge-flow" id="flowUI">
+            <div class="flow-step">📖 Book</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-step">💡 Insight</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-step">🧠 Understanding</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-step">⚡ Action</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-step">📈 Progress</div>
+        </div>
+        <div
+            style="text-align: center; margin-top: 24px; color: var(--text-secondary); font-size: 0.95rem; max-width: 480px; margin-left: auto; margin-right: auto;">
+            Read the idea. Understand why it matters. Decide what to do. Take action. Keep moving.
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+    8. DELIVERY
+    ========================================== -->
+<section class="product-section product-section--light" aria-labelledby="delivery-headline">
+    <div class="product-container">
+        <div style="text-align: center; max-width: 640px; margin: 0 auto;">
+            <span class="product-eyebrow">STAY IN THE FLOW</span>
+            <h2 id="delivery-headline" class="product-headline">Your next build, when you're ready for it.</h2>
+            <p class="product-sub product-sub--centered">Your learning shouldn't depend on remembering to come back.
+                Foundry can deliver your daily learning experience through the channels that fit naturally into your
+                routine.</p>
+        </div>
+        <div class="delivery-grid" style="margin-top: 32px;">
+            <div class="delivery-card">
+                <div class="delivery-label">Email</div>
+                <div class="delivery-preview">
+                    <div class="preview-meta">Foundry · Today's Build</div>
+                    <strong>Chapter 5 · The Offer</strong>
+                    <p style="margin: 6px 0; font-size: 0.85rem;">Your next action is ready.</p>
+                    <span class="preview-action">→ Mark Complete</span>
+                </div>
+            </div>
+            <div class="delivery-card">
+                <div class="delivery-label">WhatsApp</div>
+                <div class="delivery-preview">
+                    <div class="preview-meta">Foundry · 9:41 AM</div>
+                    <strong>Today's Build</strong>
+                    <p style="margin: 4px 0; font-size: 0.85rem;">Chapter 5 · The Offer</p>
+                    <p style="font-size: 0.85rem; color: var(--text-primary);">Rewrite your offer around the customer's
+                        desired outcome.</p>
+                    <span class="preview-action">→ Mark Complete</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+    9. BUSINESS PLAYBOOK
+    ========================================== -->
+<section class="product-section" aria-labelledby="playbook-headline">
+    <div class="product-container">
+        <div style="text-align: center; max-width: 640px; margin: 0 auto;">
+            <span class="product-eyebrow">YOUR BUSINESS PLAYBOOK</span>
+            <h2 id="playbook-headline" class="product-headline">Turn what you learn into a growing collection of ideas
+                and actions.</h2>
+            <p class="product-sub product-sub--centered">The ideas you apply don't have to disappear when you finish a
+                book. Build a personal collection of insights, actions, and lessons that you can return to as your
+                business grows.</p>
+        </div>
+        <div class="playbook-grid" style="margin-top: 32px;" id="playbookUI">
+            <div class="playbook-category">
+                <div class="cat-name">Offer</div>
+                <div class="cat-count">3 insights</div>
+            </div>
+            <div class="playbook-category">
+                <div class="cat-name">Marketing</div>
+                <div class="cat-count">5 insights</div>
+            </div>
+            <div class="playbook-category">
+                <div class="cat-name">Sales</div>
+                <div class="cat-count">4 insights</div>
+            </div>
+            <div class="playbook-category">
+                <div class="cat-name">Customer</div>
+                <div class="cat-count">2 insights</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+    10. FINAL CTA
+    ========================================== -->
+<section class="product-section"
+    style="padding: 100px 0 80px; background: var(--white); border-top: 1px solid var(--border);">
+    <div class="product-container">
+        <div style="max-width: 720px; margin: 0 auto; text-align: center;">
+            <span class="product-eyebrow">START BUILDING</span>
+            <h2
+                style="font-family: var(--font-heading); font-weight: var(--font-bold); font-size: clamp(2.4rem, 4.5vw, 3.6rem); line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 16px;">
+                Your next chapter is waiting.
+            </h2>
+            <p
+                style="font-size: clamp(1.05rem, 1.2vw, 1.2rem); color: var(--text-secondary); max-width: 560px; margin: 0 auto 32px; line-height: 1.7;">
+                Don't let another good idea stay inside a book. Turn what you learn into something you can actually use.
+            </p>
+            <a href="{% url 'create_account' %}" class="foundry-btn foundry-btn--primary"
+                style="font-size: 1.05rem; padding: 14px 48px;">Start Building</a>
+            <div
+                style="margin-top: 24px; font-family: var(--font-heading); font-weight: var(--font-medium); font-size: 1rem; color: var(--text-muted); letter-spacing: 0.04em;">
+                Every Chapter Builds Your Business.
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Prefers-reduced-motion check
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReducedMotion) return;
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        // ---- Hero fade-in ----
+        gsap.from('.product-hero', {
+            opacity: 0,
+            y: 30,
+            duration: 0.8,
+            ease: 'power2.out'
+        });
+
+        // ---- Product UI cards reveal ----
+        const cards = [
+            { el: '#libraryUI', trigger: '#libraryUI' },
+            { el: '#plansUI', trigger: '#plansUI' },
+            { el: '#dailyUI', trigger: '#dailyUI' },
+            { el: '#insightsUI', trigger: '#insightsUI' },
+            { el: '#progressUI', trigger: '#progressUI' },
+            { el: '#playbookUI', trigger: '#playbookUI' }
+        ];
+
+        cards.forEach(({ el, trigger }) => {
+            gsap.from(el, {
+                scrollTrigger: {
+                    trigger: trigger,
+                    start: 'top 85%',
+                    toggleActions: 'play none none none'
+                },
+                y: 40,
+                opacity: 0,
+                duration: 0.7,
+                ease: 'power2.out'
+            });
+        });
+
+        // ---- Knowledge flow steps stagger ----
+        gsap.from('.flow-step', {
+            scrollTrigger: {
+                trigger: '#flowUI',
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+            },
+            y: 20,
+            opacity: 0,
+            stagger: 0.12,
+            duration: 0.5,
+            ease: 'power2.out'
+        });
+
+        // ---- Delivery cards stagger ----
+        gsap.from('.delivery-card', {
+            scrollTrigger: {
+                trigger: '.delivery-grid',
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+            },
+            y: 25,
+            opacity: 0,
+            stagger: 0.12,
+            duration: 0.6,
+            ease: 'power2.out'
+        });
+
+        // ---- Playbook categories stagger ----
+        gsap.from('.playbook-category', {
+            scrollTrigger: {
+                trigger: '#playbookUI',
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+            },
+            y: 20,
+            opacity: 0,
+            stagger: 0.08,
+            duration: 0.5,
+            ease: 'power2.out'
+        });
+
+        // ---- Final CTA ----
+        gsap.from('.product-container:last-child .product-eyebrow, .product-container:last-child h2, .product-container:last-child p, .product-container:last-child .foundry-btn, .product-container:last-child div:last-child', {
+            scrollTrigger: {
+                trigger: '.product-container:last-child',
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+            },
+            y: 25,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 0.6,
+            ease: 'power2.out'
+        });
+
+        // ---- "Mark Complete" buttons (add toast feedback) ----
+        document.querySelectorAll('.mark-complete').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (this.dataset.complete === 'true') return;
+                this.textContent = 'Completed ✓';
+                this.disabled = true;
+                this.style.opacity = '0.7';
+                this.dataset.complete = 'true';
+                // Optional toast – you can implement if needed
+                // For now just visual feedback
+            });
+        });
+    });
+</script>
+{% endblock %}

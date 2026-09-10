@@ -1,38 +1,744 @@
-{% extends 'digital/base.html' %}
+{% extends "digital/base.html" %}
 {% load static %}
+
+{% block title %}{{ resource.title }} — Free Resource | Foundry{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/details.css' %}">
+<style>
+    /* ==================================================
+       RESOURCE DETAIL PAGE — Foundry Light Theme
+       ================================================== */
+    :root {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8FAFC;
+        --bg-tertiary: #F1F5F9;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #2563EB;
+        --primary-hover: #1D4ED8;
+        --primary-light: #EFF6FF;
+        --success: #22C55E;
+        --font-heading: 'Poppins', sans-serif;
+        --font-body: 'Inter', sans-serif;
+    }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: var(--font-heading);
+    }
+
+    .rd-wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 24px 80px;
+    }
+
+    /* ============================
+       DETAIL HERO
+       ============================ */
+    .rd-hero {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 48px;
+        align-items: start;
+        padding: 24px 0 40px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 48px;
+    }
+
+    .rd-thumb {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        aspect-ratio: 16 / 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .rd-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .rd-thumb .rd-thumb-placeholder {
+        font-size: 3rem;
+        color: var(--text-muted);
+    }
+
+    .rd-info .rd-eyebrow {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 4px 14px;
+        border-radius: 100px;
+        margin-bottom: 12px;
+    }
+
+    .rd-info h1 {
+        font-size: clamp(1.8rem, 3vw, 2.5rem);
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        margin: 0 0 14px 0;
+        color: var(--text-primary);
+    }
+
+    .rd-info .rd-description {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        line-height: 1.75;
+        margin-bottom: 24px;
+        max-width: 620px;
+    }
+
+    .rd-info .rd-cta-group {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .rd-info .rd-btn-primary {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 10px;
+        font-family: var(--font-body);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    }
+
+    .rd-info .rd-btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.22);
+        color: #fff;
+    }
+
+    .rd-info .rd-supporting-text {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .rd-info .rd-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .rd-info .rd-meta .rd-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .rd-info .rd-meta .rd-meta-item strong {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    /* ============================
+       FOUNDRY INTRO
+       ============================ */
+    .rd-intro {
+        margin-top: 24px;
+        padding: 48px 40px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: start;
+        margin-bottom: 56px;
+    }
+
+    .rd-intro .rd-intro-eyebrow {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 4px 14px;
+        border-radius: 100px;
+        margin-bottom: 12px;
+    }
+
+    .rd-intro h2 {
+        font-size: clamp(1.6rem, 2.5vw, 2.1rem);
+        font-weight: 700;
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        margin: 0 0 14px 0;
+        color: var(--text-primary);
+    }
+
+    .rd-intro p {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        line-height: 1.75;
+        margin-bottom: 16px;
+        max-width: 520px;
+    }
+
+    .rd-intro .rd-btn-outline {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .rd-intro .rd-btn-outline:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    .rd-intro .rd-steps-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .rd-intro .rd-step-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px 18px 20px;
+        transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .rd-intro .rd-step-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .rd-intro .rd-step-card .rd-step-num {
+        font-family: var(--font-heading);
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: var(--primary);
+        margin-bottom: 6px;
+    }
+
+    .rd-intro .rd-step-card h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        color: var(--text-primary);
+    }
+
+    .rd-intro .rd-step-card p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* ============================
+       RELATED RESOURCES
+       ============================ */
+    .rd-related {
+        margin-bottom: 56px;
+    }
+
+    .rd-related-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .rd-related-header h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .rd-related-header p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin: 4px 0 0 0;
+    }
+
+    .rd-related-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .rd-related-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .rd-related-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        border-color: var(--primary);
+    }
+
+    .rd-related-card .rd-rc-thumb {
+        aspect-ratio: 16 / 10;
+        background: var(--bg-tertiary);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--text-muted);
+    }
+
+    .rd-related-card .rd-rc-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s;
+    }
+
+    .rd-related-card:hover .rd-rc-thumb img {
+        transform: scale(1.04);
+    }
+
+    .rd-related-card .rd-rc-body {
+        padding: 16px 18px 18px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .rd-related-card .rd-rc-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.35;
+        margin: 0 0 6px 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .rd-related-card .rd-rc-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin: 0;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Pagination */
+    .rd-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .rd-pagination .rd-page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .rd-pagination .rd-page-link:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    .rd-pagination .rd-page-link.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+        pointer-events: none;
+    }
+
+    .rd-pagination .rd-page-link.disabled {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    /* ============================
+       FINAL CTA
+       ============================ */
+    .rd-final-cta {
+        padding: 56px 32px 40px;
+        border-top: 1px solid var(--border);
+        text-align: center;
+        background: var(--bg-primary);
+        border-radius: 20px;
+    }
+
+    .rd-final-cta .rd-cta-eyebrow {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 4px 14px;
+        border-radius: 100px;
+        margin-bottom: 12px;
+    }
+
+    .rd-final-cta h2 {
+        font-size: clamp(1.6rem, 2.8vw, 2.3rem);
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        margin: 0 0 10px 0;
+        color: var(--text-primary);
+    }
+
+    .rd-final-cta p {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        max-width: 520px;
+        margin: 0 auto 24px;
+        line-height: 1.7;
+    }
+
+    .rd-final-cta .rd-cta-btn {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 12px 36px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    }
+
+    .rd-final-cta .rd-cta-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        color: #fff;
+    }
+
+    .rd-final-cta .rd-brand-tagline {
+        margin-top: 20px;
+        font-family: var(--font-heading);
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        letter-spacing: 0.04em;
+    }
+
+    /* ============================
+       RESPONSIVE
+       ============================ */
+    @media (max-width: 1024px) {
+        .rd-hero {
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+
+        .rd-intro {
+            grid-template-columns: 1fr;
+            gap: 32px;
+            padding: 32px 24px;
+        }
+
+        .rd-related-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .rd-wrap {
+            padding: 20px 16px 60px;
+        }
+
+        .rd-hero {
+            padding: 8px 0 24px;
+            margin-bottom: 32px;
+        }
+
+        .rd-intro {
+            padding: 24px 18px;
+            margin-bottom: 40px;
+        }
+
+        .rd-intro .rd-steps-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .rd-related-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .rd-info .rd-cta-group {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .rd-info .rd-btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .rd-intro .rd-btn-outline {
+            width: 100%;
+            text-align: center;
+        }
+
+        .rd-final-cta {
+            padding: 40px 20px 32px;
+        }
+
+        .rd-final-cta .rd-cta-btn {
+            width: 100%;
+        }
+
+        .rd-pagination .rd-page-link {
+            min-width: 32px;
+            height: 32px;
+            font-size: 0.85rem;
+            padding: 0 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .rd-thumb {
+            aspect-ratio: 16 / 9;
+        }
+
+        .rd-related-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .rd-info h1 {
+            font-size: 1.5rem;
+        }
+
+        .rd-intro h2 {
+            font-size: 1.4rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="resource-detail">
-    <div class="download">
-        <img src="{{ resource.thumbnail.url }}" alt="{{ resource.title }}">
-        <h1>{{ resource.title }}</h1>
-        <p>{{ resource.description }}</p>
-        <a href="{% url 'download_resource' resource.slug %}">
-            Download Resource
-        </a>
-    </div>
+<div class="rd-wrap">
 
-    <div class="most-downloaded">
-    <h4>Top 5 Most Downloaded Resources</h4>
+    <!-- ============================
+         HERO
+         ============================ -->
+    <div class="rd-hero">
+        <div class="rd-thumb">
+            {% if resource.thumbnail %}
+            <img src="{{ resource.thumbnail.url }}" alt="{{ resource.title }}">
+            {% else %}
+            <div class="rd-thumb-placeholder">📄</div>
+            {% endif %}
+        </div>
 
-    <div class="download-cont">
-        {% for resource in top_downloaded_resources %}
-        <div class="download-item">
-            <img class="res-img" src="{{ resource.thumbnail.url }}" alt="{{ resource.title }}">
-        
-            <div>
-                <h5>{{ resource.title }}</h5>
-                <p>{{ resource.most_downloaded }} Downloads</p>
-        
-                <a href="{% url 'resource_detail' slug=resource.slug %}">
-                    View Resource
+        <div class="rd-info">
+            <span class="rd-eyebrow">FREE RESOURCE</span>
+            <h1>{{ resource.title }}</h1>
+            <p class="rd-description">{{ resource.description }}</p>
+
+            <div class="rd-cta-group">
+                <a href="{% url 'leads' slug=resource.slug %}" class="rd-btn-primary">
+                    Get This Resource
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <path d="M7 10l5 5 5-5" />
+                        <path d="M12 15V3" />
+                    </svg>
                 </a>
+                <span class="rd-supporting-text">Free to download. No account required.</span>
+            </div>
+
+            <div class="rd-meta">
+                <span class="rd-meta-item">📥 <strong>{{ resource.most_downloaded }}</strong> downloads</span>
+                <span class="rd-meta-item">📅 Added {{ resource.created_at|date:"M d, Y" }}</span>
             </div>
         </div>
-        {% endfor %}
     </div>
+
+    <!-- ============================
+         FOUNDRY INTRO
+         ============================ -->
+    <div class="rd-intro">
+        <div class="rd-intro-content">
+            <span class="rd-intro-eyebrow">WHAT HAPPENS AFTER YOU DOWNLOAD?</span>
+            <h2>Don't let another good book become another file in your downloads folder.</h2>
+            <p>
+                Downloading a great book is easy. Finding the time to read it, understand the ideas that matter,
+                and actually apply them is where the real value begins.
+            </p>
+            <p>
+                Foundry gives your reading structure. Add the books you want to read, create a reading plan,
+                work through them one step at a time, and turn important ideas into practical actions for your business.
+            </p>
+            <a href="{% url 'home' %}" class="rd-btn-outline">Start Reading With Foundry →</a>
+        </div>
+
+        <div class="rd-steps-grid">
+            <div class="rd-step-card">
+                <div class="rd-step-num">01</div>
+                <h4>Add Your Books</h4>
+                <p>Upload the books you want to work through and keep your learning organized in one place.</p>
+            </div>
+            <div class="rd-step-card">
+                <div class="rd-step-num">02</div>
+                <h4>Create Your Plan</h4>
+                <p>Break your reading into a manageable schedule that gives you a clear path forward.</p>
+            </div>
+            <div class="rd-step-card">
+                <div class="rd-step-num">03</div>
+                <h4>Learn &amp; Apply</h4>
+                <p>Focus on the ideas that matter and turn them into practical actions.</p>
+            </div>
+            <div class="rd-step-card">
+                <div class="rd-step-num">04</div>
+                <h4>Track Your Progress</h4>
+                <p>See what you've completed, what you're learning, and the actions you're putting into practice.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================
+         RELATED RESOURCES
+         ============================ -->
+    {% if related_resources %}
+    <div class="rd-related">
+        <div class="rd-related-header">
+            <div>
+                <h2>More Free Resources</h2>
+                <p>Explore more books, guides and tools from the Foundry library.</p>
+            </div>
+        </div>
+
+        <div class="rd-related-grid">
+            {% for r in related_resources %}
+            <a href="{% url 'resource_detail' slug=r.slug %}" class="rd-related-card">
+                <div class="rd-rc-thumb">
+                    {% if r.thumbnail %}
+                    <img src="{{ r.thumbnail.url }}" alt="{{ r.title }}">
+                    {% else %}
+                    📄
+                    {% endif %}
+                </div>
+                <div class="rd-rc-body">
+                    <h3 class="rd-rc-title">{{ r.title }}</h3>
+                    <p class="rd-rc-desc">{{ r.description|truncatechars:90 }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Related Pagination (5 per page) -->
+        {% if related_resources.has_other_pages %}
+        <div class="rd-pagination">
+            {% if related_resources.has_previous %}
+            <a href="?related_page={{ related_resources.previous_page_number }}" class="rd-page-link">‹ Prev</a>
+            {% else %}
+            <span class="rd-page-link disabled">‹ Prev</span>
+            {% endif %}
+
+            {% for num in related_resources.paginator.page_range %}
+            {% if num == related_resources.number %}
+            <span class="rd-page-link active">{{ num }}</span>
+            {% else %}
+            <a href="?related_page={{ num }}" class="rd-page-link">{{ num }}</a>
+            {% endif %}
+            {% endfor %}
+
+            {% if related_resources.has_next %}
+            <a href="?related_page={{ related_resources.next_page_number }}" class="rd-page-link">Next ›</a>
+            {% else %}
+            <span class="rd-page-link disabled">Next ›</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- ============================
+         FINAL CTA
+         ============================ -->
+    <div class="rd-final-cta">
+        <span class="rd-cta-eyebrow">YOUR BOOKS ARE WAITING</span>
+        <h2>Don't just build a bigger library. Build from what you learn.</h2>
+        <p>You already have ideas worth learning. Foundry helps you turn them into progress.</p>
+        <a href="{% url 'create_account' %}" class="rd-cta-btn">Start Building</a>
+        <div class="rd-brand-tagline">Turn what you learn into what you do.</div>
+    </div>
+
 </div>
 {% endblock %}

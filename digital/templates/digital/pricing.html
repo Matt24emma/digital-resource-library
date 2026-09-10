@@ -1,0 +1,415 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}<title>Upgrade to Premium</title>{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ============================================================
+       FOUNDRY LIGHT BRAND STYLES (Pricing Page)
+       ============================================================ */
+    :root {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8FAFC;
+        --bg-tertiary: #F1F5F9;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #2563EB;
+        --primary-hover: #1D4ED8;
+        --primary-light: #EFF6FF;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+        --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* ============================================================
+       PRICING HERO
+       ============================================================ */
+    .pricing-hero {
+        text-align: center;
+        padding: 64px 24px 48px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .pricing-hero .eyebrow {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 8px 20px;
+        border-radius: 30px;
+        margin-bottom: 24px;
+        border: 1px solid rgba(37, 99, 235, 0.1);
+    }
+
+    .pricing-hero h1 {
+        font-size: 48px;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -1.5px;
+        line-height: 1.1;
+        margin-bottom: 16px;
+    }
+
+    .pricing-hero .subtitle {
+        font-size: 18px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* ============================================================
+       PRICING CARD
+       ============================================================ */
+    .pricing-section {
+        display: flex;
+        justify-content: center;
+        padding: 0 24px 64px;
+    }
+
+    .pricing-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-md);
+        max-width: 480px;
+        width: 100%;
+        padding: 40px 48px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pricing-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+    }
+
+    .pricing-card .badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 6px 16px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+        border: 1px solid rgba(37, 99, 235, 0.1);
+    }
+
+    .pricing-card h2 {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .pricing-card .price {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        margin-bottom: 16px;
+    }
+
+    .pricing-card .price .currency {
+        font-size: 24px;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .pricing-card .price strong {
+        font-size: 64px;
+        font-weight: 800;
+        color: var(--primary);
+        line-height: 1;
+        letter-spacing: -2px;
+    }
+
+    .pricing-card .price .month {
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--text-muted);
+        margin-left: 4px;
+    }
+
+    .pricing-card .description {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .pricing-card ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 32px 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .pricing-card ul li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .pricing-card ul li::before {
+        content: '✓';
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--success);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .pricing-card .pricing-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 16px 24px;
+        background: var(--primary);
+        color: #fff;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: var(--radius-md);
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        margin-bottom: 12px;
+    }
+
+    .pricing-card .pricing-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);
+    }
+
+    .pricing-card small {
+        display: block;
+        text-align: center;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 16px;
+    }
+
+    /* ============================================================
+       FAQ
+       ============================================================ */
+    .faq {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 24px 80px;
+    }
+
+    .faq h2 {
+        text-align: center;
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 40px;
+        letter-spacing: -0.5px;
+    }
+
+    .faq-item {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 24px 32px;
+        margin-bottom: 16px;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s ease;
+    }
+
+    .faq-item:hover {
+        border-color: rgba(37, 99, 235, 0.2);
+        box-shadow: var(--shadow-md);
+    }
+
+    .faq-item h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .faq-item p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 768px) {
+        .pricing-hero {
+            padding: 48px 20px 32px;
+        }
+
+        .pricing-hero h1 {
+            font-size: 36px;
+        }
+
+        .pricing-hero .subtitle {
+            font-size: 16px;
+        }
+
+        .pricing-card {
+            padding: 32px 24px;
+        }
+
+        .pricing-card .price strong {
+            font-size: 56px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .pricing-hero h1 {
+            font-size: 28px;
+        }
+
+        .pricing-card {
+            padding: 28px 20px;
+        }
+
+        .faq h2 {
+            font-size: 28px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="pricing-hero">
+    <p class="eyebrow">KNOWLEDGE WITHOUT LIMITS</p>
+    <h1>Unlock Premium</h1>
+    <p class="subtitle">
+        Build a permanent knowledge library,
+        download unlimited learning cards,
+        and organize everything you've learned in one place.
+    </p>
+</section>
+
+<section class="pricing-section">
+    <div class="pricing-card">
+        <span class="badge">MOST POPULAR</span>
+        <h2>Premium</h2>
+
+        <div class="price">
+            <span class="currency">₦</span>
+            <strong>100</strong>
+            <span class="month">/month</span>
+        </div>
+
+        <p class="description">
+            Perfect for readers, entrepreneurs, creators and lifelong learners.
+        </p>
+
+        <ul>
+            <li>Unlimited PNG downloads</li>
+            <li>Download complete summaries as PDF</li>
+            <li>Unlimited chapter summaries</li>
+            <li>Beautiful printable knowledge cards</li>
+            <li>Personal knowledge library</li>
+            <li>Organize books by category</li>
+            <li>Access every summary anytime</li>
+            <li>Future AI features included</li>
+            <li>Priority product updates</li>
+        </ul>
+
+        <a href="{% url 'initialize_payment' %}" class="pricing-btn">
+            Upgrade Now →
+        </a>
+
+        <small>Secure payments powered by Paystack.</small>
+    </div>
+</section>
+
+<section class="faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-item">
+        <h3>Can I cancel anytime?</h3>
+        <p>Yes. Your subscription can be cancelled whenever you want.</p>
+    </div>
+
+    <div class="faq-item">
+        <h3>Will I lose my summaries?</h3>
+        <p>No. Your summaries remain in your account.</p>
+    </div>
+
+    <div class="faq-item">
+        <h3>Are future features included?</h3>
+        <p>Yes. Premium members automatically receive new premium features.</p>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+<script>
+    // Optional GSAP entrance animation for modern feel
+    document.addEventListener('DOMContentLoaded', function () {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            gsap.from('.pricing-hero', { opacity: 0, y: -20, duration: 0.6, ease: 'power3.out' });
+            gsap.from('.pricing-card', { opacity: 0, y: 30, duration: 0.6, delay: 0.3, ease: 'power3.out' });
+        });
+</script>
+{% endblock %}

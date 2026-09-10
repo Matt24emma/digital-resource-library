@@ -1,0 +1,857 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}Revenue Analytics | Foundry Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8FAFC;
+        --bg-tertiary: #F1F5F9;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #2563EB;
+        --primary-hover: #1D4ED8;
+        --primary-light: #EFF6FF;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --font-heading: 'Poppins', sans-serif;
+        --font-body: 'Inter', sans-serif;
+    }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family: var(--font-heading);
+    }
+
+    /* Header */
+    .rev-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .rev-header h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .rev-header p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin: 4px 0 0;
+    }
+
+    .rev-header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        border: 1px solid var(--border);
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border-color: var(--text-muted);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        border-color: var(--primary-hover);
+        color: #fff;
+    }
+
+    /* Range selector */
+    .rev-range {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 4px;
+        flex-wrap: wrap;
+    }
+
+    .rev-range a {
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-decoration: none;
+    }
+
+    .rev-range a:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+    }
+
+    .rev-range a.active {
+        background: var(--primary);
+        color: #fff;
+    }
+
+    /* KPIs */
+    .rev-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .rev-kpi {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px 22px;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .rev-kpi:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .rev-kpi .k-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        color: var(--primary);
+        margin-bottom: 10px;
+    }
+
+    .rev-kpi .k-icon.green {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--success);
+    }
+
+    .rev-kpi .k-icon.amber {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+    }
+
+    .rev-kpi .k-icon.purple {
+        background: rgba(167, 139, 250, 0.12);
+        color: #A78BFA;
+    }
+
+    .rev-kpi .k-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.1;
+    }
+
+    .rev-kpi .k-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+
+    .rev-kpi .k-context {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 4px;
+    }
+
+    /* Card panels */
+    .rev-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .rev-card-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .rev-card-header h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .rev-card-header p {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin: 2px 0 0;
+    }
+
+    .rev-card-body {
+        padding: 18px 22px;
+    }
+
+    /* Chart */
+    .rev-chart-wrap {
+        height: 280px;
+        position: relative;
+    }
+
+    .rev-chart-empty {
+        height: 280px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+    .rev-chart-empty .icon {
+        font-size: 36px;
+        margin-bottom: 10px;
+        opacity: 0.5;
+    }
+
+    .rev-chart-empty p {
+        font-size: 14px;
+        margin: 0;
+    }
+
+    /* MRR / ARR metric cards */
+    .rev-metric-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .rev-metric {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px 24px;
+    }
+
+    .rev-metric .m-title {
+        font-size: 13px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .rev-metric .m-value {
+        font-size: 30px;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.5px;
+        line-height: 1.1;
+    }
+
+    .rev-metric .m-detail {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-top: 6px;
+    }
+
+    /* Tables */
+    .rev-table-wrap {
+        overflow-x: auto;
+    }
+
+    .rev-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        min-width: 640px;
+    }
+
+    .rev-table thead {
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .rev-table thead th {
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .rev-table tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s;
+    }
+
+    .rev-table tbody tr:hover {
+        background: var(--bg-tertiary);
+    }
+
+    .rev-table tbody td {
+        padding: 12px 16px;
+        vertical-align: middle;
+        color: var(--text-secondary);
+    }
+
+    .rev-table .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .rev-table .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .rev-table .u-name {
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+
+    .rev-table .u-email {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge.success {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--success);
+    }
+
+    .badge.pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+    }
+
+    .badge.failed {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+
+    .badge.refunded {
+        background: rgba(167, 139, 250, 0.12);
+        color: #A78BFA;
+    }
+
+    /* Timeline */
+    .rev-timeline {
+        padding: 4px 0;
+    }
+
+    .rev-timeline-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .rev-timeline-item:last-child {
+        border-bottom: none;
+    }
+
+    .rev-timeline-item .tl-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .rev-timeline-item .tl-body {
+        flex: 1;
+    }
+
+    .rev-timeline-item .tl-title {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .rev-timeline-item .tl-time {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .rev-timeline-item .tl-amount {
+        font-size: 14px;
+        color: var(--success);
+        font-weight: 600;
+    }
+
+    /* Empty */
+    .rev-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .rev-kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .rev-metric-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .rev-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .rev-header-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .rev-header-actions>* {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .rev-range {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .rev-kpi-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .rev-kpi {
+            padding: 16px;
+        }
+
+        .rev-kpi .k-number {
+            font-size: 22px;
+        }
+
+        .rev-chart-wrap,
+        .rev-chart-empty {
+            height: 200px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .rev-kpi-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block admin_contents %}
+<!-- Header -->
+<div class="rev-header">
+    <div>
+        <h1>Revenue Analytics</h1>
+        <p>Understand Foundry's financial performance.</p>
+    </div>
+    <div class="rev-header-actions">
+        <div class="rev-range">
+            <a href="?range=today" class="{% if range_filter == 'today' %}active{% endif %}">Today</a>
+            <a href="?range=7d" class="{% if range_filter == '7d' %}active{% endif %}">7 Days</a>
+            <a href="?range=30d" class="{% if range_filter == '30d' %}active{% endif %}">30 Days</a>
+            <a href="?range=90d" class="{% if range_filter == '90d' %}active{% endif %}">90 Days</a>
+            <a href="?range=12m" class="{% if range_filter == '12m' %}active{% endif %}">12 Months</a>
+            <a href="?range=all" class="{% if range_filter == 'all' %}active{% endif %}">All</a>
+        </div>
+        <a href="{% url 'export_leads_pdf' %}?period={{ range_filter }}" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <path d="M7 10l5 5 5-5" />
+                <path d="M12 15V3" />
+            </svg>
+            Export
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="rev-kpi-grid">
+    <div class="rev-kpi">
+        <div class="k-icon green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+            </svg>
+        </div>
+        <div class="k-number">${{ total_revenue|floatformat:2 }}</div>
+        <div class="k-label">Total Revenue</div>
+        <div class="k-context">In selected period</div>
+    </div>
+    <div class="rev-kpi">
+        <div class="k-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" />
+                <path d="M1 10h22" />
+            </svg>
+        </div>
+        <div class="k-number">${{ mrr|floatformat:2 }}</div>
+        <div class="k-label">MRR</div>
+        <div class="k-context">Monthly Recurring Revenue</div>
+    </div>
+    <div class="rev-kpi">
+        <div class="k-icon purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+            </svg>
+        </div>
+        <div class="k-number">${{ arr|floatformat:2 }}</div>
+        <div class="k-label">ARR</div>
+        <div class="k-context">Annual Recurring Revenue</div>
+    </div>
+    <div class="rev-kpi">
+        <div class="k-icon amber">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h4l3-3 3 3 4-4 3 3h4" />
+            </svg>
+        </div>
+        <div class="k-number">{{ revenue_growth|floatformat:1 }}%</div>
+        <div class="k-label">Revenue Growth</div>
+        <div class="k-context">vs previous period</div>
+    </div>
+</div>
+
+<!-- Revenue Chart -->
+<div class="rev-card">
+    <div class="rev-card-header">
+        <div>
+            <h3>Revenue Trend</h3>
+            <p>Daily revenue performance.</p>
+        </div>
+    </div>
+    <div class="rev-card-body">
+        <div class="rev-chart-wrap">
+            {% if revenue_chart_data %}
+            <canvas id="revenueChart"></canvas>
+            {% else %}
+            <div class="rev-chart-empty">
+                <div class="icon">📊</div>
+                <p>Revenue data will appear here once payments are processed.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- MRR / ARR -->
+<div class="rev-metric-grid">
+    <div class="rev-metric">
+        <div class="m-title">Monthly Recurring Revenue</div>
+        <div class="m-value">${{ mrr|floatformat:2 }}</div>
+        <div class="m-detail">Active premium subscriptions × plan price</div>
+    </div>
+    <div class="rev-metric">
+        <div class="m-title">Annual Recurring Revenue</div>
+        <div class="m-value">${{ arr|floatformat:2 }}</div>
+        <div class="m-detail">MRR × 12</div>
+    </div>
+</div>
+
+<!-- Revenue by Plan -->
+<div class="rev-card">
+    <div class="rev-card-header">
+        <div>
+            <h3>Revenue by Plan</h3>
+            <p>Subscription revenue distribution per plan.</p>
+        </div>
+    </div>
+    {% if plan_revenue_data %}
+    <div class="rev-table-wrap">
+        <table class="rev-table">
+            <thead>
+                <tr>
+                    <th>Plan</th>
+                    <th>Subscribers</th>
+                    <th>Revenue</th>
+                    <th>MRR</th>
+                    <th>Share</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plan in plan_revenue_data %}
+                <tr>
+                    <td><strong style="color: var(--text-primary);">{{ plan.name }}</strong></td>
+                    <td>{{ plan.subscribers }}</td>
+                    <td>${{ plan.revenue|floatformat:2 }}</td>
+                    <td>${{ plan.mrr|floatformat:2 }}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div
+                                style="flex: 1; height: 6px; background: var(--bg-tertiary); border-radius: 100px; overflow: hidden; min-width: 60px;">
+                                <div
+                                    style="height: 100%; width: {{ plan.percentage }}%; background: var(--primary); border-radius: 100px;">
+                                </div>
+                            </div>
+                            <span style="font-size: 12px; color: var(--text-muted); min-width: 40px;">{{
+                                plan.percentage|floatformat:1 }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="rev-empty">No plan revenue data available yet.</div>
+    {% endif %}
+</div>
+
+<!-- Top Customers -->
+<div class="rev-card">
+    <div class="rev-card-header">
+        <div>
+            <h3>Top Customers</h3>
+            <p>Highest revenue-generating customers.</p>
+        </div>
+    </div>
+    {% if top_customers %}
+    <div class="rev-table-wrap">
+        <table class="rev-table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Plan</th>
+                    <th>Revenue</th>
+                    <th>Payments</th>
+                    <th>Last Payment</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in top_customers %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar">{{ customer.name|first|upper }}</div>
+                            <div>
+                                <div class="u-name">{{ customer.name }}</div>
+                                <div class="u-email">{{ customer.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ customer.plan }}</td>
+                    <td><strong style="color: var(--success);">${{ customer.revenue|floatformat:2 }}</strong></td>
+                    <td>{{ customer.payments }}</td>
+                    <td>{{ customer.last_payment }}</td>
+                    <td><span class="badge {{ customer.status_class }}">{{ customer.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="rev-empty">No customer revenue data yet.</div>
+    {% endif %}
+</div>
+
+<!-- Recent Transactions -->
+<div class="rev-card">
+    <div class="rev-card-header">
+        <div>
+            <h3>Recent Transactions</h3>
+            <p>Latest successful payments.</p>
+        </div>
+    </div>
+    {% if transactions %}
+    <div class="rev-table-wrap">
+        <table class="rev-table">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Plan</th>
+                    <th>Date</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                <tr>
+                    <td><code style="font-size: 12px; color: var(--text-muted);">{{ tx.id }}</code></td>
+                    <td>{{ tx.customer }}</td>
+                    <td><strong style="color: var(--success);">${{ tx.amount|floatformat:2 }}</strong></td>
+                    <td>{{ tx.plan }}</td>
+                    <td>{{ tx.date }}</td>
+                    <td>{{ tx.payment_method }}</td>
+                    <td><span class="badge {{ tx.status_class }}">{{ tx.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="rev-empty">No transactions in this period.</div>
+    {% endif %}
+</div>
+
+<!-- Financial Activity Timeline -->
+<div class="rev-card">
+    <div class="rev-card-header">
+        <div>
+            <h3>Financial Activity</h3>
+            <p>Recent revenue events.</p>
+        </div>
+    </div>
+    <div class="rev-card-body">
+        {% if revenue_events %}
+        <div class="rev-timeline">
+            {% for event in revenue_events %}
+            <div class="rev-timeline-item">
+                <div class="tl-icon">{{ event.icon }}</div>
+                <div class="tl-body">
+                    <div class="tl-title">{{ event.title }}</div>
+                    <div class="tl-time">{{ event.time }}</div>
+                </div>
+                <div class="tl-amount">{{ event.amount }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="rev-empty">No revenue events yet.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        'use strict';
+        var revenueData = null;
+        {% if revenue_chart_data %}
+        revenueData = {{ revenue_chart_data | safe }
+    };
+    {% endif %}
+
+    if (revenueData && document.getElementById('revenueChart')) {
+        var ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: revenueData.labels,
+                datasets: [{
+                    label: 'Revenue',
+                    data: revenueData.values,
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37,99,235,0.08)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#2563EB',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return '$' + context.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(15,23,42,0.06)' }, ticks: { color: '#94A3B8' } },
+                    y: {
+                        grid: { color: 'rgba(15,23,42,0.06)' },
+                        ticks: {
+                            color: '#94A3B8',
+                            callback: function (v) { return '$' + v; }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    }) ();
+</script>
+{% endblock %}
+

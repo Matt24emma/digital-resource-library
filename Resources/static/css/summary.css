@@ -1,0 +1,242 @@
+/* ============================================
+   FONT FACES (defined once, globally)
+   ============================================ */
+@font-face {
+    font-family: "juleha";
+    src: url("../fonts/Juleha.ttf");
+}
+
+@font-face {
+    font-family: "clash";
+    src: url("../fonts/ClashDisplay-Bold.otf");
+}
+
+@font-face {
+    font-family: "satoshi";
+    src: url("../fonts/Satoshi-Black.otf");
+}
+
+@font-face {
+    font-family: "Cormorant";
+    src: url("../fonts/CormorantGaramond-Bold.ttf") format("Truetype");
+}
+
+/* ============================================
+   BASE / MOBILE-FIRST STYLES
+   ============================================ */
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    overflow-x: hidden;
+    /* prevent horizontal scroll */
+    background-color: black;
+    color: white;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+
+.hero {
+    font-family: satoshi;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 1rem;
+    /* safe padding for small screens */
+}
+
+.title h1 {
+    font-size: 3.5rem;
+    font-weight: bolder;
+}
+
+.button button {
+    padding: 0.4rem 1.5rem;
+    border-radius: 5rem;
+    border: 0.4px solid gainsboro;
+    color: rgba(86, 252, 86, 0.7);
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, .06),
+            rgba(255, 255, 255, .03));
+    transition: transform .35s ease,
+        box-shadow .35s ease,
+        border-color .35s ease;
+}
+
+.button button:hover {
+    transform: translateY(-6px);
+    cursor: pointer;
+}
+
+/* ---- Card Holder (mobile: 1 column, no horizontal overflow) ---- */
+.card-holder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 4rem;
+    gap: 1rem;
+    padding: 0 1rem;
+    /* replaces margin-left/right, keeps content inside viewport */
+    width: 100%;
+}
+
+/* ---- Card (mobile: full width with inner padding) ---- */
+.card {
+    width: 100%;
+    /* now uses full available width inside padded container */
+    padding: 2rem;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .03));
+    border: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+    transition:
+        transform .35s ease,
+        box-shadow .35s ease,
+        border-color .35s ease;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: cardFade .8s ease forwards;
+}
+
+.card:nth-child(2) {
+    animation-delay: .15s;
+}
+
+.card:nth-child(3) {
+    animation-delay: .3s;
+}
+
+@keyframes cardFade {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card:hover {
+    transform: translateY(-14px);
+    border-color: rgba(59, 246, 68, 0.45);
+    box-shadow:
+        0 25px 60px rgba(59, 246, 115, 0.15),
+        0 10px 30px rgba(0, 0, 0, .55);
+    cursor: pointer;
+}
+
+.card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.card p {
+    color: #A1A1AA;
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+/* ============================================
+   TABLET (≥ 768px) → 2 columns
+   ============================================ */
+@media (min-width: 768px) {
+    .card-holder {
+        flex-direction: row;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 3rem;
+        padding: 0;
+        /* reset padding, use width/max-width for centering */
+        width: 90%;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .card {
+        width: calc(50% - 15px);
+        /* 2 columns with gap */
+        padding: 2rem;
+    }
+}
+
+/* ============================================
+   DESKTOP (≥ 1024px) → 3 columns
+   ============================================ */
+@media (min-width: 1024px) {
+    .card-holder {
+        gap: 30px;
+        margin-top: 4rem;
+        width: 92%;
+        max-width: 1400px;
+    }
+
+    .card {
+        width: calc(33.333% - 20px);
+        /* 3 columns with gap */
+        padding: 2rem;
+    }
+}
+
+/* ============================================
+   LARGE SCREEN (≥ 1280px) → 5 columns (20% width)
+   (preserves original desktop design)
+   ============================================ */
+@media (min-width: 1280px) {
+    .card-holder {
+        gap: 30px;
+        width: 90%;
+        max-width: 1600px;
+    }
+
+    .card {
+        width: 20%;
+        /* 5 columns as originally intended */
+        padding: 2rem;
+    }
+}
+
+/* ============================================
+   EXTRA SMALL (≤ 480px) – fine-tune spacing
+   ============================================ */
+@media (max-width: 480px) {
+    .card-holder {
+        margin-top: 2.5rem;
+        gap: 1.25rem;
+        padding: 0 0.75rem;
+        /* reduce side padding */
+    }
+
+    .card {
+        width: 100%;
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+
+    .card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .card p {
+        font-size: 0.925rem;
+        line-height: 1.6;
+    }
+
+    .card:hover {
+        transform: translateY(-8px);
+    }
+
+    .title h1 {
+        font-size: 2.5rem;
+    }
+
+    .button button {
+        padding: 0.3rem 1.2rem;
+        font-size: 0.9rem;
+    }
+}

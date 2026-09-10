@@ -1,0 +1,542 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title|default:"Reading Plan" }} · EbookSplitter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        /* (keep all existing styles – unchanged) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .processing-card {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .processing-card .spinner {
+            display: inline-block;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            border: 4px solid #e2e8f0;
+            border-top-color: #3b82f6;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .timeline {
+            margin: 2rem auto 0;
+            max-width: 400px;
+            text-align: left;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.4rem 0;
+            opacity: 0.5;
+        }
+
+        .timeline-item.done {
+            opacity: 1;
+        }
+
+        .timeline-item.active {
+            opacity: 1;
+            font-weight: 500;
+        }
+
+        .timeline-item .check {
+            color: #22c55e;
+            font-size: 1.2rem;
+        }
+
+        .timeline-item .bullet {
+            color: #3b82f6;
+            font-size: 1.2rem;
+        }
+
+        .timeline-item .empty {
+            color: #cbd5e1;
+            font-size: 1.2rem;
+        }
+
+        .book-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .book-icon {
+            font-size: 3.5rem;
+        }
+
+        .book-meta h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .book-meta .details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 2rem;
+            margin-top: 0.3rem;
+            color: #475569;
+        }
+
+        .book-meta .details span {
+            background: #f1f5f9;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin: 1.5rem 0 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            background: #3b82f6;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .chunks-list {
+            margin-top: 1rem;
+        }
+
+        .chunk-item {
+            border-bottom: 1px solid #eef2f6;
+            padding: 0.8rem 0;
+        }
+
+        .chunk-item:last-child {
+            border-bottom: none;
+        }
+
+        .chunk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            gap: 0.5rem;
+        }
+
+        .chunk-header .day {
+            font-weight: 600;
+        }
+
+        .chunk-header .pages {
+            color: #475569;
+            font-size: 0.95rem;
+        }
+
+        .chunk-header .chapter {
+            color: #3b82f6;
+            font-size: 0.9rem;
+            background: #eff6ff;
+            padding: 0 0.8rem;
+            border-radius: 40px;
+        }
+
+        .chunk-header .time {
+            color: #64748b;
+            font-size: 0.85rem;
+            background: #f1f5f9;
+            padding: 0.1rem 0.8rem;
+            border-radius: 40px;
+        }
+
+        .chunk-header .expand-icon {
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .chunk-header .expand-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .chunk-body {
+            display: none;
+            padding: 0.8rem 0.5rem 1.2rem;
+            color: #1e293b;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .chunk-body.open {
+            display: block;
+        }
+
+        .chunk-body .content-preview {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            max-height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chunk-body .content-preview::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3rem;
+            background: linear-gradient(transparent, #f8fafc);
+        }
+
+        .chunk-body .actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            border: none;
+            font-weight: 600;
+            background: #3b82f6;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .btn-read {
+            font-size: 0.75rem;
+            padding: 0.15rem 0.9rem;
+            border-radius: 20px;
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            text-decoration: none;
+            transition: background 0.15s, border-color 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-read:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 0;
+            color: #64748b;
+        }
+
+        @media (max-width: 700px) {
+            .card {
+                padding: 1.2rem;
+            }
+
+            .book-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .book-meta h2 {
+                font-size: 1.5rem;
+            }
+
+            .chunk-header {
+                flex-wrap: wrap;
+                gap: 0.3rem;
+            }
+
+            .chunk-header .chapter {
+                order: 10;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="app">
+
+        {% if book.status == 'pending' or book.status == 'processing' %}
+        <!-- Processing state -->
+        <div class="card processing-card">
+            <div class="spinner"></div>
+            <h2 style="margin-top:1.5rem;">Preparing your reading plan</h2>
+            <p style="color:#475569;">We're analyzing your book and building your daily sessions.</p>
+
+            <!-- Progress bar -->
+            <div
+                style="background: #1a1a1a; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #2d2d2d;">
+                <div style="background: #2d2d2d; border-radius: 20px; height: 10px; overflow: hidden;">
+                    <div id="progress-bar"
+                        style="height: 100%; width: 0%; background: #3b82f6; border-radius: 20px; transition: width 0.3s ease;">
+                    </div>
+                </div>
+                <p id="status-text" style="margin-top: 8px; color: #9CA3AF; font-size: 14px;">Processing... 0%</p>
+            </div>
+
+            <div class="timeline" id="timeline">
+                <div class="timeline-item done"><span class="check">✓</span> Upload received</div>
+                <div class="timeline-item {% if book.status == 'processing' %}active{% else %}done{% endif %}">
+                    <span class="{% if book.status == 'processing' %}bullet{% else %}check{% endif %}">●</span>
+                    Reading your book
+                </div>
+                <div class="timeline-item"><span class="empty">○</span> Organizing pages</div>
+                <div class="timeline-item"><span class="empty">○</span> Building your reading plan</div>
+                <div class="timeline-item"><span class="empty">○</span> Preparing your daily sessions</div>
+            </div>
+            <p style="margin-top:1.5rem; font-size:0.9rem; color:#94a3b8;" id="processing-hint">This may take a minute
+                or two.</p>
+        </div>
+
+        <script>
+            function pollProgress(bookId) {
+                const progressBar = document.getElementById('progress-bar');
+                const statusText = document.getElementById('status-text');
+                if (!progressBar) return;
+
+                fetch(`/ebook/progress/${bookId}/`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.status === 'completed') {
+                            progressBar.style.width = '100%';
+                            statusText.textContent = 'Done!';
+                            setTimeout(() => location.reload(), 1000);
+                        } else if (data.status === 'failed') {
+                            statusText.textContent = 'Processing failed. Please try again.';
+                            progressBar.style.background = '#ef4444';
+                        } else {
+                            progressBar.style.width = data.progress + '%';
+                            statusText.textContent = `Processing... ${data.progress}%`;
+                            setTimeout(() => pollProgress(bookId), 2000);
+                        }
+                    })
+                    .catch(() => setTimeout(() => pollProgress(bookId), 3000));
+            }
+
+            if (document.getElementById('progress-bar')) {
+                pollProgress({{ book.id }});
+            }
+        </script>
+
+        {% elif book.status == 'failed' %}
+        <!-- Failed state -->
+        <div class="card processing-card" style="border-color: #ef4444;">
+            <h2 style="color: #ef4444;">⚠️ Processing Failed</h2>
+            <p style="color: #475569;">We couldn't process your book. Please try again with a different PDF.</p>
+            <a href="{% url 'upload' %}" class="btn" style="margin-top: 1rem;">Try Again</a>
+        </div>
+
+        {% else %}
+        <!-- Completed state -->
+        <div class="card">
+            <div class="book-header">
+                <div class="book-icon">📖</div>
+                <div class="book-meta">
+                    <h2>{{ book.title|default:"Untitled Book" }}</h2>
+                    <div class="details">
+                        <span>{{ book.total_pages|default:"?" }} pages</span>
+                        <span>{{ book.pages_per_day }} pages/day</span>
+                        <span>{{ chunks|length }} reading sessions</span>
+                        <span>Est. completion: {{ estimated_completion|date:"M j, Y"|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill" id="progress-fill" style="width:0%;"></div>
+            </div>
+            <div class="progress-label">
+                <span id="progress-text">0%</span>
+                <span>Day {{ first_unread|default:0 }} of {{ chunks|length }}</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-weight:600; margin-bottom:0.5rem;">Your Daily Reading Sessions</h3>
+            {% if chunks %}
+            <div class="chunks-list" id="chunks-list">
+                {% for chunk in chunks %}
+                <div class="chunk-item" data-chunk-id="{{ chunk.id }}">
+                    <div class="chunk-header">
+                        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; flex:1;">
+                            <span class="day">Day {{ chunk.chunk_number }}</span>
+                            <span class="pages">Pages {{ chunk.page_start }}–{{ chunk.page_end }}</span>
+                            {% if chunk.chapter_title %}
+                            <span class="chapter">{{ chunk.chapter_title }}</span>
+                            {% endif %}
+                            <span class="time">~{% widthratio chunk.word_count|default:300 200 1 %} min</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <a href="{% url 'reading' book.id chunk.id %}" class="btn-read">Read</a>
+                            <span class="expand-icon" role="button" tabindex="0" aria-expanded="false">▼</span>
+                        </div>
+                    </div>
+                    <div class="chunk-body">
+                        <div class="content-preview">
+                            {{ chunk.content|truncatechars:300 }}
+                        </div>
+                        <div class="actions">
+                            <a href="{% url 'reading' book.id chunk.id %}" class="btn">View Reading</a>
+                            <button class="btn btn-outline mark-read" data-chunk-id="{{ chunk.id }}">Mark as
+                                Read</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No reading sessions available yet.</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+        (function () {
+            const chunksList = document.getElementById('chunks-list');
+            if (!chunksList) return;
+
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            document.querySelectorAll('.expand-icon').forEach(icon => {
+                const header = icon.closest('.chunk-header');
+                const body = header.nextElementSibling;
+
+                icon.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const isOpen = body.classList.contains('open');
+                    document.querySelectorAll('.chunk-body.open').forEach(b => {
+                        if (b !== body) {
+                            b.classList.remove('open');
+                            const prevIcon = b.previousElementSibling.querySelector('.expand-icon');
+                            if (prevIcon) prevIcon.classList.remove('open');
+                            if (!reduceMotion) gsap.to(b, { height: 0, duration: 0.3, autoAlpha: 0, overwrite: 'auto' });
+                            else b.style.display = 'none';
+                        }
+                    });
+                    if (isOpen) {
+                        body.classList.remove('open');
+                        icon.classList.remove('open');
+                        if (!reduceMotion) gsap.to(body, { height: 0, duration: 0.3, autoAlpha: 0, overwrite: 'auto' });
+                        else body.style.display = 'none';
+                    } else {
+                        body.classList.add('open');
+                        icon.classList.add('open');
+                        if (!reduceMotion) {
+                            gsap.set(body, { height: 'auto', autoAlpha: 1 });
+                            body.style.display = 'block';
+                            const h = body.scrollHeight;
+                            gsap.set(body, { height: 0, autoAlpha: 0 });
+                            gsap.to(body, { height: h, autoAlpha: 1, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
+                        } else {
+                            body.style.display = 'block';
+                        }
+                    }
+                    icon.setAttribute('aria-expanded', !isOpen);
+                });
+                icon.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        icon.click();
+                    }
+                });
+            });
+
+            const total = {{ chunks| length
+        }};
+        const readCount = 0;
+        const progressFill = document.getElementById('progress-fill');
+        if (progressFill && total > 0) {
+            const pct = Math.min(100, Math.round((readCount / total) * 100));
+            if (!reduceMotion) {
+                gsap.fromTo(progressFill, { width: '0%' }, { width: pct + '%', duration: 0.8, ease: 'power1.out' });
+            } else {
+                progressFill.style.width = pct + '%';
+            }
+            document.getElementById('progress-text').textContent = pct + '%';
+        }
+
+        document.querySelectorAll('.mark-read').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const item = this.closest('.chunk-item');
+                item.style.opacity = '0.6';
+                this.textContent = '✓ Read';
+                this.disabled = true;
+            });
+        });
+        }) ();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,362 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}Foundry · Super Admin · Activity & Audit{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+       LIGHT FOUNDRY BRAND STYLES (Super Admin Activity)
+       ============================================================ */
+    :root {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8FAFC;
+        --bg-tertiary: #F1F5F9;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #2563EB;
+        --primary-hover: #1D4ED8;
+        --primary-light: #EFF6FF;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --info: #3B82F6;
+        --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+        --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --font-heading: 'Poppins', sans-serif;
+        --font-body: 'Inter', sans-serif;
+    }
+
+    body { font-family: var(--font-body); background: var(--bg-secondary); color: var(--text-primary); }
+    h1, h2, h3 { font-family: var(--font-heading); }
+
+    .foundry-page-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
+    .foundry-page-header-left h1 { font-size: 26px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px; }
+    .foundry-page-header-left p { font-size: 14px; color: var(--text-secondary); margin: 0; }
+    .foundry-page-header-right { display: flex; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+    .btn:hover { background: var(--bg-tertiary); color: var(--text-primary); border-color: var(--text-muted); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: #fff; }
+
+    .foundry-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+    .foundry-metric-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+    .metric-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+    .metric-icon.green { background: rgba(34,197,94,0.1); color: var(--success); }
+    .metric-icon.blue { background: rgba(59,130,246,0.1); color: var(--info); }
+    .metric-icon.red { background: rgba(239,68,68,0.1); color: var(--danger); }
+    .metric-icon.purple { background: rgba(167,139,250,0.1); color: #A78BFA; }
+    .metric-icon.amber { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .metric-value { font-family: var(--font-heading); font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+    .metric-label { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    .metric-context { font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; gap: 4px; }
+    .up { color: var(--success); } .down { color: var(--danger); } .warn { color: var(--warning); }
+
+    .foundry-security-alerts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .foundry-security-alert { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+    .alert-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .alert-icon.red { background: rgba(239,68,68,0.1); color: var(--danger); }
+    .alert-icon.amber { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .alert-icon.green { background: rgba(34,197,94,0.1); color: var(--success); }
+    .alert-icon.blue { background: rgba(59,130,246,0.1); color: var(--info); }
+    .alert-value { font-size: 18px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+    .alert-label { font-size: 12px; color: var(--text-secondary); }
+
+    .foundry-audit-table-wrap { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+    .foundry-audit-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .foundry-audit-table thead { background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+    .foundry-audit-table thead th { text-align: left; padding: 12px 16px; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .foundry-audit-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.2s; }
+    .foundry-audit-table tbody tr:hover { background: var(--bg-tertiary); cursor: pointer; }
+    .foundry-audit-table tbody td { padding: 12px 16px; vertical-align: middle; color: var(--text-secondary); }
+    
+    .user-cell { display: flex; align-items: center; gap: 10px; }
+    .avatar-sm { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+    .avatar-sm.system { background: rgba(167,139,250,0.1); color: #A78BFA; }
+    .avatar-sm.admin { background: rgba(34,197,94,0.1); color: var(--success); }
+    .user-name { color: var(--text-primary); font-weight: 500; font-size: 14px; }
+    .user-sub { font-size: 12px; color: var(--text-muted); }
+
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+    .status-badge.success { background: rgba(34,197,94,0.1); color: var(--success); }
+    .status-badge.failed { background: rgba(239,68,68,0.1); color: var(--danger); }
+    .status-badge.pending, .status-badge.warning { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .status-badge.processing { background: rgba(59,130,246,0.1); color: var(--info); }
+
+    .timestamp { font-size: 13px; color: var(--text-secondary); }
+    .timestamp .date { display: block; font-weight: 500; color: var(--text-primary); }
+    .timestamp .time { font-size: 12px; color: var(--text-muted); }
+
+    .foundry-drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.4); z-index: 2000; backdrop-filter: blur(4px); }
+    .foundry-drawer-overlay.open { display: block; }
+    .foundry-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 90vw; background: var(--bg-primary); border-left: 1px solid var(--border); z-index: 2001; transform: translateX(100%); transition: transform 0.35s ease; display: flex; flex-direction: column; box-shadow: -8px 0 24px rgba(15,23,42,0.08); }
+    .foundry-drawer.open { transform: translateX(0); }
+    .foundry-drawer-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .foundry-drawer-header h2 { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .close-btn { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+    .foundry-drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .detail-row .label { color: var(--text-muted); font-weight: 500; }
+    .detail-row .value { color: var(--text-primary); text-align: right; max-width: 60%; word-break: break-word; }
+    .detail-description { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-top: 12px; border: 1px solid var(--border); }
+
+    /* Responsive */
+    @media (max-width: 1024px) { .foundry-metrics { grid-template-columns: repeat(3, 1fr); } .foundry-security-alerts { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) { .foundry-metrics { grid-template-columns: repeat(2, 1fr); } .foundry-security-alerts { grid-template-columns: repeat(2, 1fr); } .foundry-page-header { flex-direction: column; align-items: stretch; } .foundry-page-header-right { justify-content: flex-start; } }
+</style>
+{% endblock %}
+
+{% block admin_contents %}
+<div class="foundry-main" id="mainContent">
+    <div class="foundry-page">
+        <!-- PAGE HEADER -->
+        <div class="foundry-page-header" id="pageHeader">
+            <div class="foundry-page-header-left">
+                <h1>Activity & Audit</h1>
+                <p>Monitor important actions, security events, and administrative activity across Foundry.</p>
+            </div>
+            <div class="foundry-page-header-right">
+                <button class="btn" id="refreshBtn">↻ Refresh</button>
+                <a href="{% url 'export_activity' %}" class="btn btn-primary">⬇ Export Log</a>
+            </div>
+        </div>
+
+        <!-- METRICS -->
+        <div class="foundry-metrics">
+            <div class="foundry-metric-card">
+                <span class="metric-icon green">📊</span>
+                <div class="metric-value">{{ total_activities }}</div>
+                <div class="metric-label">Total Events</div>
+            </div>
+            <div class="foundry-metric-card">
+                <span class="metric-icon blue">📅</span>
+                <div class="metric-value">{{ today_count }}</div>
+                <div class="metric-label">Today</div>
+            </div>
+            <div class="foundry-metric-card">
+                <span class="metric-icon red">🔒</span>
+                <div class="metric-value">{{ security_count }}</div>
+                <div class="metric-label">Security Events</div>
+            </div>
+            <div class="foundry-metric-card">
+                <span class="metric-icon purple">⚙️</span>
+                <div class="metric-value">{{ admin_actions_count }}</div>
+                <div class="metric-label">Admin Actions</div>
+            </div>
+            <div class="foundry-metric-card">
+                <span class="metric-icon amber">⚠️</span>
+                <div class="metric-value">{{ failed_count }}</div>
+                <div class="metric-label">Failed Events</div>
+            </div>
+        </div>
+
+        <!-- SECURITY ALERTS -->
+        <div class="foundry-security-alerts">
+            <div class="foundry-security-alert">
+                <span class="alert-icon red">⚠</span>
+                <div><div class="alert-value">{{ security_alerts.today_security }}</div><div class="alert-label">Security events today</div></div>
+            </div>
+            <div class="foundry-security-alert">
+                <span class="alert-icon amber">🔑</span>
+                <div><div class="alert-value">{{ security_alerts.failed_logins }}</div><div class="alert-label">Failed login attempts</div></div>
+            </div>
+            <div class="foundry-security-alert">
+                <span class="alert-icon blue">⚙</span>
+                <div><div class="alert-value">{{ security_alerts.warnings }}</div><div class="alert-label">System warnings</div></div>
+            </div>
+            <div class="foundry-security-alert">
+                <span class="alert-icon green">✓</span>
+                <div><div class="alert-value">{{ security_alerts.critical }}</div><div class="alert-label">Critical incidents</div></div>
+            </div>
+        </div>
+
+        ```html
+        <!-- AUDIT TABLE -->
+        <div class="foundry-audit-table-wrap">
+            <table class="foundry-audit-table" id="auditTable">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Resource</th>
+                        <th>IP Address</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+        
+                <tbody>
+                    {% for activity in activities %}
+                    <tr data-id="{{ activity.id }}" data-user="{{ activity.user.username }}"
+                        data-action="{{ activity.get_action_display }}" data-status="{{ activity.status }}"
+                        data-time="{{ activity.created_at|date:'M d, Y' }} at {{ activity.created_at|time:'H:i:s' }}"
+                        data-ip="{{ activity.metadata.ip_address|default:'—' }}" data-description="{{ activity.description }}">
+                        <!-- Timestamp -->
+                        <td>
+                            <div class="timestamp">
+                                <span class="date">
+                                    {{ activity.created_at|date:"M d, Y" }}
+                                </span>
+                                <span class="time">
+                                    {{ activity.created_at|time:"H:i:s" }}
+                                </span>
+                            </div>
+                        </td>
+        
+                        <!-- User -->
+                        <td>
+                            <div class="user-cell">
+                                <span
+                                    class="avatar-sm {% if activity.user.is_superuser %}admin{% elif activity.user.username == 'System' %}system{% endif %}">
+                                    {{ activity.user.username|first|upper }}
+                                </span>
+        
+                                <span>
+                                    <div class="user-name">
+                                        {{ activity.user.username }}
+                                    </div>
+        
+                                    <div class="user-sub">
+                                        {{ activity.action }}
+                                    </div>
+                                </span>
+                            </div>
+                        </td>
+        
+                        <!-- Action -->
+                        <td>
+                            <strong>{{ activity.get_action_display }}</strong>
+                        </td>
+        
+                        <!-- Resource -->
+                        <td>
+                            {% if activity.book %}
+                            {{ activity.book.title }}
+                            {% elif activity.summary %}
+                            {{ activity.summary.chapter_title|default:"—" }}
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+        
+                        <!-- IP Address -->
+                        <td style="font-family: monospace; font-size: 12px;">
+                            {{ activity.metadata.ip_address|default:"—" }}
+                        </td>
+        
+                        <!-- Status -->
+                        <td>
+                            <span class="status-badge {{ activity.status }}">
+                                {{ activity.status }}
+                            </span>
+                        </td>
+        
+                        <!-- Details -->
+                        <td>
+                            <button class="view-link"
+                                style="color: var(--primary); cursor: pointer; background: none; border: none; font-weight: 500;">
+                                View →
+                            </button>
+                        </td>
+                    </tr>
+        
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding:40px; color:var(--text-muted);">
+                            No activity found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        ```
+
+    </div>
+</div>
+
+<!-- DRAWER -->
+<div class="foundry-drawer-overlay" id="drawerOverlay"></div>
+<div class="foundry-drawer" id="detailDrawer">
+    <div class="foundry-drawer-header"><h2>Activity Details</h2><button class="close-btn" id="drawerClose">✕</button></div>
+    <div class="foundry-drawer-body" id="drawerBody"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Drawer logic
+    const drawer = document.getElementById('detailDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    const drawerBody = document.getElementById('drawerBody');
+    const drawerClose = document.getElementById('drawerClose');
+
+    function openDrawer(row) {
+        const id = row.dataset.id;
+        const user = row.dataset.user;
+        const action = row.dataset.action;
+        const status = row.dataset.status;
+        const time = row.dataset.time;
+        const ip = row.dataset.ip;
+        const desc = row.dataset.description;
+
+        drawerBody.innerHTML = `
+            <div class="detail-row"><span class="label">Event ID</span><span class="value" style="font-family:monospace;">${id}</span></div>
+            <div class="detail-row"><span class="label">Timestamp</span><span class="value">${time}</span></div>
+            <div class="detail-row"><span class="label">User</span><span class="value">${user}</span></div>
+            <div class="detail-row"><span class="label">Action</span><span class="value" style="font-weight:500;">${action}</span></div>
+            <div class="detail-row"><span class="label">Status</span><span class="value"><span class="status-badge ${status}">${status}</span></span></div>
+            <div class="detail-row"><span class="label">IP Address</span><span class="value" style="font-family:monospace;">${ip}</span></div>
+            <div class="detail-section-title">Description</div>
+            <div class="detail-description">${desc || 'No description provided.'}</div>
+        `;
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        gsap.fromTo(drawer, {x:'100%'}, {x:'0%', duration:0.35, ease:'power2.out'});
+    }
+
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // Attach click listeners
+    document.querySelectorAll('#auditTable tbody tr[data-id]').forEach(row => {
+        row.addEventListener('click', () => openDrawer(row));
+    });
+    document.querySelectorAll('.view-link').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openDrawer(btn.closest('tr'));
+        });
+    });
+
+    drawerClose.addEventListener('click', closeDrawer);
+    overlay.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeDrawer(); });
+
+    // Refresh button animation
+    document.getElementById('refreshBtn').addEventListener('click', function(){
+        this.innerHTML = '⏳ Refreshing...';
+        setTimeout(() => { location.reload(); }, 500);
+    });
+
+    // Entrance Animation
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        gsap.from('#pageHeader', { opacity:0, y:-20, duration:0.5, ease:'power2.out' });
+        gsap.from('.foundry-metric-card', { opacity:0, y:20, stagger:0.06, duration:0.5, ease:'power2.out', delay:0.1 });
+        gsap.from('.foundry-security-alert', { opacity:0, y:10, stagger:0.05, duration:0.4, ease:'power2.out', delay:0.3 });
+        gsap.from('.foundry-audit-table-wrap', { opacity:0, y:20, duration:0.5, ease:'power2.out', delay:0.5 });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,421 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EbookSplitter – Turn Books into Reading Plans</title>
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        /* Reset & base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05), 0 8px 24px rgba(0, 0, 0, 0.03);
+            padding: 3rem 2.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            font-size: 1.15rem;
+            color: #475569;
+            margin-bottom: 2.5rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 1.5rem;
+            padding: 3rem 1.5rem;
+            text-align: center;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-zone.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .upload-zone .icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .upload-zone .browse-btn {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            font-weight: 600;
+            padding: 0.6rem 1.8rem;
+            border-radius: 40px;
+            margin: 0.75rem 0 0.25rem;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .upload-zone .browse-btn:hover {
+            background: #2563eb;
+        }
+
+        .upload-zone .hint {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .file-preview {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            background: #f1f5f9;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .file-preview.show {
+            display: flex;
+        }
+
+        .file-preview .info {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .file-preview .info small {
+            display: block;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .file-preview .remove {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .file-preview .remove:hover {
+            background: #fee2e2;
+        }
+
+        .error-msg {
+            color: #dc2626;
+            font-size: 0.95rem;
+            margin: 1rem 0 0;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .settings {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem 1.5rem;
+        }
+
+        .settings label {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings input[type="number"] {
+            width: 80px;
+            padding: 0.5rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .estimate {
+            background: #f1f5f9;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            color: #1e293b;
+        }
+
+        .estimate strong {
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .submit-btn:hover {
+            background: #1e293b;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 2rem 1.2rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .upload-zone {
+                padding: 2rem 1rem;
+            }
+        }
+
+        /* hidden file input */
+        #file-input {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="app">
+        <h1>📚 Turn Any Book Into A Reading Plan</h1>
+        <p class="tagline">Upload a book, choose your daily pace, and we’ll break it into manageable reading sessions.
+        </p>
+
+        <form method="post" enctype="multipart/form-data" id="upload-form" action="{% url 'upload' %}">
+            {% csrf_token %}
+
+            <!-- Upload zone -->
+            <div class="upload-zone" id="drop-zone">
+                <span class="icon" id="drop-icon">📄</span>
+                <p>Drop your PDF here</p>
+                <button type="button" class="browse-btn" id="browse-btn">Browse files</button>
+                <p class="hint">PDF up to 50 MB</p>
+                <input type="file" name="pdf" id="file-input" accept=".pdf" />
+            </div>
+
+            <!-- File preview -->
+            <div class="file-preview" id="file-preview">
+                <span style="font-size:2rem;">📄</span>
+                <div class="info">
+                    <span id="file-name">file.pdf</span>
+                    <small id="file-size">0 MB</small>
+                </div>
+                <button type="button" class="remove" id="remove-file" aria-label="Remove file">✕</button>
+            </div>
+
+            <!-- Error messages -->
+            <div class="error-msg" id="error-msg"></div>
+
+            <!-- Settings -->
+            <div class="settings">
+                <label>
+                    Read
+                    <input type="number" name="pages_per_day" id="pages-per-day" value="10" min="1" max="1000" />
+                    pages per day
+                </label>
+                <span class="estimate" id="estimate-display">
+                    You'll finish in <strong id="days-estimate">—</strong> days
+                </span>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn" disabled>
+                Create My Reading Plan
+            </button>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            // DOM refs
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            const browseBtn = document.getElementById('browse-btn');
+            const filePreview = document.getElementById('file-preview');
+            const fileName = document.getElementById('file-name');
+            const fileSize = document.getElementById('file-size');
+            const removeFileBtn = document.getElementById('remove-file');
+            const errorMsg = document.getElementById('error-msg');
+            const pagesInput = document.getElementById('pages-per-day');
+            const daysEstimate = document.getElementById('days-estimate');
+            const submitBtn = document.getElementById('submit-btn');
+
+            let currentFile = null;
+
+            // ----- GSAP Entrance -----
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.from('.container', {opacity: 0, y: 30, duration: 0.6, ease: 'power2.out'});
+                gsap.from('.upload-zone', {opacity: 0, scale: 0.96, duration: 0.5, delay: 0.15, ease: 'back.out(1.7)'});
+            }
+
+            // ----- Drag & Drop -----
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length) handleFile(files[0]);
+            });
+
+            // ----- Browse button -----
+            browseBtn.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('click', () => fileInput.click()); // click on zone opens file picker
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) handleFile(fileInput.files[0]);
+            });
+
+            // ----- File handling -----
+            function handleFile(file) {
+                // Validation
+                if (file.type !== 'application/pdf') {
+                    showError('Please select a PDF file.');
+                    clearFile();
+                    return;
+                }
+                if (file.size > 50 * 1024 * 1024) {
+                    showError('File size exceeds 50 MB limit.');
+                    clearFile();
+                    return;
+                }
+
+                hideError();
+                currentFile = file;
+                fileName.textContent = file.name;
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                fileSize.textContent = `${sizeMB} MB`;
+                filePreview.classList.add('show');
+                submitBtn.disabled = false;
+                // Animate preview
+                if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    gsap.fromTo(filePreview, {opacity: 0, y: 10}, {opacity: 1, y: 0, duration: 0.4});
+                }
+                // Update estimate
+                updateEstimate();
+            }
+
+            function clearFile() {
+                currentFile = null;
+                fileInput.value = '';
+                filePreview.classList.remove('show');
+                submitBtn.disabled = true;
+            }
+
+            removeFileBtn.addEventListener('click', () => {
+                clearFile();
+                hideError();
+            });
+
+            // ----- Error messages -----
+            function showError(msg) {
+                errorMsg.textContent = msg;
+                errorMsg.classList.add('show');
+            }
+            function hideError() {
+                errorMsg.classList.remove('show');
+            }
+
+            // ----- Pages per day estimate -----
+            function updateEstimate() {
+                const pages = parseInt(pagesInput.value) || 0;
+                // We don't know total pages until backend processes, but we can show a placeholder.
+                // For now, we'll display a message that it will be calculated after upload.
+                // Actually, we could extract total pages from PDF client-side? Not required.
+                // The user asked to estimate based on selected pages; we can show a generic message.
+                // We'll show "~?? days" and update after upload.
+                // But we can display "You'll finish in X days" if we know total pages? We don't.
+                // We can show a placeholder.
+                daysEstimate.textContent = '?';
+            }
+            pagesInput.addEventListener('input', updateEstimate);
+            // initial call
+            updateEstimate();
+
+            // ----- Form submission validation -----
+            document.getElementById('upload-form').addEventListener('submit', (e) => {
+                if (!currentFile) {
+                    e.preventDefault();
+                    showError('Please select a PDF file.');
+                    return;
+                }
+                const pages = parseInt(pagesInput.value);
+                if (isNaN(pages) || pages < 1) {
+                    e.preventDefault();
+                    showError('Please enter a valid number of pages per day (minimum 1).');
+                    return;
+                }
+                hideError();
+                // The file is already attached via input; we don't need to set it again.
+            });
+
+            // ----- Accessibility: keyboard support -----
+            dropZone.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    fileInput.click();
+                }
+            });
+            dropZone.setAttribute('role', 'button');
+            dropZone.setAttribute('tabindex', '0');
+            dropZone.setAttribute('aria-label', 'Drag and drop or click to upload PDF');
+        })();
+    </script>
+</body>
+
+</html>

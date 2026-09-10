@@ -1,0 +1,1621 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block page_title %}Knowledge Card Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+     KNOWLEDGE CARD ANALYTICS – PAGE‑SPECIFIC STYLES
+     ============================================================ */
+
+    /* KPI Cards */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .kpi-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 18px 22px 20px;
+        transition: border-color var(--transition), transform 0.2s ease;
+    }
+
+    .kpi-card:hover {
+        border-color: var(--primary-light);
+        transform: translateY(-2px);
+    }
+
+    .kpi-card .kpi-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .kpi-card .kpi-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+    }
+
+    .kpi-card .kpi-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .kpi-card .kpi-number {
+        font-size: 28px;
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+    }
+
+    .kpi-card .kpi-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: var(--font-regular);
+        margin-top: 2px;
+    }
+
+    .kpi-card .kpi-context {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .kpi-card .kpi-empty {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: var(--font-regular);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0.6;
+    }
+
+    /* Chart Cards */
+    .chart-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 22px 24px 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .chart-card .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .chart-card .chart-header h3 {
+        font-family: var(--font-heading);
+        font-size: 16px;
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .chart-card .chart-header .sub {
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: var(--font-regular);
+        margin: 0;
+    }
+
+    .chart-card .chart-container {
+        position: relative;
+        height: 280px;
+        width: 100%;
+    }
+
+    .chart-card .chart-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 280px;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+    .chart-card .chart-empty .empty-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+        opacity: 0.4;
+    }
+
+    .chart-card .chart-empty .empty-text {
+        font-size: 14px;
+        max-width: 300px;
+        line-height: 1.5;
+    }
+
+    /* Insight Grid (Top Books / Users) */
+    .insight-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .insight-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 20px 24px 22px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .insight-card .insight-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .insight-card .insight-header h3 {
+        font-family: var(--font-heading);
+        font-size: 15px;
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .insight-card .insight-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .insight-card .insight-item:last-child {
+        border-bottom: none;
+    }
+
+    .insight-card .insight-item .item-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .insight-card .insight-item .item-left .rank {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: var(--font-medium);
+        min-width: 20px;
+    }
+
+    .insight-card .insight-item .item-left .item-name {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: var(--font-medium);
+    }
+
+    .insight-card .insight-item .item-left .item-sub {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .insight-card .insight-item .item-count {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: var(--font-medium);
+    }
+
+    /* Table */
+    .table-wrap {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .table-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .table-wrap thead {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table-wrap th {
+        text-align: left;
+        padding: 14px 20px;
+        font-weight: var(--font-semibold);
+        color: var(--text-secondary);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table-wrap td {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-primary);
+        vertical-align: middle;
+    }
+
+    .table-wrap tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table-wrap tbody tr:hover td {
+        background: var(--surface);
+    }
+
+    .table-wrap .card-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .table-wrap .card-info .title {
+        font-weight: var(--font-medium);
+        color: var(--text-primary);
+    }
+
+    .table-wrap .card-info .meta {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .table-wrap .badge-status {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: var(--font-medium);
+    }
+
+    .table-wrap .badge-status.active {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .table-wrap .badge-status.archived {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .table-wrap .badge-status.draft {
+        background: var(--surface);
+        color: var(--text-muted);
+    }
+
+    .table-wrap .actions-cell {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .table-wrap .actions-cell .btn {
+        min-height: 32px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px 18px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .filter-bar .filter-search {
+        flex: 1;
+        min-width: 200px;
+        position: relative;
+    }
+
+    .filter-bar .filter-search input {
+        width: 100%;
+        padding: 8px 14px 8px 38px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        font-size: 14px;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition);
+        min-height: 40px;
+    }
+
+    .filter-bar .filter-search input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .filter-bar .filter-search input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .filter-bar .filter-search .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    .filter-bar .filter-search .search-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .filter-bar .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .filter-bar .filter-select {
+        padding: 8px 32px 8px 14px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        font-size: 13px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color var(--transition);
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        min-height: 40px;
+    }
+
+    .filter-bar .filter-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .filter-bar .filter-select option {
+        background: var(--white);
+        color: var(--text-primary);
+    }
+
+    .filter-bar .filter-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .filter-bar .filter-actions .btn {
+        min-height: 40px;
+        padding: 0 18px;
+        font-size: 13px;
+    }
+
+    /* Page Actions */
+    .page-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    /* Modals & Drawers */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+        padding: 24px;
+    }
+
+    .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 32px 36px 36px;
+        max-width: 520px;
+        width: 100%;
+        box-shadow: var(--shadow-lg);
+        transform: scale(0.92) translateY(16px);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+        opacity: 0;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-overlay.open .modal {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+
+    .modal .modal-close {
+        float: right;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0 0 0 12px;
+        line-height: 1;
+        transition: color var(--transition);
+    }
+
+    .modal .modal-close:hover {
+        color: var(--text-primary);
+    }
+
+    .modal h2 {
+        font-family: var(--font-heading);
+        font-size: 22px;
+        font-weight: var(--font-semibold);
+        margin: 0 0 4px;
+        letter-spacing: -0.3px;
+        color: var(--text-primary);
+    }
+
+    .modal .modal-sub {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin: 0 0 24px;
+        font-weight: var(--font-regular);
+    }
+
+    .modal .form-group {
+        margin-bottom: 20px;
+    }
+
+    .modal .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: var(--font-medium);
+        color: var(--text-primary);
+        margin-bottom: 6px;
+    }
+
+    .modal .form-group input,
+    .modal .form-group select {
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        font-size: 14px;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .modal .form-group input:focus,
+    .modal .form-group select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .modal .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .modal .form-actions .btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* Drawer */
+    .drawer-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 900;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+    }
+
+    .drawer-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 480px;
+        max-width: 92vw;
+        height: 100%;
+        background: var(--white);
+        border-left: 1px solid var(--border);
+        z-index: 901;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .drawer-overlay.open .drawer {
+        transform: translateX(0);
+    }
+
+    .drawer .drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .drawer .drawer-header h2 {
+        font-family: var(--font-heading);
+        font-size: 20px;
+        font-weight: var(--font-semibold);
+        margin: 0;
+        letter-spacing: -0.3px;
+        color: var(--text-primary);
+    }
+
+    .drawer .drawer-header .drawer-close {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 4px;
+        line-height: 1;
+        transition: color var(--transition);
+    }
+
+    .drawer .drawer-header .drawer-close:hover {
+        color: var(--text-primary);
+    }
+
+    .drawer .drawer-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px 24px 32px;
+    }
+
+    .drawer .drawer-body .card-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .drawer .drawer-body .card-header .card-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .drawer .drawer-body .card-header .card-info .card-title {
+        font-family: var(--font-heading);
+        font-size: 18px;
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+    }
+
+    .drawer .drawer-body .card-header .card-info .card-meta {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .drawer .drawer-body .detail-section {
+        margin-bottom: 20px;
+    }
+
+    .drawer .drawer-body .detail-section .section-title {
+        font-size: 12px;
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin: 0 0 8px;
+    }
+
+    .drawer .drawer-body .detail-section .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        font-size: 14px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .drawer .drawer-body .detail-section .detail-row .label {
+        color: var(--text-secondary);
+    }
+
+    .drawer .drawer-body .detail-section .detail-row .value {
+        color: var(--text-primary);
+        font-weight: var(--font-medium);
+    }
+
+    .drawer .drawer-body .detail-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+    }
+
+    /* Toast */
+    .toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 360px;
+        pointer-events: none;
+    }
+
+    .toast {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 14px 20px;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        pointer-events: auto;
+        transform: translateX(calc(100% + 40px));
+        opacity: 0;
+        transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .toast.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    .toast .toast-icon {
+        color: var(--primary);
+        font-size: 18px;
+    }
+
+    .toast .toast-body .toast-title {
+        font-size: 14px;
+        font-weight: var(--font-medium);
+        color: var(--text-primary);
+    }
+
+    .toast .toast-body .toast-desc {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .toast .toast-close {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 18px;
+        padding: 0 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .insight-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .kpi-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .kpi-card {
+            padding: 14px 16px 16px;
+        }
+
+        .kpi-card .kpi-number {
+            font-size: 22px;
+        }
+
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-bar .filter-search {
+            min-width: 100%;
+        }
+
+        .filter-bar .filter-group {
+            flex-wrap: wrap;
+        }
+
+        .filter-bar .filter-group .filter-select {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table-wrap table {
+            min-width: 600px;
+        }
+
+        .modal {
+            padding: 24px 20px 28px;
+            border-radius: var(--radius-sm);
+        }
+
+        .modal .form-actions {
+            flex-direction: column;
+        }
+
+        .modal .form-actions .btn {
+            width: 100%;
+        }
+
+        .drawer {
+            width: 100%;
+            max-width: 100%;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            transform: translateY(100%);
+            top: auto;
+            height: 90vh;
+            max-height: 90vh;
+            border-left: none;
+            border-top: 1px solid var(--border);
+        }
+
+        .drawer-overlay.open .drawer {
+            transform: translateY(0);
+        }
+
+        .page-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .chart-card .chart-container {
+            height: 200px;
+        }
+
+        .insight-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-card {
+            padding: 16px;
+        }
+
+        .insight-card {
+            padding: 16px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block contents %}
+<!-- Page Actions -->
+<div class="page-actions">
+    <button class="btn btn-primary btn-sm" id="exportAnalyticsBtn">Export Analytics</button>
+    <button class="btn btn-secondary btn-sm" disabled>Refresh</button>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card">
+        <div class="kpi-top">
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                    <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
+                    <path d="M8 8h8M8 12h8M8 16h5" />
+                </svg></div>
+        </div>
+        <div class="kpi-number">
+            <span class="kpi-empty">—</span>
+        </div>
+        <div class="kpi-label">Total Knowledge Cards</div>
+        <div class="kpi-context">No data available</div>
+    </div>
+
+
+    <!-- In knowledge-card.html, after the filter bar -->
+    <div class="chart-card" id="recentCardsCard">
+        <div class="chart-header">
+            <div>
+                <h3>🖼️ Recent Generated Cards</h3>
+                <span class="sub">The latest knowledge cards saved as images.</span>
+            </div>
+        </div>
+        <div class="recent-cards-grid"
+            style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:16px;">
+            {% for card in recent_cards %}
+            <div class="recent-card-item"
+                style="background:var(--white); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; cursor:pointer;"
+                onclick="openCardModal('{{ card.card_image.url }}')">
+                <img src="{{ card.card_image.url }}" alt="Card for {{ card.book.title }}"
+                    style="width:100%; aspect-ratio:1/1; object-fit:cover; display:block;">
+                <div style="padding:8px; font-size:12px; text-align:center; color:var(--text-secondary);">{{card.book.title|truncatechars:20 }}</div>
+            </div>
+            {% empty %}
+            <div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-muted);">No cards generated yet.
+            </div>
+            {% endfor %}
+        </div>
+        <!-- Pagination -->
+        {% if recent_cards.has_other_pages %}
+        <div style="display:flex; justify-content:center; gap:8px; margin-top:16px;">
+            {% if recent_cards.has_previous %}
+            <a href="?page={{ recent_cards.previous_page_number }}" class="btn btn-secondary btn-sm">Previous</a>
+            {% endif %}
+            <span style="padding:4px 12px;">Page {{ recent_cards.number }} of {{ recent_cards.paginator.num_pages }}</span>
+            {% if recent_cards.has_next %}
+            <a href="?page={{ recent_cards.next_page_number }}" class="btn btn-secondary btn-sm">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Card Modal -->
+    <div class="modal-overlay" id="cardModal" style="display:none; background:rgba(0,0,0,0.8);">
+        <div
+            style="max-width:90vw; max-height:90vh; position:relative; display:flex; align-items:center; justify-content:center;">
+            <button onclick="closeCardModal()"
+                style="position:absolute; top:10px; right:20px; background:white; border:none; font-size:30px; cursor:pointer;">&times;</button>
+            <img id="modalCardImage" src="" alt="Knowledge Card"
+                style="max-width:100%; max-height:80vh; border-radius:var(--radius-sm); box-shadow:var(--shadow-lg);">
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-top">
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M3 12h4l3-3 3 3 4-4 3 3h4" />
+                </svg></div>
+        </div>
+        <div class="kpi-number">
+            <span class="kpi-empty">—</span>
+        </div>
+        <div class="kpi-label">Cards Reviewed</div>
+        <div class="kpi-context">No data available</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-top">
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <path d="M7 10l5 5 5-5" />
+                    <path d="M12 15V3" />
+                </svg></div>
+        </div>
+        <div class="kpi-number">
+            <span class="kpi-empty">—</span>
+        </div>
+        <div class="kpi-label">Cards Exported</div>
+        <div class="kpi-context">No data available</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-top">
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M12 8v4M12 16h.01" />
+                </svg></div>
+        </div>
+        <div class="kpi-number">
+            <span class="kpi-empty">—</span>
+        </div>
+        <div class="kpi-label">Retention Rate</div>
+        <div class="kpi-context">No data available</div>
+    </div>
+</div>
+
+<!-- Knowledge Card Activity Chart -->
+<div class="chart-card" id="activityChartCard">
+    <div class="chart-header">
+        <div>
+            <h3>Knowledge Card Activity</h3>
+            <span class="sub">Card creation and review activity over time.</span>
+        </div>
+    </div>
+    <div class="chart-container">
+        {% if card_activity_data %}
+        <canvas id="activityChart"></canvas>
+        {% else %}
+        <div class="chart-empty">
+            <div class="empty-icon">🧠</div>
+            <div class="empty-text">Knowledge card activity will appear here once users begin creating and reviewing
+                cards.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Insight Grid: Top Books + Top Users -->
+<div class="insight-grid">
+    <!-- Top Books -->
+    <div class="insight-card">
+        <div class="insight-header">
+            <h3>📚 Top Books</h3>
+            <span class="text-muted" style="font-size:12px;">Most generated cards</span>
+        </div>
+        {% if top_books %}
+        {% for book in top_books %}
+        <div class="insight-item">
+            <div class="item-left">
+                <span class="rank">{{ forloop.counter }}</span>
+                <div>
+                    <div class="item-name">{{ book.title }}</div>
+                    <div class="item-sub">{{ book.author|default:"—" }}</div>
+                </div>
+            </div>
+            <div class="item-count">{{ book.card_count }}</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="chart-empty" style="height:80px;padding:0;">
+            <div class="empty-text">No data available.</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Top Users -->
+    <div class="insight-card">
+        <div class="insight-header">
+            <h3>👤 Top Users</h3>
+            <span class="text-muted" style="font-size:12px;">Most cards created</span>
+        </div>
+        {% if top_users %}
+        {% for user in top_users %}
+        <div class="insight-item">
+            <div class="item-left">
+                <span class="rank">{{ forloop.counter }}</span>
+                <div>
+                    <div class="item-name">{{ user.name }}</div>
+                    <div class="item-sub">{{ user.email }}</div>
+                </div>
+            </div>
+            <div class="item-count">{{ user.card_count }}</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="chart-empty" style="height:80px;padding:0;">
+            <div class="empty-text">No data available.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Knowledge Card Performance Table -->
+<div class="chart-card" id="cardTableCard">
+    <div class="chart-header">
+        <div>
+            <h3>Knowledge Card Performance</h3>
+            <span class="sub">Analytics for every knowledge card.</span>
+        </div>
+    </div>
+    {% if knowledge_cards %}
+    <div class="table-wrap" style="border:none;border-radius:0;margin-bottom:0;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Card</th>
+                    <th>Book</th>
+                    <th>User</th>
+                    <th>Created</th>
+                    <th>Reviews</th>
+                    <th>Exports</th>
+                    <th>Last Reviewed</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for card in knowledge_cards %}
+                <tr>
+                    <td>
+                        <div class="card-cell">
+                            <div class="card-info">
+                                <div class="title">{{ card.title }}</div>
+                                <div class="meta">ID: {{ card.id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ card.book|default:"—" }}</td>
+                    <td>{{ card.user|default:"—" }}</td>
+                    <td>{{ card.created_at|default:"—" }}</td>
+                    <td>{{ card.reviews|default:0 }}</td>
+                    <td>{{ card.exports|default:0 }}</td>
+                    <td>{{ card.last_reviewed|default:"—" }}</td>
+                    <td><span
+                            class="badge-status {% if card.status == 'active' %}active{% elif card.status == 'archived' %}archived{% else %}draft{% endif %}">{{card.status|default:"active"|capfirst }}</span></td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn btn-secondary btn-sm view-card" data-id="{{ card.id }}"
+                                data-title="{{ card.title }}" data-book="{{ card.book|default:'—' }}"
+                                data-user="{{ card.user|default:'—' }}" data-created="{{ card.created_at|default:'—' }}"
+                                data-reviews="{{ card.reviews|default:0 }}" data-exports="{{ card.exports|default:0 }}"
+                                data-last="{{ card.last_reviewed|default:'—' }}">View</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="chart-empty" style="height:80px;">
+        <div class="empty-text">No knowledge cards available.</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- AI Knowledge Insights -->
+<div class="chart-card" id="aiInsightsCard">
+    <div class="chart-header">
+        <div>
+            <h3>AI Knowledge Insights</h3>
+            <span class="sub">AI-generated vs. manual knowledge cards.</span>
+        </div>
+    </div>
+    <div class="chart-empty" style="height:80px;">
+        <div class="empty-text">AI knowledge insights unavailable.</div>
+    </div>
+</div>
+
+<!-- Retention Analytics -->
+<div class="chart-card" id="retentionCard">
+    <div class="chart-header">
+        <div>
+            <h3>Retention Analytics</h3>
+            <span class="sub">Review completion, intervals, and mastery.</span>
+        </div>
+    </div>
+    <div class="chart-empty" style="height:80px;">
+        <div class="empty-text">Retention analytics not available.</div>
+    </div>
+</div>
+
+<!-- Export Analytics -->
+<div class="chart-card" id="exportAnalyticsCard">
+    <div class="chart-header">
+        <div>
+            <h3>Export Analytics</h3>
+            <span class="sub">PDF, CSV, and flashcard export trends.</span>
+        </div>
+    </div>
+    <div class="chart-empty" style="height:80px;">
+        <div class="empty-text">Export analytics not available.</div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar" id="filterBar" role="search">
+    <div class="filter-search">
+        <span class="search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" stroke="currentColor">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+            </svg>
+        </span>
+        <input type="text" id="cardSearchInput" placeholder="Search knowledge cards..." aria-label="Search cards"
+            autocomplete="off">
+    </div>
+    <div class="filter-group">
+        <select class="filter-select" id="bookFilter" aria-label="Filter by book">
+            <option value="all">All Books</option>
+        </select>
+        <select class="filter-select" id="statusFilter" aria-label="Filter by status">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="archived">Archived</option>
+        </select>
+        <select class="filter-select" id="aiFilter" aria-label="Filter by AI generation">
+            <option value="all">All Cards</option>
+            <option value="ai">AI Generated</option>
+            <option value="manual">Manual</option>
+        </select>
+    </div>
+    <div class="filter-actions">
+        <button class="btn btn-secondary btn-sm" id="resetFiltersBtn">Reset</button>
+    </div>
+</div>
+
+<!-- Card Detail Drawer -->
+<div class="drawer-overlay" id="cardDrawerOverlay" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="drawer" id="cardDrawer">
+        <div class="drawer-header">
+            <h2 id="drawerTitle">Knowledge Card Details</h2>
+            <button class="drawer-close" data-close-drawer aria-label="Close drawer">&times;</button>
+        </div>
+        <div class="drawer-body" id="drawerBody">
+            <!-- populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+    <div class="modal">
+        <button class="modal-close" data-close-modal aria-label="Close">&times;</button>
+        <h2 id="exportModalTitle">Export Analytics</h2>
+        <p class="modal-sub">Create a downloadable report of knowledge card analytics.</p>
+
+        <div class="form-group">
+            <label for="exportFormat">Format</label>
+            <select class="form-control" id="exportFormat">
+                <option value="csv">CSV</option>
+                <option value="excel">Excel</option>
+                <option value="pdf">PDF</option>
+                <option value="json">JSON</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="exportDateRange">Date Range</label>
+            <select class="form-control" id="exportDateRange">
+                <option value="7d">Last 7 Days</option>
+                <option value="30d" selected>Last 30 Days</option>
+                <option value="90d">Last 90 Days</option>
+                <option value="all">All Time</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Include</label>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:4px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-primary);">
+                    <input type="checkbox" checked> Knowledge Cards
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-primary);">
+                    <input type="checkbox" checked> Analytics
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-primary);">
+                    <input type="checkbox" checked> Reviews
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-primary);">
+                    <input type="checkbox" checked> Exports
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-primary);">
+                    <input type="checkbox" checked> AI Insights
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" id="generateExportBtn">Generate Export</button>
+            <button class="btn btn-secondary" data-close-modal>Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // SIDEBAR TOGGLE – provided by base.html, no need to redefine
+
+        // MODALS
+        function openModal(modalId) {
+            const overlayEl = document.getElementById(modalId);
+            if (!overlayEl) return;
+            overlayEl.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.fromTo(overlayEl.querySelector('.modal'), { scale: 0.92, y: 20, opacity: 0 },
+                    { scale: 1, y: 0, opacity: 1, duration: 0.4, ease: 'power3.out' });
+            }
+        }
+
+        function closeModal(overlayEl) {
+            if (!overlayEl) return;
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.to(overlayEl.querySelector('.modal'), {
+                    scale: 0.92,
+                    y: 20,
+                    opacity: 0,
+                    duration: 0.25,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        overlayEl.classList.remove('open');
+                        document.body.style.overflow = '';
+                    }
+                });
+            } else {
+                overlayEl.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.querySelectorAll('[data-close-modal]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var overlayEl = this.closest('.modal-overlay');
+                if (overlayEl) closeModal(overlayEl);
+            });
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(function (overlayEl) {
+            overlayEl.addEventListener('click', function (e) {
+                if (e.target === this) closeModal(this);
+            });
+        });
+
+        // EXPORT MODAL
+        document.querySelectorAll('#exportAnalyticsBtn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                openModal('exportModal');
+            });
+        });
+
+        document.getElementById('generateExportBtn').addEventListener('click', function () {
+            var btn = this;
+            btn.textContent = 'Preparing Report...';
+            btn.disabled = true;
+            setTimeout(function () {
+                btn.textContent = '✓ Report Ready';
+                btn.style.background = 'var(--primary)';
+                btn.style.color = '#fff';
+                showToast('success', 'Export Ready', 'Your analytics report is ready for download.');
+                setTimeout(function () {
+                    btn.textContent = 'Download';
+                    btn.disabled = false;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 800);
+            }, 1200);
+        });
+
+        // TOAST
+        var toastContainer = document.getElementById('toastContainer');
+
+        function showToast(type, title, desc) {
+            var iconMap = { success: '✓', error: '✕', info: 'ℹ' };
+            var toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML =
+                '<span class="toast-icon">' + (iconMap[type] || 'ℹ') + '</span>' +
+                '<div class="toast-body">' +
+                '<div class="toast-title">' + title + '</div>' +
+                '<div class="toast-desc">' + desc + '</div>' +
+                '</div>' +
+                '<button class="toast-close" aria-label="Close notification">&times;</button>';
+            toastContainer.appendChild(toast);
+
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.fromTo(toast, { x: 'calc(100% + 40px)', opacity: 0 },
+                    { x: 0, opacity: 1, duration: 0.45, ease: 'power3.out' });
+            } else {
+                toast.style.transform = 'translateX(0)';
+                toast.style.opacity = '1';
+            }
+
+            toast.querySelector('.toast-close').addEventListener('click', function () {
+                dismissToast(toast);
+            });
+
+            setTimeout(function () { dismissToast(toast); }, 5000);
+        }
+
+        function dismissToast(toast) {
+            if (!toast.parentNode) return;
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.to(toast, {
+                    x: 'calc(100% + 40px)',
+                    opacity: 0,
+                    duration: 0.35,
+                    ease: 'power2.in',
+                    onComplete: function () { if (toast.parentNode) toast.remove(); }
+                });
+            } else {
+                toast.remove();
+            }
+        }
+
+        // CARD DETAIL DRAWER
+        var drawerOverlay = document.getElementById('cardDrawerOverlay');
+        var drawerBody = document.getElementById('drawerBody');
+
+        function openDrawer(cardData) {
+            var title = cardData.title || 'Untitled';
+            var book = cardData.book || '—';
+            var user = cardData.user || '—';
+            var created = cardData.created || '—';
+            var reviews = cardData.reviews || 0;
+            var exports = cardData.exports || 0;
+            var last = cardData.last || '—';
+
+            drawerBody.innerHTML =
+                '<div class="card-header">' +
+                '<div class="card-icon">🧠</div>' +
+                '<div class="card-info">' +
+                '<div class="card-title">' + title + '</div>' +
+                '<div class="card-meta">ID: ' + (cardData.id || '—') + '</div>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="detail-section">' +
+                '<div class="section-title">Details</div>' +
+                '<div class="detail-row"><span class="label">Book</span><span class="value">' + book + '</span></div>' +
+                '<div class="detail-row"><span class="label">User</span><span class="value">' + user + '</span></div>' +
+                '<div class="detail-row"><span class="label">Created</span><span class="value">' + created + '</span></div>' +
+                '<div class="detail-row"><span class="label">Last Reviewed</span><span class="value">' + last + '</span></div>' +
+                '</div>' +
+
+                '<div class="detail-section">' +
+                '<div class="section-title">Performance</div>' +
+                '<div class="detail-row"><span class="label">Reviews</span><span class="value">' + reviews + '</span></div>' +
+                '<div class="detail-row"><span class="label">Exports</span><span class="value">' + exports + '</span></div>' +
+                '<div class="detail-row"><span class="label">AI Generated</span><span class="value">—</span></div>' +
+                '</div>' +
+
+                '<div class="detail-section">' +
+                '<div class="section-title">Recent Activity</div>' +
+                '<div style="padding:8px 0;color:var(--text-muted);font-size:14px;">No recent activity.</div>' +
+                '</div>' +
+
+                '<div class="detail-actions">' +
+                '<button class="btn btn-secondary btn-sm" disabled>View Card</button>' +
+                '<button class="btn btn-secondary btn-sm" disabled>Edit Card</button>' +
+                '</div>';
+
+            drawerOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.fromTo(drawerOverlay.querySelector('.drawer'), { x: '100%' }, {
+                    x: '0%',
+                    duration: 0.4,
+                    ease: 'power3.out'
+                });
+            }
+        }
+
+        function closeDrawer() {
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.to(drawerOverlay.querySelector('.drawer'), {
+                    x: '100%',
+                    duration: 0.3,
+                    ease: 'power2.in',
+                    onComplete: function () {
+                        drawerOverlay.classList.remove('open');
+                        document.body.style.overflow = '';
+                    }
+                });
+            } else {
+                drawerOverlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.querySelector('[data-close-drawer]').addEventListener('click', closeDrawer);
+        drawerOverlay.addEventListener('click', function (e) {
+            if (e.target === this) closeDrawer();
+        });
+
+        // View card buttons
+        document.querySelectorAll('.view-card').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var id = this.dataset.id;
+                var title = this.dataset.title || 'Card';
+                var book = this.dataset.book || '—';
+                var user = this.dataset.user || '—';
+                var created = this.dataset.created || '—';
+                var reviews = parseInt(this.dataset.reviews) || 0;
+                var exports = parseInt(this.dataset.exports) || 0;
+                var last = this.dataset.last || '—';
+                openDrawer({
+                    id: id,
+                    title: title,
+                    book: book,
+                    user: user,
+                    created: created,
+                    reviews: reviews,
+                    exports: exports,
+                    last: last
+                });
+            });
+        });
+
+        // CHARTS (only if data exists)
+        var activityData = null;
+        {% if card_activity_data %}
+        activityData = {{ card_activity_data | safe }
+    };
+    {% endif %}
+
+    if (activityData && document.getElementById('activityChart')) {
+        var ctx = document.getElementById('activityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: activityData.labels,
+                datasets: [{
+                    label: 'Cards Created',
+                    data: activityData.created,
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37,99,235,0.05)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    pointBackgroundColor: '#2563EB'
+                }, {
+                    label: 'Cards Reviewed',
+                    data: activityData.reviewed,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245,158,11,0.05)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    pointBackgroundColor: '#f59e0b'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#64748B', boxWidth: 12, padding: 12 }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(15,23,42,0.06)' },
+                        ticks: { color: '#94A3B8' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(15,23,42,0.06)' },
+                        ticks: { color: '#94A3B8' }
+                    }
+                }
+            }
+        });
+    }
+
+    // GSAP REVEALS – page specific, keep subtle
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        gsap.from('.page-actions', {
+            opacity: 0,
+            y: 12,
+            duration: 0.4,
+            ease: 'power3.out',
+            delay: 0.1
+        });
+        gsap.from('.kpi-card', {
+            opacity: 0,
+            y: 20,
+            duration: 0.5,
+            ease: 'power3.out',
+            delay: 0.2,
+            stagger: 0.08
+        });
+        gsap.from('.chart-card', {
+            opacity: 0,
+            y: 20,
+            duration: 0.5,
+            ease: 'power3.out',
+            delay: 0.4,
+            stagger: 0.08
+        });
+        gsap.from('.insight-card', {
+            opacity: 0,
+            y: 16,
+            duration: 0.4,
+            ease: 'power3.out',
+            delay: 0.5,
+            stagger: 0.06
+        });
+        gsap.from('.filter-bar', {
+            opacity: 0,
+            y: 12,
+            duration: 0.4,
+            ease: 'power3.out',
+            delay: 0.6
+        });
+    }
+
+    console.log('🧠 Foundry Knowledge Card Analytics initialized.');
+  }) ();
+
+  function openCardModal(url) {
+        document.getElementById('modalCardImage').src = url;
+        document.getElementById('cardModal').style.display = 'flex';
+    }
+    function closeCardModal() {
+        document.getElementById('cardModal').style.display = 'none';
+    }
+    document.getElementById('cardModal').addEventListener('click', function (e) {
+        if (e.target === this) closeCardModal();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}{{ book.title }} – Reading Plan · Foundry{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reading-plan-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .reading-plan-header h1 {
+        font-family: var(--font-heading);
+        font-size: 28px;
+        font-weight: var(--fw-bold);
+        color: var(--text-primary);
+        margin: 0 0 4px;
+    }
+
+    .reading-plan-header .sub {
+        font-size: 16px;
+        color: var(--text-secondary);
+    }
+
+    .reading-plan-header .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 20px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: var(--fw-medium);
+        transition: all 0.2s;
+    }
+
+    .reading-plan-header .btn-back:hover {
+        background: var(--surface);
+        border-color: var(--text-muted);
+    }
+
+    .reading-plan-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px 40px;
+        padding: 16px 20px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-bottom: 32px;
+    }
+
+    .reading-plan-stats .stat-item {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+
+    .reading-plan-stats .stat-number {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-bold);
+        font-size: 20px;
+        color: var(--text-primary);
+    }
+
+    .reading-plan-stats .stat-label {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .chunk-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .chunk-item {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        transition: border-color 0.2s;
+    }
+
+    .chunk-item:hover {
+        border-color: var(--primary);
+    }
+
+    .chunk-item .chunk-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .chunk-item .chunk-info .day {
+        font-weight: var(--fw-semibold);
+        min-width: 60px;
+        color: var(--text-primary);
+    }
+
+    .chunk-item .chunk-info .pages {
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+
+    .chunk-item .chunk-info .status {
+        font-size: 13px;
+        padding: 2px 14px;
+        border-radius: 20px;
+        font-weight: var(--fw-medium);
+    }
+
+    .chunk-item .chunk-info .status.read {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .chunk-item .chunk-info .status.unread {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .chunk-item .chunk-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .chunk-item .chunk-actions .btn-action {
+        padding: 4px 16px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: var(--fw-medium);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .chunk-item .chunk-actions .btn-action:hover {
+        background: var(--surface);
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    .chunk-item .chunk-actions .btn-action.primary {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+    }
+
+    .chunk-item .chunk-actions .btn-action.primary:hover {
+        background: var(--primary-hover);
+        border-color: var(--primary-hover);
+    }
+
+    .chunk-item .chunk-actions .btn-action:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+        .chunk-item {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .chunk-item .chunk-actions {
+            justify-content: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="reading-plan-header">
+    <div>
+        <h1>{{ book.title }}</h1>
+        <div class="sub">Reading Plan · {{ total_chunks }} chunks</div>
+    </div>
+    <a href="{% url 'reading_plans' %}" class="btn-back">← Back to Reading Plans</a>
+</div>
+
+<div class="reading-plan-stats">
+    <div class="stat-item">
+        <span class="stat-number">{{ progress }}%</span>
+        <span class="stat-label">complete</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-number">{{ read_chunks }}</span>
+        <span class="stat-label">of {{ total_chunks }} chunks read</span>
+    </div>
+</div>
+
+<div class="chunk-list">
+    {% for chunk in chunks %}
+    <div class="chunk-item" data-chunk-id="{{ chunk.id }}">
+        <div class="chunk-info">
+            <span class="day">Day {{ chunk.chunk_number }}</span>
+            <span class="pages">Pages {{ chunk.page_start }}–{{ chunk.page_end }}</span>
+            {% if chunk.chapter_title %}
+            <span style="color:var(--text-secondary); font-size:14px;">· {{ chunk.chapter_title }}</span>
+            {% endif %}
+            <span class="status {% if chunk.is_read %}read{% else %}unread{% endif %}">
+                {% if chunk.is_read %}✅ Read{% else %}⏳ Unread{% endif %}
+            </span>
+        </div>
+        <div class="chunk-actions">
+            <a href="{% url 'reading' book.id chunk.id %}" class="btn-action">Read</a>
+            {% if not chunk.is_read %}
+            <button class="btn-action primary mark-read" data-chunk-id="{{ chunk.id }}">Mark as Read</button>
+            {% else %}
+            <button class="btn-action" disabled>Already Read</button>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align:center; padding:40px 0; color:var(--text-secondary);">
+        <p>No chunks available yet. The book is still being processed.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // ---- Mark as Read (AJAX) ----
+        document.querySelectorAll('.mark-read').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const chunkId = this.dataset.chunkId;
+                const item = this.closest('.chunk-item');
+                const statusSpan = item.querySelector('.status');
+                const readBtn = this;
+
+                readBtn.disabled = true;
+                readBtn.textContent = 'Updating...';
+
+                fetch(`/Resources/mark-chunk-read/${chunkId}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            statusSpan.textContent = '✅ Read';
+                            statusSpan.className = 'status read';
+                            readBtn.textContent = 'Already Read';
+                            readBtn.disabled = true;
+                            // Update stats
+                            document.querySelector('.reading-plan-stats .stat-number:first-child').textContent = data.progress + '%';
+                            document.querySelector('.reading-plan-stats .stat-number:last-child').textContent = data.read_count;
+                            showToast('✅ ' + data.message);
+                        } else {
+                            alert('Error: ' + (data.error || 'Could not mark as read.'));
+                            readBtn.disabled = false;
+                            readBtn.textContent = 'Mark as Read';
+                        }
+                    })
+                    .catch(() => {
+                        alert('Network error. Please try again.');
+                        readBtn.disabled = false;
+                        readBtn.textContent = 'Mark as Read';
+                    });
+            });
+        });
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+                background: #1E1E1E; color: #fff; padding: 14px 24px;
+                border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+                font-weight: 500; font-size: 15px;
+                transform: translateX(120%); transition: transform 0.4s ease;
+                max-width: 90%;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => { toast.style.transform = 'translateX(0)'; });
+            setTimeout(() => {
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+    });
+</script>
+{% endblock %}

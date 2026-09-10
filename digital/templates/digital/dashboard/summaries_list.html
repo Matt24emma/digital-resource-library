@@ -1,0 +1,403 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .summary-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .summary-actions a,
+    .summary-actions button {
+        padding: 4px 12px;
+        font-size: 12px;
+        border-radius: 20px;
+        text-decoration: none;
+        background: var(--surface);
+        color: var(--text-secondary);
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+        cursor: pointer;
+        font-family: var(--font-body);
+    }
+
+    .summary-actions a:hover,
+    .summary-actions button:hover {
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    .summary-actions .delete-btn:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+        background: #fef2f2;
+    }
+
+    .summary-actions .primary-btn {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+    }
+
+    .summary-actions .primary-btn:hover {
+        background: var(--primary-hover);
+        border-color: var(--primary-hover);
+    }
+
+    .filter-bar {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 16px 20px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .filter-bar label {
+        font-weight: var(--fw-medium);
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+
+    .filter-bar select,
+    .filter-bar input {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 6px 14px;
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        outline: none;
+        transition: border 0.2s;
+    }
+
+    .filter-bar select:focus,
+    .filter-bar input:focus {
+        border-color: var(--primary);
+    }
+
+    .filter-bar .clear-btn {
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 6px 14px;
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .filter-bar .clear-btn:hover {
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+        background: var(--background);
+    }
+
+    .summary-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 20px 24px;
+        transition: border-color 0.25s, box-shadow 0.25s;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .summary-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+    }
+
+    .summary-card .locked-badge {
+        display: inline-block;
+        background: var(--primary-light);
+        color: var(--primary);
+        padding: 1px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: var(--fw-medium);
+        margin-left: 8px;
+    }
+
+    /* Card Image Modal */
+    .card-image-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1100;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .card-image-modal.open {
+        display: flex;
+    }
+
+    .card-image-modal .modal-content {
+        max-width: 90vw;
+        max-height: 90vh;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-image-modal .modal-content img {
+        max-width: 100%;
+        max-height: 80vh;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .card-image-modal .close-btn {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 36px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .card-image-modal .close-btn:hover {
+        transform: rotate(90deg);
+    }
+
+    @media (max-width: 600px) {
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .summary-actions {
+            justify-content: flex-start;
+        }
+
+        .summary-card {
+            padding: 16px;
+        }
+
+        .card-image-modal .modal-content {
+            max-width: 98vw;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="section-header">
+    <div>
+        <h2 class="section-title">My Summaries</h2>
+        <p class="hero-subtitle" style="color: var(--text-secondary);">All chapter summaries you've created.</p>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="{% url 'manage_categories' %}" class="quick-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+            </svg>
+            Categories
+        </a>
+        <a href="{% url 'summaryForm' %}" class="quick-btn primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            New Summary
+        </a>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; width:100%;">
+        <label for="typeFilter">Show:</label>
+        <select name="type" id="typeFilter" onchange="this.form.submit()">
+            <option value="all" {% if current_type == 'all' %}selected{% endif %}>All</option>
+            <option value="ideas" {% if current_type == 'ideas' %}selected{% endif %}>My Ideas (no book)</option>
+            <option value="books" {% if current_type == 'books' %}selected{% endif %}>Book Summaries</option>
+        </select>
+        <label for="categoryFilter">Category:</label>
+        <select name="category" id="categoryFilter" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>
+                {{ cat.name }}
+            </option>
+            {% endfor %}
+        </select>
+        {% if selected_category or current_type != 'all' %}
+        <a href="{% url 'summary' %}" class="clear-btn">Clear Filters</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Summaries Grid -->
+<div class="summaries-grid" style="display:grid; grid-template-columns: 1fr; gap: 16px;">
+    {% for summary in summaries %}
+    <div class="summary-card" data-id="{{ summary.id }}">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+            <div>
+                <h3 style="font-size:18px; font-weight:600; margin:0 0 2px;">{{ summary.chapter_title|default:"Untitled"}}</h3>
+                <p style="color: var(--text-secondary); font-size:14px; margin:0;">
+                    {% if summary.book %}
+                    Book: <strong>{{ summary.book.title }}</strong>
+                    {% if summary.book.author %} · {{ summary.book.author }}{% endif %}
+                    {% else %}
+                    💡 Personal Idea
+                    {% endif %}
+                    · {{ summary.created_at|date:"M j, Y" }}
+                    {% if summary.category %}
+                    · <span
+                        style="background: var(--primary-light); color: var(--primary); padding:1px 10px; border-radius:20px; font-size:12px;">{{
+                        summary.category.name }}</span>
+                    {% endif %}
+                    {% if summary.card_image %}
+                    <span class="locked-badge">🔒 Locked</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="summary-actions">
+                {% if summary.card_image %}
+                <!-- Card exists: View (modal), Download PNG, Delete -->
+                <button class="view-card-btn" data-image="{{ summary.card_image.url }}">View</button>
+                <a href="{% url 'download_card_png' summary.id %}" class="primary-btn">Download PNG</a>
+                <button onclick="confirmDelete({{ summary.id }})" class="delete-btn">Delete</button>
+                {% else %}
+                <!-- No card: View (review), Edit, Generate Card, Delete -->
+                <a href="{% url 'review' summary.id %}" class="view-btn">View</a>
+                <a href="{% url 'edit_summary' summary.id %}" class="edit-btn">Edit</a>
+                <a href="{% url 'generate_cards' summary.id %}" class="primary-btn">⚡ Generate Card</a>
+                <button onclick="confirmDelete({{ summary.id }})" class="delete-btn">Delete</button>
+                {% endif %}
+            </div>
+        </div>
+        <p style="margin-top:10px; color: var(--text-primary);">{{ summary.main_idea|truncatechars:150 }}</p>
+    </div>
+    {% empty %}
+    <div style="text-align:center; padding:60px 0; color: var(--text-secondary); grid-column:1/-1;">
+        <p style="font-size:18px;">You haven't written any summaries yet.</p>
+        <a href="{% url 'summaryForm' %}" class="quick-btn primary" style="margin-top:20px;">Create Your First
+            Summary</a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if summaries.has_other_pages %}
+<div style="display:flex; justify-content:center; gap:8px; margin-top:30px; flex-wrap:wrap;">
+    {% if summaries.has_previous %}
+    <a href="?page=1{% if selected_category %}&category={{ selected_category }}{% endif %}{% if current_type != 'all' %}&type={{ current_type }}{% endif %}"
+        class="quick-btn">&laquo; First</a>
+    <a href="?page={{ summaries.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if current_type != 'all' %}&type={{ current_type }}{% endif %}"
+        class="quick-btn">Previous</a>
+    {% endif %}
+    <span
+        style="padding:8px 16px; background: var(--surface); border-radius:50px; color: var(--primary); font-weight:600;">
+        Page {{ summaries.number }} of {{ summaries.paginator.num_pages }}
+    </span>
+    {% if summaries.has_next %}
+    <a href="?page={{ summaries.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if current_type != 'all' %}&type={{ current_type }}{% endif %}"
+        class="quick-btn">Next</a>
+    <a href="?page={{ summaries.paginator.num_pages }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if current_type != 'all' %}&type={{ current_type }}{% endif %}"
+        class="quick-btn">Last &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+    <div
+        style="background: var(--white); border:1px solid var(--border); border-radius: var(--radius-lg); padding:30px; max-width:400px; width:90%;">
+        <h3 style="margin-bottom:12px;">Delete Summary?</h3>
+        <p style="color: var(--text-secondary); margin-bottom:20px;">This action cannot be undone.</p>
+        <form id="deleteForm" method="post" action="">
+            {% csrf_token %}
+            <div style="display:flex; gap:12px;">
+                <button type="submit"
+                    style="background:var(--danger); color:white; border:none; padding:8px 24px; border-radius:30px; cursor:pointer;">Delete</button>
+                <button type="button" onclick="closeDeleteModal()"
+                    style="background:var(--surface); color:var(--text-secondary); border:1px solid var(--border); padding:8px 24px; border-radius:30px; cursor:pointer;">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Card Image Modal -->
+<div class="card-image-modal" id="cardImageModal">
+    <div class="modal-content">
+        <button class="close-btn" id="closeCardModal">&times;</button>
+        <img id="cardImageDisplay" src="" alt="Knowledge Card">
+    </div>
+</div>
+
+<script>
+    function confirmDelete(summaryId) {
+        const modal = document.getElementById('deleteModal');
+        const form = document.getElementById('deleteForm');
+        form.action = '/Resources/summaries/delete/' + summaryId + '/';
+        modal.style.display = 'flex';
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+    document.getElementById('deleteModal').addEventListener('click', function (e) {
+        if (e.target === this) closeDeleteModal();
+    });
+
+    // Card Image Modal
+    (function () {
+        const modal = document.getElementById('cardImageModal');
+        const img = document.getElementById('cardImageDisplay');
+        const closeBtn = document.getElementById('closeCardModal');
+
+        function openCardModal(imageUrl) {
+            img.src = imageUrl;
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCardModal() {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        document.querySelectorAll('.view-card-btn').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const imageUrl = this.dataset.image;
+                if (imageUrl) openCardModal(imageUrl);
+            });
+        });
+
+        closeBtn.addEventListener('click', closeCardModal);
+        modal.addEventListener('click', function (e) {
+            if (e.target === this) closeCardModal();
+        });
+    })();
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            gsap.from('.section-header', { opacity: 0, y: 16, duration: 0.4, ease: 'power2.out' });
+            gsap.from('.filter-bar', { opacity: 0, y: 12, duration: 0.4, delay: 0.1, ease: 'power2.out' });
+            gsap.from('.summary-card', { opacity: 0, y: 20, duration: 0.4, stagger: 0.05, ease: 'power2.out', delay: 0.15 });
+        }
+    });
+</script>
+{% endblock %}

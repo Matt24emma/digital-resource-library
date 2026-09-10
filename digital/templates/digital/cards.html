@@ -1,0 +1,934 @@
+{% extends 'digital/base.html' %}
+{% load static %}
+
+{% block page_title %}Generate Knowledge Card — {{ summary.book.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+     STICKY NOTE CARD – vibrant colors, custom icons & username
+     ============================================================ */
+
+    .card-container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 16px;
+    }
+
+    /* ---- Styling Controls ---- */
+    .styling-controls {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 16px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px 24px;
+        align-items: center;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .styling-controls .control-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .styling-controls label {
+        font-size: 13px;
+        font-weight: var(--font-medium);
+        color: var(--text-secondary);
+    }
+
+    .styling-controls select,
+    .styling-controls input[type="color"] {
+        padding: 4px 10px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--white);
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--text-primary);
+        outline: none;
+        cursor: pointer;
+    }
+
+    .styling-controls select:focus,
+    .styling-controls input[type="color"]:focus {
+        border-color: var(--primary);
+    }
+
+    .styling-controls input[type="color"] {
+        width: 36px;
+        height: 36px;
+        padding: 2px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    /* ---- Sticky Note Card ---- */
+    .sticky-note-card {
+        max-width: 340px;
+        margin: 0 auto 20px;
+        padding: 24px 22px 22px;
+        border-radius: 16px;
+        box-shadow: 0 6px 24px rgba(15, 23, 42, 0.12);
+        position: relative;
+        transition: background 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        font-family: var(--font-body);
+        color: var(--text-primary);
+        /* Customisable via JS */
+        --card-bg: #FFFFFF;
+        --card-text-color: #0F172A;
+        --card-accent: #0F172A;
+        --card-font: 'Inter', sans-serif;
+    }
+
+    .sticky-note-card {
+        font-family: var(--card-font);
+        color: var(--card-text-color);
+        background-color: var(--card-bg);
+    }
+
+    /* Tape accent */
+    .sticky-note-card .tape {
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%) rotate(-3deg);
+        width: 50px;
+        height: 18px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 2px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        backdrop-filter: blur(2px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Hover effect */
+    .sticky-note-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+    }
+
+    /* ---- Card Content ---- */
+    .sticky-note-card .big-idea {
+        margin-bottom: 12px;
+    }
+
+    .sticky-note-card .big-idea .label,
+    .sticky-note-card .section .label {
+        font-size: 10px;
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--card-accent);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 2px;
+    }
+
+    .sticky-note-card .big-idea .label i,
+    .sticky-note-card .section .label i {
+        width: 14px;
+        height: 14px;
+        color: var(--card-accent);
+    }
+
+    .sticky-note-card .big-idea .text {
+        font-family: var(--font-heading);
+        font-size: 16px;
+        font-weight: var(--font-semibold);
+        line-height: 1.3;
+        color: var(--card-text-color);
+    }
+
+    .sticky-note-card .section {
+        margin-top: 10px;
+    }
+
+    .sticky-note-card .section ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sticky-note-card .section ul li {
+        font-size: 13px;
+        line-height: 1.5;
+        padding-left: 18px;
+        position: relative;
+        margin-bottom: 2px;
+        color: var(--card-text-color);
+    }
+
+    .sticky-note-card .section ul li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--card-accent);
+        font-weight: var(--font-bold);
+    }
+
+    .sticky-note-card .action-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .sticky-note-card .action-item .check {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--card-accent);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: var(--font-bold);
+        margin-top: 1px;
+    }
+
+    .sticky-note-card .action-item .action-text {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--card-text-color);
+    }
+
+    .sticky-note-card .takeaway {
+        margin-top: 10px;
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+        font-style: italic;
+        font-size: 13px;
+        line-height: 1.5;
+        opacity: 0.8;
+        color: var(--card-text-color);
+    }
+
+    /* ---- Card Footer (Username) ---- */
+    .sticky-note-card .card-footer {
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        font-size: 11px;
+        text-align: right;
+        color: var(--card-accent);
+        opacity: 0.7;
+        font-weight: var(--font-medium);
+    }
+
+    /* ---- Card Actions (Save / Cancel) ---- */
+    .card-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+
+    .card-actions .status-area {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .card-actions .status-area .status-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .card-actions .status-area .status-text {
+        font-weight: var(--font-medium);
+    }
+
+    .card-actions .status-area.success .status-text {
+        color: #16a34a;
+    }
+
+    .card-actions .status-area.error .status-text {
+        color: #dc2626;
+    }
+
+    .card-actions .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .card-actions .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 20px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-weight: var(--font-medium);
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        min-height: 40px;
+        justify-content: center;
+    }
+
+    .card-actions .btn-primary {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .card-actions .btn-primary:hover:not(:disabled) {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .card-actions .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .card-actions .btn-secondary {
+        background: var(--surface);
+        color: var(--text-secondary);
+        border: 1px solid var(--border);
+    }
+
+    .card-actions .btn-secondary:hover {
+        background: var(--background);
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    /* ---- Upgrade Modal ---- */
+    .upgrade-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .upgrade-modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .upgrade-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+
+    .upgrade-card {
+        position: relative;
+        z-index: 2;
+        width: min(540px, 100%);
+        max-height: 90vh;
+        overflow-y: auto;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 40px 40px 36px;
+        box-shadow: var(--shadow-lg);
+        transform: translateY(24px) scale(0.97);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+    }
+
+    .upgrade-modal.active .upgrade-card {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    .upgrade-card::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .upgrade-card::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+    }
+
+    .upgrade-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: var(--surface);
+        border-radius: 50%;
+        color: var(--text-secondary);
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+        transition: background var(--transition), transform 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .upgrade-close:hover {
+        background: var(--border);
+        transform: rotate(90deg);
+    }
+
+    .upgrade-eyebrow {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 2px 14px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+    }
+
+    .upgrade-card h2 {
+        font-family: var(--font-heading);
+        font-size: 28px;
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+        margin: 0 0 12px;
+        line-height: 1.2;
+    }
+
+    .upgrade-description {
+        font-size: 15px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    .upgrade-price {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .upgrade-price strong {
+        font-family: var(--font-heading);
+        font-size: 40px;
+        font-weight: var(--font-bold);
+        color: var(--primary);
+        line-height: 1;
+    }
+
+    .upgrade-price span {
+        color: var(--text-muted);
+        font-size: 16px;
+    }
+
+    .upgrade-features {
+        list-style: none;
+        margin: 0 0 28px;
+        padding: 0;
+        display: grid;
+        gap: 10px;
+    }
+
+    .upgrade-features li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 14px;
+        color: var(--text-primary);
+        line-height: 1.5;
+    }
+
+    .upgrade-features li::before {
+        content: "✓";
+        color: var(--primary);
+        font-weight: var(--font-bold);
+        flex-shrink: 0;
+    }
+
+    .upgrade-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 12px 20px;
+        border-radius: var(--radius-sm);
+        background: var(--primary);
+        color: var(--white);
+        font-family: var(--font-body);
+        font-size: 15px;
+        font-weight: var(--font-semibold);
+        text-decoration: none;
+        transition: background var(--transition), transform 0.2s ease, box-shadow var(--transition);
+        border: none;
+        cursor: pointer;
+    }
+
+    .upgrade-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+    }
+
+    .upgrade-btn:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+
+    .upgrade-note {
+        margin-top: 18px;
+        color: var(--text-muted);
+        text-align: center;
+        font-size: 13px;
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 600px) {
+        .card-container {
+            padding: 12px;
+        }
+
+        .styling-controls {
+            padding: 12px 16px;
+            gap: 12px;
+        }
+
+        .sticky-note-card {
+            padding: 20px 16px 18px;
+            max-width: 100%;
+        }
+
+        .sticky-note-card .big-idea .text {
+            font-size: 15px;
+        }
+
+        .sticky-note-card .section ul li,
+        .sticky-note-card .action-item .action-text,
+        .sticky-note-card .takeaway {
+            font-size: 12px;
+        }
+
+        .card-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .card-actions .btn-group {
+            width: 100%;
+        }
+
+        .card-actions .btn-group .btn {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .sticky-note-card .big-idea .text {
+            font-size: 14px;
+        }
+
+        .sticky-note-card .section ul li,
+        .sticky-note-card .action-item .action-text,
+        .sticky-note-card .takeaway {
+            font-size: 11px;
+        }
+    }
+
+    /* ---- Utility ---- */
+    .hidden {
+        display: none !important;
+    }
+
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="card-container">
+
+    <!-- Styling Controls -->
+    <div class="styling-controls">
+        <div class="control-group">
+            <label for="colorSelect">Color</label>
+            <select id="colorSelect">
+                <option value="#FFFFFF" data-accent="#0F172A" data-class="sticker-white">White</option>
+                <option value="#FF99CC" data-accent="#E11D48" data-class="sticker-pink">Pink</option>
+                <option value="#FFA500" data-accent="#C2410C" data-class="sticker-orange">Orange</option>
+                <option value="#FFE066" data-accent="#B45309" data-class="sticker-yellow">Yellow</option>
+                <option value="#66BB6A" data-accent="#15803D" data-class="sticker-green">Green</option>
+                <option value="#99CCFF" data-accent="#1D4ED8" data-class="sticker-blue">Blue</option>
+                <option value="#CC99FF" data-accent="#6D28D9" data-class="sticker-purple">Purple</option>
+                <option value="#FF7F50" data-accent="#C2410C" data-class="sticker-coral">Coral</option>
+                <option value="#98FB98" data-accent="#15803D" data-class="sticker-mint">Mint</option>
+                <option value="#FFDAB9" data-accent="#C2410C" data-class="sticker-peach">Peach</option>
+                <option value="#87CEEB" data-accent="#0284C7" data-class="sticker-sky">Sky</option>
+                <option value="#FFFACD" data-accent="#B45309" data-class="sticker-lemon">Lemon</option>
+                <option value="#F8BBD0" data-accent="#E11D48" data-class="sticker-blush">Blush</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="fontSelect">Font</label>
+            <select id="fontSelect">
+                <option value="'Inter', sans-serif">Inter</option>
+                <option value="'Poppins', sans-serif">Poppins</option>
+                <option value="'Merriweather', serif">Merriweather</option>
+                <option value="'Georgia', serif">Georgia</option>
+                <option value="'Source Sans Pro', sans-serif">Source Sans</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="fontColorPicker">Text Color</label>
+            <input type="color" id="fontColorPicker" value="#0F172A">
+        </div>
+
+        <!-- NEW: Icon Color Picker -->
+        <div class="control-group">
+            <label for="accentColorPicker">Icon Color</label>
+            <input type="color" id="accentColorPicker" value="#0F172A">
+        </div>
+    </div>
+
+    <!-- Sticky Note Card -->
+    <div class="sticky-note-card sticker-white" id="cardToCapture">
+        <div class="tape"></div>
+
+        <!-- Big Idea -->
+        <div class="big-idea">
+            <div class="label">
+                <i data-lucide="lightbulb"></i> Big Idea
+            </div>
+            <div class="text">{{ summary.main_idea|truncatechars:80 }}</div>
+        </div>
+
+        <!-- Key Lessons -->
+        {% if summary.key_lessons %}
+        <div class="section">
+            <div class="label">
+                <i data-lucide="list"></i> Key Lessons
+            </div>
+            <ul>
+                {% for lesson in summary.key_lessons.splitlines|slice:":3" %}
+                {% if lesson.strip %}
+                <li>{{ lesson|truncatechars:60 }}</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        {% if summary.actions %}
+        <div class="section">
+            <div class="label">
+                <i data-lucide="check-circle"></i> Action
+            </div>
+            {% for action in summary.actions.splitlines|slice:":2" %}
+            {% if action.strip %}
+            <div class="action-item">
+                <span class="check">✓</span>
+                <span class="action-text">{{ action|truncatechars:70 }}</span>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Takeaway -->
+        {% if summary.personal_insight %}
+        <div class="takeaway">
+            {{ summary.personal_insight|truncatechars:80 }}
+        </div>
+        {% endif %}
+
+        <!-- NEW: User Footer -->
+        <div class="card-footer">
+            @{{ user.username|default:"Reader" }}
+        </div>
+    </div>
+
+    <!-- Save / Cancel Actions -->
+    <div class="card-actions">
+        <div class="status-area" id="saveStatus">
+            <span class="status-icon" id="statusIcon"></span>
+            <span class="status-text" id="statusText">Ready to save</span>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" id="saveCardBtn">
+                <i data-lucide="save" style="width:18px;height:18px;"></i>
+                Save to Library
+            </button>
+            <a href="{% url 'summary' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div class="upgrade-modal" id="upgradeModal">
+    <div class="upgrade-overlay" id="upgradeOverlay"></div>
+    <div class="upgrade-card">
+        <button type="button" class="upgrade-close" id="closeUpgradeModal" aria-label="Close">&times;</button>
+        <span class="upgrade-eyebrow">Free limit reached</span>
+        <h2>Keep building your knowledge library.</h2>
+        <p class="upgrade-description">
+            You’ve used your 3 daily card generations. Upgrade to Premium for unlimited generation and downloads.
+        </p>
+        <div class="upgrade-price">
+            <strong>$2</strong>
+            <span>/ month</span>
+        </div>
+        <ul class="upgrade-features">
+            <li>Unlimited knowledge‑card generation</li>
+            <li>Unlimited PNG downloads</li>
+            <li>Export complete summaries as PDF</li>
+            <li>Organise your learning into a personal library</li>
+            <li>Keep summaries permanently accessible</li>
+            <li>Build a searchable knowledge base</li>
+        </ul>
+        <a href="{% url 'pricing' %}" class="upgrade-btn">Unlock Premium →</a>
+        <p class="upgrade-note">Cancel anytime. Secure payment via Paystack.</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // ----- Lucide icons -----
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        const cardEl = document.getElementById('cardToCapture');
+        const saveBtn = document.getElementById('saveCardBtn');
+        const statusArea = document.getElementById('saveStatus');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusText = document.getElementById('statusText');
+
+        // ----- Styling Controls -----
+        const colorSelect = document.getElementById('colorSelect');
+        const fontSelect = document.getElementById('fontSelect');
+        const fontColorPicker = document.getElementById('fontColorPicker');
+        const accentColorPicker = document.getElementById('accentColorPicker'); // NEW
+
+        // *** This is the place to tweak/add colors! ***
+        // Map background hex to default accent hex
+        const accentMap = {
+            '#FFFFFF': '#0F172A',
+            '#FF99CC': '#E11D48',
+            '#FFA500': '#C2410C',
+            '#FFE066': '#B45309',
+            '#66BB6A': '#15803D',
+            '#99CCFF': '#1D4ED8',
+            '#CC99FF': '#6D28D9',
+            '#FF7F50': '#C2410C',
+            '#98FB98': '#15803D',
+            '#FFDAB9': '#C2410C',
+            '#87CEEB': '#0284C7',
+            '#FFFACD': '#B45309',
+            '#F8BBD0': '#E11D48',
+        };
+
+        // Set initial values from server (if any)
+        const currentColor = '{{ card_color|default:"sticker-white" }}';
+        const currentFont = '{{ font_family|default:"Inter" }}';
+        const currentFontColor = '{{ font_color|default:"#0F172A" }}';
+
+        if (currentColor) {
+            const colorOption = colorSelect.querySelector(`[data-class="${currentColor}"]`);
+            if (colorOption) colorSelect.value = colorOption.value;
+        }
+        if (currentFont) {
+            const fontMap = {
+                'Inter': "'Inter', sans-serif",
+                'Poppins': "'Poppins', sans-serif",
+                'Merriweather': "'Merriweather', serif",
+                'Georgia': "'Georgia', serif",
+                'Source Sans Pro': "'Source Sans Pro', sans-serif",
+            };
+            fontSelect.value = fontMap[currentFont] || "'Inter', sans-serif";
+        }
+        fontColorPicker.value = currentFontColor;
+
+        // Initialize accent picker to match the selected background
+        accentColorPicker.value = accentMap[colorSelect.value] || '#0F172A';
+        let userDefinedAccent = null; // Track if user overrides accent
+
+        // Function to update card styles
+        function updateCardStyles() {
+            const color = colorSelect.value;
+            const font = fontSelect.value;
+            const fontColor = fontColorPicker.value;
+            // If the user hasn't manually overridden, use the map
+            const accent = userDefinedAccent || accentMap[color] || '#0F172A';
+
+            cardEl.style.setProperty('--card-bg', color);
+            cardEl.style.setProperty('--card-font', font);
+            cardEl.style.setProperty('--card-text-color', fontColor);
+            cardEl.style.setProperty('--card-accent', accent);
+        }
+
+        // Apply initial styles
+        updateCardStyles();
+
+        // Event listeners
+        colorSelect.addEventListener('change', function () {
+            // Reset user defined accent when background changes
+            userDefinedAccent = null;
+            accentColorPicker.value = accentMap[this.value] || '#0F172A';
+            updateCardStyles();
+        });
+
+        fontSelect.addEventListener('change', updateCardStyles);
+        fontColorPicker.addEventListener('input', updateCardStyles);
+
+        // NEW: Icon Color Picker logic
+        accentColorPicker.addEventListener('input', function () {
+            userDefinedAccent = this.value;
+            updateCardStyles();
+        });
+
+        // ----- Modal controls -----
+        const modal = document.getElementById('upgradeModal');
+        const modalClose = document.getElementById('closeUpgradeModal');
+        const overlay = document.getElementById('upgradeOverlay');
+
+        function openModal() {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (modalClose) modalClose.addEventListener('click', closeModal);
+        if (overlay) overlay.addEventListener('click', closeModal);
+
+        // ---- Status update helper ----
+        function setStatus(type, message) {
+            statusArea.className = 'status-area ' + (type || '');
+            if (type === 'success') {
+                statusIcon.innerHTML = '<i data-lucide="check-circle" style="color:#16a34a;"></i>';
+                statusText.textContent = message || 'Saved successfully!';
+            } else if (type === 'error') {
+                statusIcon.innerHTML = '<i data-lucide="alert-circle" style="color:#dc2626;"></i>';
+                statusText.textContent = message || 'Something went wrong.';
+            } else if (type === 'loading') {
+                statusIcon.innerHTML = '<i data-lucide="loader" style="color:var(--primary);" class="spin"></i>';
+                statusText.textContent = message || 'Saving…';
+            } else {
+                statusIcon.innerHTML = '';
+                statusText.textContent = message || 'Ready to save';
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // Initial state
+        setStatus('', 'Ready to save');
+
+        // ---- Save button ----
+        saveBtn.addEventListener('click', function () {
+            saveBtn.disabled = true;
+            setStatus('loading', 'Generating card image…');
+
+            // Capture the card with current styles
+            html2canvas(cardEl, {
+                scale: 2,
+                backgroundColor: null,
+                allowTaint: false,
+                useCORS: true,
+                logging: false,
+            }).then(canvas => {
+                const dataUrl = canvas.toDataURL('image/png');
+                const formData = new FormData();
+
+                formData.append('image', dataUrl);
+                formData.append('color', colorSelect.value);
+                formData.append('font', fontSelect.value);
+                formData.append('font_color', fontColorPicker.value);
+                formData.append('accent_color', accentColorPicker.value); // Send new icon color
+
+                setStatus('loading', 'Saving to library…');
+
+                fetch('{% url "save_card_image" pk=summary.pk %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            setStatus('success', 'Card saved! Redirecting…');
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url;
+                            }, 800);
+                        } else if (data.error && data.error.includes('limit')) {
+                            openModal();
+                            setStatus('error', 'Limit reached. Upgrade to continue.');
+                            saveBtn.disabled = false;
+                        } else {
+                            setStatus('error', data.error || 'Could not save card.');
+                            saveBtn.disabled = false;
+                        }
+                    })
+                    .catch(() => {
+                        setStatus('error', 'Network error. Please try again.');
+                        saveBtn.disabled = false;
+                    });
+            }).catch(() => {
+                setStatus('error', 'Failed to capture card. Please try again.');
+                saveBtn.disabled = false;
+            });
+        });
+
+        // ---- GSAP entrance ----
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            gsap.from('.card-container', { opacity: 0, y: 20, duration: 0.5, ease: 'power3.out' });
+        }
+    });
+</script>
+{% endblock %}

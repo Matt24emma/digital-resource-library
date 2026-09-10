@@ -1,0 +1,2642 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ===========================
+       BASE & RESET
+    =========================== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: #050505;
+        color: #FFFFFF;
+        font-family: 'Poppins', sans-serif;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #111111;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #00E5A8;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #00c997;
+    }
+
+    /* ===========================
+       FOUNDRY WRAPPER
+    =========================== */
+    .foundry-wrapper {
+        display: flex;
+        min-height: 100vh;
+        background: #050505;
+        position: relative;
+    }
+
+    /* ===========================
+       SIDEBAR
+    =========================== */
+    .foundry-sidebar {
+        width: 260px;
+        min-height: 100vh;
+        background: #111111;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 32px 20px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        flex-shrink: 0;
+        z-index: 100;
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .foundry-sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 40px;
+        padding-left: 4px;
+    }
+
+    .foundry-sidebar-brand .logo-icon {
+        width: 36px;
+        height: 36px;
+        background: #00E5A8;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 18px;
+        color: #050505;
+        flex-shrink: 0;
+    }
+
+    .foundry-sidebar-brand .logo-text {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #FFFFFF;
+    }
+
+    .foundry-sidebar-brand .logo-text span {
+        color: #00E5A8;
+    }
+
+    .foundry-sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+    }
+
+    .foundry-sidebar-nav .nav-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #9CA3AF;
+        padding: 16px 12px 8px 12px;
+        opacity: 0.5;
+    }
+
+    .foundry-sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: #9CA3AF;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.25s ease;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .foundry-sidebar-nav a .nav-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        line-height: 1;
+    }
+
+    .foundry-sidebar-nav a .nav-icon svg {
+        width: 20px;
+        height: 20px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .foundry-sidebar-nav a:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: #FFFFFF;
+    }
+
+    .foundry-sidebar-nav a.active {
+        background: rgba(0, 229, 168, 0.10);
+        color: #00E5A8;
+    }
+
+    .foundry-sidebar-nav a.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 24px;
+        background: #00E5A8;
+        border-radius: 0 4px 4px 0;
+    }
+
+    .foundry-sidebar-nav a .nav-badge {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #9CA3AF;
+    }
+
+    .foundry-sidebar-footer {
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .foundry-sidebar-footer .user-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 4px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .foundry-sidebar-footer .user-card:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .foundry-sidebar-footer .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00E5A8, #00c997);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        color: #050505;
+        flex-shrink: 0;
+    }
+
+    .foundry-sidebar-footer .user-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .foundry-sidebar-footer .user-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #FFFFFF;
+        line-height: 1.3;
+    }
+
+    .foundry-sidebar-footer .user-email {
+        font-size: 11px;
+        color: #9CA3AF;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ===========================
+       SIDEBAR TOGGLE (mobile)
+    =========================== */
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 200;
+        background: rgba(17, 17, 17, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #FFFFFF;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .sidebar-toggle:hover {
+        background: #1a1a1a;
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 99;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+
+    /* ===========================
+       MAIN CONTENT
+    =========================== */
+    .foundry-main {
+        flex: 1;
+        padding: 0 48px 60px 48px;
+        min-height: 100vh;
+        max-width: calc(100% - 260px);
+        margin-left: 0;
+        transition: max-width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.3s ease;
+    }
+
+    /* ===========================
+       BOOK HERO
+    =========================== */
+    .book-hero {
+        display: flex;
+        gap: 40px;
+        padding: 32px 0 36px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        align-items: flex-start;
+    }
+
+    .book-hero-cover {
+        flex-shrink: 0;
+        width: 160px;
+        height: 220px;
+        border-radius: 16px;
+        background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 56px;
+        color: #00E5A8;
+        font-weight: 700;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .book-hero-cover .cover-initials {
+        font-size: 32px;
+        font-weight: 700;
+        color: #00E5A8;
+        letter-spacing: 2px;
+    }
+
+    .book-hero-cover .cover-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 229, 168, 0.15);
+        border: 1px solid rgba(0, 229, 168, 0.15);
+        border-radius: 8px;
+        padding: 2px 10px;
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #00E5A8;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    .book-hero-info {
+        flex: 1;
+        min-width: 0;
+        padding-top: 4px;
+    }
+
+    .book-hero-info .book-title {
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #FFFFFF;
+        line-height: 1.1;
+        margin-bottom: 2px;
+    }
+
+    .book-hero-info .book-author {
+        font-size: 18px;
+        font-weight: 400;
+        color: #9CA3AF;
+        margin-bottom: 12px;
+    }
+
+    .book-hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px 24px;
+        margin-bottom: 16px;
+    }
+
+    .book-hero-meta .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #9CA3AF;
+    }
+
+    .book-hero-meta .meta-item .meta-icon {
+        font-size: 15px;
+    }
+
+    .book-hero-meta .meta-item .meta-value {
+        color: #FFFFFF;
+        font-weight: 500;
+    }
+
+    .book-hero-meta .meta-item .badge-status {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        background: rgba(0, 229, 168, 0.12);
+        color: #00E5A8;
+        border: 1px solid rgba(0, 229, 168, 0.10);
+    }
+
+    .book-hero-meta .meta-item .badge-status.completed {
+        background: rgba(0, 229, 168, 0.15);
+        color: #00E5A8;
+    }
+
+    .book-hero-progress {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        max-width: 480px;
+    }
+
+    .book-hero-progress .progress-track {
+        flex: 1;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .book-hero-progress .progress-track .progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #00E5A8, #00c997);
+        transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        position: relative;
+    }
+
+    .book-hero-progress .progress-track .progress-fill::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 24px;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15));
+        border-radius: 10px;
+    }
+
+    .book-hero-progress .progress-label {
+        font-size: 15px;
+        font-weight: 600;
+        color: #9CA3AF;
+        min-width: 48px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .book-hero-progress .progress-label .pct {
+        color: #00E5A8;
+    }
+
+    .book-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 4px;
+    }
+
+    .book-hero-actions .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 32px;
+        background: #00E5A8;
+        color: #050505;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 15px;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 4px 24px rgba(0, 229, 168, 0.20);
+    }
+
+    .book-hero-actions .btn-primary:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 40px rgba(0, 229, 168, 0.30);
+        background: #00f0b0;
+    }
+
+    .book-hero-actions .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 24px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #9CA3AF;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .book-hero-actions .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.07);
+        color: #FFFFFF;
+        border-color: rgba(255, 255, 255, 0.10);
+        transform: translateY(-2px);
+    }
+
+    /* ===========================
+       STATISTICS ROW
+    =========================== */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        padding: 28px 0 32px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-card {
+        background: #111111;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 20px 24px;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: default;
+    }
+
+    .stat-card:hover {
+        background: #171717;
+        border-color: rgba(255, 255, 255, 0.08);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card .stat-icon {
+        font-size: 22px;
+        margin-bottom: 6px;
+        display: block;
+        color: #00E5A8;
+        opacity: 0.7;
+    }
+
+    .stat-card .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #FFFFFF;
+        letter-spacing: -0.5px;
+        line-height: 1.1;
+    }
+
+    .stat-card .stat-number .suffix {
+        font-size: 16px;
+        font-weight: 500;
+        color: #9CA3AF;
+        margin-left: 2px;
+    }
+
+    .stat-card .stat-label {
+        font-size: 13px;
+        color: #9CA3AF;
+        font-weight: 400;
+        margin-top: 2px;
+    }
+
+    /* ===========================
+       TWO COLUMN LAYOUT
+    =========================== */
+    .book-detail-layout {
+        display: flex;
+        gap: 40px;
+        padding-top: 32px;
+        align-items: flex-start;
+    }
+
+    .book-detail-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .book-detail-sidebar {
+        width: 260px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* ===========================
+       DESCRIPTION
+    =========================== */
+    .description-section {
+        margin-bottom: 40px;
+    }
+
+    .description-section .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #FFFFFF;
+        margin-bottom: 14px;
+        letter-spacing: -0.3px;
+    }
+
+    .description-section .description-text {
+        font-size: 15px;
+        line-height: 1.8;
+        color: #E5E7EB;
+        font-weight: 400;
+    }
+
+    .description-section .description-text .read-more-target {
+        display: none;
+    }
+
+    .description-section .description-text .read-more-target.open {
+        display: inline;
+    }
+
+    .description-section .read-more-btn {
+        display: inline-block;
+        margin-top: 6px;
+        color: #00E5A8;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        font-family: 'Poppins', sans-serif;
+        transition: all 0.3s ease;
+        padding: 4px 0;
+    }
+
+    .description-section .read-more-btn:hover {
+        color: #00f0b0;
+        transform: translateX(2px);
+    }
+
+    .description-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .description-grid .desc-card {
+        background: #111111;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 18px 22px;
+        transition: all 0.3s ease;
+    }
+
+    .description-grid .desc-card:hover {
+        background: #171717;
+        border-color: rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .description-grid .desc-card .desc-card-title {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6B7280;
+        margin-bottom: 4px;
+    }
+
+    .description-grid .desc-card .desc-card-text {
+        font-size: 14px;
+        color: #E5E7EB;
+        line-height: 1.6;
+        font-weight: 400;
+    }
+
+    /* ===========================
+       CHAPTERS LIST
+    =========================== */
+    .chapters-section {
+        margin-top: 8px;
+    }
+
+    .chapters-section .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .chapters-section .section-header .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #FFFFFF;
+        letter-spacing: -0.3px;
+    }
+
+    .chapters-section .section-header .chapter-count {
+        font-size: 13px;
+        color: #9CA3AF;
+        font-weight: 400;
+    }
+
+    .chapter-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .chapter-item {
+        background: #111111;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: default;
+        position: relative;
+    }
+
+    .chapter-item:hover {
+        background: #171717;
+        border-color: rgba(255, 255, 255, 0.08);
+        transform: translateX(4px);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .chapter-item.current {
+        border-color: rgba(0, 229, 168, 0.20);
+        background: rgba(0, 229, 168, 0.04);
+    }
+
+    .chapter-item.current::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #00E5A8;
+        border-radius: 0 4px 4px 0;
+    }
+
+    .chapter-item .chapter-number {
+        font-size: 14px;
+        font-weight: 600;
+        color: #6B7280;
+        min-width: 40px;
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .chapter-item .chapter-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .chapter-item .chapter-info .chapter-title {
+        font-size: 15px;
+        font-weight: 500;
+        color: #FFFFFF;
+        line-height: 1.3;
+    }
+
+    .chapter-item .chapter-info .chapter-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 12px;
+        color: #6B7280;
+        margin-top: 2px;
+    }
+
+    .chapter-item .chapter-info .chapter-meta .meta-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .chapter-item .chapter-info .chapter-meta .meta-tag .tag-icon {
+        font-size: 13px;
+    }
+
+    .chapter-item .chapter-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .chapter-item .chapter-status .status-badge {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 3px 12px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #9CA3AF;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .chapter-item .chapter-status .status-badge.done {
+        background: rgba(0, 229, 168, 0.10);
+        color: #00E5A8;
+        border-color: rgba(0, 229, 168, 0.10);
+    }
+
+    .chapter-item .chapter-status .status-badge .check {
+        margin-right: 4px;
+    }
+
+    .chapter-item .chapter-status .status-badge.current-badge {
+        background: rgba(0, 229, 168, 0.12);
+        color: #00E5A8;
+        border-color: rgba(0, 229, 168, 0.15);
+    }
+
+    .chapter-item .chapter-actions {
+        display: flex;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .chapter-item .chapter-actions .ch-btn {
+        padding: 5px 14px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: #9CA3AF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .chapter-item .chapter-actions .ch-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #FFFFFF;
+        border-color: rgba(255, 255, 255, 0.10);
+    }
+
+    .chapter-item .chapter-actions .ch-btn.primary {
+        background: rgba(0, 229, 168, 0.08);
+        border-color: rgba(0, 229, 168, 0.08);
+        color: #00E5A8;
+    }
+
+    .chapter-item .chapter-actions .ch-btn.primary:hover {
+        background: rgba(0, 229, 168, 0.15);
+        border-color: rgba(0, 229, 168, 0.15);
+        box-shadow: 0 0 20px rgba(0, 229, 168, 0.04);
+    }
+
+    /* ===========================
+       EMPTY CHAPTER STATE
+    =========================== */
+    .empty-chapters {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 24px;
+        background: #111111;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+    }
+
+    .empty-chapters .empty-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+
+    .empty-chapters h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #FFFFFF;
+        margin-bottom: 4px;
+    }
+
+    .empty-chapters p {
+        font-size: 14px;
+        color: #9CA3AF;
+        margin-bottom: 18px;
+    }
+
+    .empty-chapters .btn-generate {
+        padding: 12px 28px;
+        background: rgba(0, 229, 168, 0.10);
+        border: 1px solid rgba(0, 229, 168, 0.12);
+        border-radius: 12px;
+        color: #00E5A8;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .empty-chapters .btn-generate:hover {
+        background: rgba(0, 229, 168, 0.18);
+        border-color: rgba(0, 229, 168, 0.20);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 24px rgba(0, 229, 168, 0.06);
+    }
+
+    /* ===========================
+       RIGHT SIDEBAR
+    =========================== */
+    .detail-sidebar-card {
+        background: #111111;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 22px 24px;
+    }
+
+    .detail-sidebar-card .sidebar-card-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #6B7280;
+        font-weight: 600;
+        margin-bottom: 14px;
+    }
+
+    /* Progress ring */
+    .progress-ring-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4px 0 8px 0;
+    }
+
+    .progress-ring {
+        position: relative;
+        width: 100px;
+        height: 100px;
+    }
+
+    .progress-ring svg {
+        transform: rotate(-90deg);
+    }
+
+    .progress-ring .ring-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.06);
+        stroke-width: 6;
+    }
+
+    .progress-ring .ring-fg {
+        fill: none;
+        stroke: #00E5A8;
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-dasharray: 263.89;
+        stroke-dashoffset: 263.89;
+        transition: stroke-dashoffset 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .progress-ring .ring-label {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .progress-ring .ring-label .ring-pct {
+        font-size: 22px;
+        font-weight: 700;
+        color: #FFFFFF;
+        line-height: 1;
+    }
+
+    .progress-ring .ring-label .ring-pct .accent {
+        color: #00E5A8;
+    }
+
+    .progress-ring .ring-label .ring-sub {
+        font-size: 11px;
+        color: #9CA3AF;
+        font-weight: 400;
+        margin-top: 2px;
+    }
+
+    .sidebar-stats {
+        margin-top: 12px;
+    }
+
+    .sidebar-stats .ss-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        font-size: 13px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .sidebar-stats .ss-row:last-child {
+        border-bottom: none;
+    }
+
+    .sidebar-stats .ss-row .ss-label {
+        color: #9CA3AF;
+        font-weight: 400;
+    }
+
+    .sidebar-stats .ss-row .ss-value {
+        color: #FFFFFF;
+        font-weight: 500;
+    }
+
+    .sidebar-stats .ss-row .ss-value .highlight {
+        color: #00E5A8;
+    }
+
+    .quick-notes textarea {
+        width: 100%;
+        min-height: 80px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        padding: 12px 14px;
+        color: #FFFFFF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 400;
+        resize: vertical;
+        outline: none;
+        transition: border-color 0.3s ease;
+        line-height: 1.6;
+    }
+
+    .quick-notes textarea:focus {
+        border-color: rgba(0, 229, 168, 0.15);
+    }
+
+    .quick-notes textarea::placeholder {
+        color: #6B7280;
+    }
+
+    .quick-notes .qn-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .quick-notes .qn-actions button {
+        padding: 5px 16px;
+        border-radius: 8px;
+        border: none;
+        font-family: 'Poppins', sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .quick-notes .qn-actions .qn-save {
+        background: #00E5A8;
+        color: #050505;
+    }
+
+    .quick-notes .qn-actions .qn-save:hover {
+        background: #00f0b0;
+        transform: scale(1.02);
+    }
+
+    .quick-notes .qn-actions .qn-clear {
+        background: rgba(255, 255, 255, 0.05);
+        color: #9CA3AF;
+    }
+
+    .quick-notes .qn-actions .qn-clear:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #FFFFFF;
+    }
+
+    /* ===========================
+       INSIGHTS SECTION
+    =========================== */
+    .insights-section {
+        margin-top: 44px;
+        padding-top: 32px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .insights-section .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #FFFFFF;
+        margin-bottom: 18px;
+        letter-spacing: -0.3px;
+    }
+
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+    }
+
+    .insight-card {
+        background: #111111;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 20px 22px;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: default;
+    }
+
+    .insight-card:hover {
+        background: #171717;
+        border-color: rgba(255, 255, 255, 0.08);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .insight-card .insight-icon {
+        font-size: 22px;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .insight-card .insight-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6B7280;
+        margin-bottom: 2px;
+    }
+
+    .insight-card .insight-text {
+        font-size: 14px;
+        color: #E5E7EB;
+        line-height: 1.6;
+        font-weight: 400;
+    }
+
+    .insight-card .insight-text .quote-mark {
+        color: #00E5A8;
+        font-size: 18px;
+        font-weight: 700;
+        opacity: 0.5;
+        font-family: Georgia, serif;
+    }
+
+    /* ===========================
+       ACTION BAR
+    =========================== */
+    .action-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 24px 0 16px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: 8px;
+    }
+
+    .action-bar .ab-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: #9CA3AF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .action-bar .ab-btn:hover {
+        background: rgba(255, 255, 255, 0.07);
+        color: #FFFFFF;
+        border-color: rgba(255, 255, 255, 0.10);
+        transform: translateY(-2px);
+    }
+
+    .action-bar .ab-btn .pro-badge {
+        display: inline-block;
+        font-size: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        background: linear-gradient(135deg, #F59E0B, #F97316);
+        color: #050505;
+        padding: 1px 8px;
+        border-radius: 6px;
+        line-height: 16px;
+        margin-left: 2px;
+    }
+
+    .action-bar .ab-btn.primary {
+        background: rgba(0, 229, 168, 0.08);
+        border-color: rgba(0, 229, 168, 0.08);
+        color: #00E5A8;
+    }
+
+    .action-bar .ab-btn.primary:hover {
+        background: rgba(0, 229, 168, 0.16);
+        border-color: rgba(0, 229, 168, 0.15);
+        box-shadow: 0 0 32px rgba(0, 229, 168, 0.04);
+    }
+
+    .action-bar .ab-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.15);
+        color: #EF4444;
+    }
+
+    /* ===========================
+       RELATED BOOKS
+    =========================== */
+    .related-section {
+        margin-top: 44px;
+        padding-top: 32px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .related-section .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .related-section .section-header .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #FFFFFF;
+        letter-spacing: -0.3px;
+    }
+
+    .related-section .section-header .scroll-hint {
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 400;
+    }
+
+    .related-scroll {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        padding: 4px 2px 12px 2px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .related-scroll::-webkit-scrollbar {
+        height: 3px;
+    }
+
+    .related-scroll::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+    }
+
+    .related-scroll::-webkit-scrollbar-thumb {
+        background: #00E5A8;
+        border-radius: 10px;
+    }
+
+    .related-book-card {
+        flex: 0 0 180px;
+        scroll-snap-align: start;
+        background: #111111;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 18px 18px 16px;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: pointer;
+        min-width: 160px;
+    }
+
+    .related-book-card:hover {
+        background: #171717;
+        border-color: rgba(255, 255, 255, 0.08);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .related-book-card .rb-cover {
+        width: 100%;
+        aspect-ratio: 3/4;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+        color: #00E5A8;
+        margin-bottom: 10px;
+    }
+
+    .related-book-card .rb-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #FFFFFF;
+        line-height: 1.2;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .related-book-card .rb-author {
+        font-size: 11px;
+        color: #9CA3AF;
+        font-weight: 400;
+        margin-bottom: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .related-book-card .rb-progress {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .related-book-card .rb-progress .rb-track {
+        flex: 1;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .related-book-card .rb-progress .rb-track .rb-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 10px;
+        background: #00E5A8;
+    }
+
+    .related-book-card .rb-progress .rb-pct {
+        font-size: 11px;
+        font-weight: 600;
+        color: #9CA3AF;
+        min-width: 32px;
+        text-align: right;
+    }
+
+    .related-book-card .rb-btn {
+        margin-top: 10px;
+        padding: 5px 16px;
+        border-radius: 8px;
+        background: rgba(0, 229, 168, 0.08);
+        border: 1px solid rgba(0, 229, 168, 0.06);
+        color: #00E5A8;
+        font-family: 'Poppins', sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .related-book-card .rb-btn:hover {
+        background: rgba(0, 229, 168, 0.16);
+        border-color: rgba(0, 229, 168, 0.12);
+    }
+
+    /* ===========================
+       TOAST
+    =========================== */
+    .toast-message {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        background: rgba(17, 17, 17, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 14px 22px;
+        color: #FFFFFF;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        border-left: 3px solid #00E5A8;
+    }
+
+    .toast-message.show {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .toast-message .toast-icon {
+        font-size: 18px;
+        color: #00E5A8;
+    }
+
+    /* ===========================
+       RESPONSIVE
+    =========================== */
+    @media (max-width: 1200px) {
+        .foundry-main {
+            padding: 0 32px 48px 32px;
+        }
+
+        .book-detail-sidebar {
+            width: 220px;
+        }
+
+        .book-hero-cover {
+            width: 130px;
+            height: 180px;
+        }
+
+        .book-hero-info .book-title {
+            font-size: 28px;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .foundry-sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            height: 100vh;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 8px 0 64px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        .foundry-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .foundry-main {
+            max-width: 100% !important;
+            padding: 72px 20px 48px 20px;
+        }
+
+        .book-hero {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 24px;
+        }
+
+        .book-hero-info {
+            text-align: center;
+        }
+
+        .book-hero-meta {
+            justify-content: center;
+        }
+
+        .book-hero-progress {
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .book-hero-actions {
+            justify-content: center;
+        }
+
+        .book-detail-layout {
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .book-detail-sidebar {
+            width: 100%;
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .book-detail-sidebar .detail-sidebar-card {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .description-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .insights-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+
+        .chapter-item {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chapter-item .chapter-actions {
+            width: 100%;
+            justify-content: flex-start;
+            padding-top: 4px;
+        }
+
+        .action-bar {
+            justify-content: center;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .foundry-main {
+            padding: 64px 14px 32px 14px;
+        }
+
+        .book-hero-cover {
+            width: 110px;
+            height: 150px;
+            font-size: 40px;
+        }
+
+        .book-hero-info .book-title {
+            font-size: 22px;
+        }
+
+        .book-hero-info .book-author {
+            font-size: 15px;
+        }
+
+        .book-hero-meta {
+            gap: 12px 16px;
+            font-size: 12px;
+        }
+
+        .book-hero-progress .progress-label {
+            font-size: 13px;
+            min-width: 40px;
+        }
+
+        .book-hero-actions .btn-primary {
+            padding: 12px 24px;
+            font-size: 13px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .book-hero-actions .btn-secondary {
+            padding: 12px 20px;
+            font-size: 12px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 18px 0 22px 0;
+        }
+
+        .stat-card {
+            padding: 14px 16px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 22px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 11px;
+        }
+
+        .book-detail-sidebar .detail-sidebar-card {
+            min-width: 100%;
+        }
+
+        .chapter-item {
+            padding: 14px 16px;
+        }
+
+        .chapter-item .chapter-number {
+            font-size: 12px;
+            min-width: 30px;
+        }
+
+        .chapter-item .chapter-info .chapter-title {
+            font-size: 13px;
+        }
+
+        .chapter-item .chapter-actions .ch-btn {
+            font-size: 10px;
+            padding: 4px 10px;
+        }
+
+        .chapter-item .chapter-status .status-badge {
+            font-size: 9px;
+            padding: 2px 10px;
+        }
+
+        .insights-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-bar .ab-btn {
+            font-size: 12px;
+            padding: 10px 16px;
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .related-book-card {
+            flex: 0 0 140px;
+            min-width: 130px;
+            padding: 14px 14px 12px;
+        }
+
+        .related-book-card .rb-cover {
+            font-size: 20px;
+        }
+
+        .related-book-card .rb-title {
+            font-size: 12px;
+        }
+
+        .toast-message {
+            bottom: 16px;
+            right: 12px;
+            left: 12px;
+            padding: 12px 16px;
+            font-size: 12px;
+            border-radius: 12px;
+        }
+
+        .quick-notes textarea {
+            min-height: 60px;
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 18px;
+        }
+
+        .stat-card {
+            padding: 12px 12px;
+        }
+
+        .book-hero-info .book-title {
+            font-size: 19px;
+        }
+    }
+
+    /* ===========================
+       UTILITY
+    =========================== */
+    .hidden {
+        display: none !important;
+    }
+
+    .fade-in {
+        opacity: 0;
+    }
+
+    .mt-2 {
+        margin-top: 8px;
+    }
+
+    .mt-3 {
+        margin-top: 12px;
+    }
+
+    .mt-4 {
+        margin-top: 16px;
+    }
+
+    .mb-2 {
+        margin-bottom: 8px;
+    }
+
+    .mb-3 {
+        margin-bottom: 12px;
+    }
+
+    .gap-1 {
+        gap: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ===========================
+     SIDEBAR OVERLAY
+     =========================== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===========================
+     SIDEBAR TOGGLE
+     =========================== -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+</button>
+
+<!-- ===========================
+     FOUNDRY WRAPPER
+     =========================== -->
+<div class="foundry-wrapper">
+
+    <!-- ===========================
+         SIDEBAR
+         =========================== -->
+    <aside class="foundry-sidebar" id="foundrySidebar">
+        <div class="foundry-sidebar-brand">
+            <div class="logo-icon">F</div>
+            <span class="logo-text">Foundry<span>.</span></span>
+        </div>
+
+        <nav class="foundry-sidebar-nav">
+            <div class="nav-label">Main</div>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                    </svg>
+                </span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+
+            <a href="#" class="active">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 6h16v12H4z" />
+                        <path d="M4 6h16" />
+                        <path d="M4 10h16" />
+                        <path d="M4 14h16" />
+                        <path d="M4 18h16" />
+                        <path d="M8 6v12" />
+                        <path d="M16 6v12" />
+                    </svg>
+                </span>
+                <span class="nav-text">My Library</span>
+                <span class="nav-badge">12</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Reading Session</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </span>
+                <span class="nav-text">Knowledge Cards</span>
+                <span class="nav-badge">48</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                    </svg>
+                </span>
+                <span class="nav-text">Insights</span>
+            </a>
+
+            <div class="nav-label" style="margin-top:12px;">Workspace</div>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                </span>
+                <span class="nav-text">Notes</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Chat</span>
+            </a>
+
+            <a href="#">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="2" />
+                        <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20z" />
+                        <path d="M12 2v20" />
+                        <path d="M2 12h20" />
+                    </svg>
+                </span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+
+        <div class="foundry-sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <div class="user-name">John Doe</div>
+                    <div class="user-email">john@foundry.ai</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ===========================
+         MAIN CONTENT
+         =========================== -->
+    <main class="foundry-main" id="foundryMain">
+
+        <!-- ===========================
+             BOOK HERO
+             =========================== -->
+        <div class="book-hero" id="bookHero">
+            <div class="book-hero-cover" id="bookCover">
+                <span class="cover-initials">ZT</span>
+                <span class="cover-badge">📖</span>
+            </div>
+            <div class="book-hero-info">
+                <h1 class="book-title">Zero to One</h1>
+                <div class="book-author">Peter Thiel</div>
+                <div class="book-hero-meta">
+                    <span class="meta-item">
+                        <span class="meta-icon">📂</span>
+                        <span class="meta-value">Business &amp; Strategy</span>
+                    </span>
+                    <span class="meta-item">
+                        <span class="meta-icon">📅</span>
+                        <span class="meta-value">Uploaded Mar 12, 2025</span>
+                    </span>
+                    <span class="meta-item">
+                        <span class="meta-icon">⏱️</span>
+                        <span class="meta-value">~4.5 hours read</span>
+                    </span>
+                    <span class="meta-item">
+                        <span class="badge-status">Reading</span>
+                    </span>
+                </div>
+                <div class="book-hero-progress">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="heroProgressFill" style="width:0%;"></div>
+                    </div>
+                    <span class="progress-label"><span class="pct" id="heroProgressLabel">0</span>%</span>
+                </div>
+                <div class="book-hero-actions">
+                    <button class="btn-primary" id="continueReading">
+                        <span>▶</span> Continue Reading
+                    </button>
+                    <button class="btn-secondary" id="editBook">
+                        <span>✎</span> Edit Book
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===========================
+             STATISTICS ROW
+             =========================== -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card">
+                <span class="stat-icon">📄</span>
+                <div class="stat-number"><span class="counter" data-target="14">0</span></div>
+                <div class="stat-label">Total Chapters</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">✅</span>
+                <div class="stat-number"><span class="counter" data-target="6">0</span></div>
+                <div class="stat-label">Completed Chapters</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🧠</span>
+                <div class="stat-number"><span class="counter" data-target="42">0</span></div>
+                <div class="stat-label">Knowledge Cards</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">⬇️</span>
+                <div class="stat-number"><span class="counter" data-target="18">0</span></div>
+                <div class="stat-label">Downloads</div>
+            </div>
+        </div>
+
+        <!-- ===========================
+             TWO COLUMN LAYOUT
+             =========================== -->
+        <div class="book-detail-layout" id="detailLayout">
+
+            <!-- MAIN COLUMN -->
+            <div class="book-detail-main">
+
+                <!-- DESCRIPTION -->
+                <div class="description-section" id="descriptionSection">
+                    <h2 class="section-title">About This Book</h2>
+                    <div class="description-text" id="descText">
+                        <p><strong>Zero to One</strong> presents at once an optimistic view of the future of progress in
+                            America and a new way of thinking about innovation: it starts by learning to ask the
+                            questions that lead you to find value in unexpected places.</p>
+                        <p>Peter Thiel argues that the next big thing will not be about copying what already works, but
+                            about creating something entirely new — going from <strong>0 to 1</strong> instead of from
+                            <strong>1 to n</strong>.</p>
+                        <span class="read-more-target" id="readMoreTarget">
+                            <p>The book draws on Thiel's experience as a co-founder of PayPal and an early investor in
+                                Facebook, LinkedIn, and SpaceX. It challenges conventional wisdom about competition,
+                                monopoly, and the future of technology. Thiel makes a compelling case that the most
+                                valuable companies are those that create new markets and capture monopolies through
+                                proprietary technology, network effects, and scale economies.</p>
+                            <p>This is essential reading for entrepreneurs, founders, and anyone who wants to understand
+                                how to build a business that truly changes the world.</p>
+                        </span>
+                        <button class="read-more-btn" id="readMoreBtn">Read more →</button>
+                    </div>
+
+                    <div class="description-grid">
+                        <div class="desc-card">
+                            <div class="desc-card-title">Why This Book Matters</div>
+                            <div class="desc-card-text">It offers a framework for thinking about innovation that goes
+                                beyond incremental improvement, challenging entrepreneurs to build businesses that
+                                create entirely new categories.</div>
+                        </div>
+                        <div class="desc-card">
+                            <div class="desc-card-title">Who Should Read It</div>
+                            <div class="desc-card-text">Founders, entrepreneurs, investors, product leaders, and anyone
+                                who wants to understand how to build a truly defensible business in the 21st century.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHAPTERS -->
+                <div class="chapters-section" id="chaptersSection">
+                    <div class="section-header">
+                        <h2 class="section-title">Chapters</h2>
+                        <span class="chapter-count">14 chapters</span>
+                    </div>
+
+                    <div class="chapter-list" id="chapterList">
+                        <!-- Chapter items rendered by JS -->
+                    </div>
+
+                    <!-- Empty state (hidden by default) -->
+                    <div class="empty-chapters hidden" id="emptyChapters">
+                        <div class="empty-icon">📭</div>
+                        <h3>No chapters yet</h3>
+                        <p>Generate your first chapter summary to get started.</p>
+                        <button class="btn-generate" id="generateFirstChapter">✨ Generate First Chapter Summary</button>
+                    </div>
+                </div>
+
+                <!-- INSIGHTS -->
+                <div class="insights-section" id="insightsSection">
+                    <h2 class="section-title">Key Insights</h2>
+                    <div class="insights-grid" id="insightsGrid">
+                        <div class="insight-card">
+                            <span class="insight-icon">🎯</span>
+                            <div class="insight-label">Main Idea</div>
+                            <div class="insight-text">The most valuable companies are those that create monopolies
+                                through proprietary technology, not those that compete in crowded markets.</div>
+                        </div>
+                        <div class="insight-card">
+                            <span class="insight-icon">💡</span>
+                            <div class="insight-label">Biggest Lesson</div>
+                            <div class="insight-text">Going from 0 to 1 is about creating something new. Going from 1 to
+                                n is about scaling what already exists. The real value is in the former.</div>
+                        </div>
+                        <div class="insight-card">
+                            <span class="insight-icon">❝</span>
+                            <div class="insight-label">Top Quote</div>
+                            <div class="insight-text"><span class="quote-mark">"</span>All happy companies are
+                                different: each one earns a monopoly by solving a unique problem.<span
+                                    class="quote-mark">"</span></div>
+                        </div>
+                        <div class="insight-card">
+                            <span class="insight-icon">🚀</span>
+                            <div class="insight-label">Business Application</div>
+                            <div class="insight-text">Focus on building a product that is 10x better than anything else
+                                on the market, and defend it with a moat of proprietary technology.</div>
+                        </div>
+                        <div class="insight-card">
+                            <span class="insight-icon">⭐</span>
+                            <div class="insight-label">Favorite Insight</div>
+                            <div class="insight-text">"Competition is for losers." — Instead of fighting in a red ocean,
+                                build a blue ocean where you are the only player.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTION BAR -->
+                <div class="action-bar" id="actionBar">
+                    <button class="ab-btn primary" id="actionContinue">
+                        <span>▶</span> Continue Reading
+                    </button>
+                    <button class="ab-btn primary" id="actionGenerateCards">
+                        <span>✨</span> Generate All Cards
+                    </button>
+                    <button class="ab-btn" id="actionExportPdf">
+                        <span>📥</span> Export Book PDF <span class="pro-badge">PRO</span>
+                    </button>
+                    <button class="ab-btn" id="actionDownloadCards">
+                        <span>📦</span> Download Cards
+                    </button>
+                    <button class="ab-btn danger" id="actionDelete">
+                        <span>✕</span> Delete Book
+                    </button>
+                </div>
+
+                <!-- RELATED BOOKS -->
+                <div class="related-section" id="relatedSection">
+                    <div class="section-header">
+                        <h2 class="section-title">Continue Learning</h2>
+                        <span class="scroll-hint">← scroll →</span>
+                    </div>
+                    <div class="related-scroll" id="relatedScroll">
+                        <!-- Related books rendered by JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT SIDEBAR -->
+            <div class="book-detail-sidebar" id="detailSidebar">
+
+                <!-- Progress Card -->
+                <div class="detail-sidebar-card">
+                    <div class="sidebar-card-title">Overall Progress</div>
+                    <div class="progress-ring-wrap">
+                        <div class="progress-ring" id="progressRing">
+                            <svg width="100" height="100" viewBox="0 0 100 100">
+                                <circle class="ring-bg" cx="50" cy="50" r="42" />
+                                <circle class="ring-fg" cx="50" cy="50" r="42" id="ringFg" />
+                            </svg>
+                            <div class="ring-label">
+                                <span class="ring-pct"><span class="accent" id="ringPct">0</span>%</span>
+                                <span class="ring-sub">completed</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sidebar-stats">
+                        <div class="ss-row">
+                            <span class="ss-label">Reading Streak</span>
+                            <span class="ss-value">7 <span style="color:#9CA3AF;font-weight:400;">days</span></span>
+                        </div>
+                        <div class="ss-row">
+                            <span class="ss-label">Days Remaining</span>
+                            <span class="ss-value"><span class="highlight">12</span> days</span>
+                        </div>
+                        <div class="ss-row">
+                            <span class="ss-label">Last Activity</span>
+                            <span class="ss-value">2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Notes -->
+                <div class="detail-sidebar-card quick-notes">
+                    <div class="sidebar-card-title">Quick Notes</div>
+                    <textarea placeholder="Jot down your thoughts on this book…" id="quickNotesInput"></textarea>
+                    <div class="qn-actions">
+                        <button class="qn-save" id="saveNoteBtn">Save</button>
+                        <button class="qn-clear" id="clearNoteBtn">Clear</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<!-- ===========================
+     TOAST
+     =========================== -->
+<div class="toast-message" id="toast">
+    <span class="toast-icon">✓</span>
+    <span id="toastText">Action completed</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // ===========================
+        // DATA
+        // ===========================
+        const chaptersData = [
+            {
+                number: 1, title: 'The Challenge of the Future', duration: '12 min', hasSummary: true,
+                hasCards: true, completed: true
+            },
+            {
+                number: 2, title: 'The Last Mover Advantage', duration: '14 min', hasSummary: true,
+                hasCards: true, completed: false
+            },
+            {
+                number: 3, title: 'The Power of Monopoly', duration: '10 min', hasSummary: true, hasCards: false,
+                completed: false
+            },
+            {
+                number: 4, title: 'The Ideology of Competition', duration: '16 min', hasSummary: true,
+                hasCards: true, completed: false
+            },
+            {
+                number: 5, title: 'The Fundamental Proposition', duration: '13 min', hasSummary: false,
+                hasCards: false, completed: false
+            },
+            {
+                number: 6, title: 'The History of Technology', duration: '18 min', hasSummary: true,
+                hasCards: true, completed: false
+            },
+            {
+                number: 7, title: 'The Secrets of the Valley', duration: '11 min', hasSummary: false,
+                hasCards: false, completed: false
+            },
+            {
+                number: 8, title: 'The Mechanics of Mafia', duration: '15 min', hasSummary: false, hasCards: false,
+                completed: false
+            },
+            {
+                number: 9, title: 'The Foundation of a Startup', duration: '17 min', hasSummary: true,
+                hasCards: false, completed: false
+            },
+            {
+                number: 10, title: 'The Role of Distribution', duration: '14 min', hasSummary: false,
+                hasCards: false, completed: false
+            },
+            {
+                number: 11, title: 'The Power Law of Venture', duration: '12 min', hasSummary: false,
+                hasCards: false, completed: false
+            },
+            {
+                number: 12, title: 'The Secrets of Great Teams', duration: '13 min', hasSummary: false,
+                hasCards: false, completed: false
+            },
+            {
+                number: 13, title: 'The Future of Progress', duration: '16 min', hasSummary: false,
+                hasCards: false, completed: false
+            },
+            {
+                number: 14, title: 'The Path to the Future', duration: '10 min', hasSummary: false,
+                hasCards: false, completed: false
+            },
+        ];
+
+        const relatedBooks = [
+            { title: 'The Lean Startup', author: 'Eric Ries', progress: 78, emoji: '🚀' },
+            { title: 'Atomic Habits', author: 'James Clear', progress: 45, emoji: '🔥' },
+            { title: 'Deep Work', author: 'Cal Newport', progress: 100, emoji: '🧠' },
+            { title: 'Thinking, Fast and Slow', author: 'Daniel Kahneman', progress: 22, emoji: '💭' },
+            { title: 'Good to Great', author: 'Jim Collins', progress: 12, emoji: '📈' },
+        ];
+
+        const totalChapters = chaptersData.length;
+        const completedChapters = chaptersData.filter(c => c.completed).length;
+        const progressPct = Math.round((completedChapters / totalChapters) * 100);
+
+        // ===========================
+        // DOM REFS
+        // ===========================
+        const sidebar = document.getElementById('foundrySidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const toast = document.getElementById('toast');
+        const toastText = document.getElementById('toastText');
+        const heroProgressFill = document.getElementById('heroProgressFill');
+        const heroProgressLabel = document.getElementById('heroProgressLabel');
+        const ringFg = document.getElementById('ringFg');
+        const ringPct = document.getElementById('ringPct');
+        const chapterList = document.getElementById('chapterList');
+        const emptyChapters = document.getElementById('emptyChapters');
+        const relatedScroll = document.getElementById('relatedScroll');
+        const readMoreBtn = document.getElementById('readMoreBtn');
+        const readMoreTarget = document.getElementById('readMoreTarget');
+        const quickNotesInput = document.getElementById('quickNotesInput');
+
+        let readMoreOpen = false;
+
+        // ===========================
+        // TOAST
+        // ===========================
+        function showToast(msg) {
+            toastText.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._hide);
+            toast._hide = setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        // ===========================
+        // SIDEBAR TOGGLE
+        // ===========================
+        function toggleSidebar(open) {
+            const isOpen = typeof open === 'boolean' ? open : sidebar.classList.toggle('open');
+            if (typeof open === 'boolean') {
+                if (open) sidebar.classList.add('open');
+                else sidebar.classList.remove('open');
+            }
+            overlay.classList.toggle('active', sidebar.classList.contains('open'));
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        toggleBtn.addEventListener('click', () => toggleSidebar());
+        overlay.addEventListener('click', () => toggleSidebar(false));
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 992 && sidebar.classList.contains('open')) {
+                toggleSidebar(false);
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ===========================
+        // PROGRESS RING
+        // ===========================
+        function animateProgressRing(pct) {
+            const circumference = 2 * Math.PI * 42;
+            const offset = circumference - (pct / 100) * circumference;
+            gsap.to(ringFg, {
+                strokeDashoffset: offset,
+                duration: 1.2,
+                ease: 'power3.out',
+                overwrite: 'auto',
+            });
+            gsap.to(ringPct, {
+                textContent: pct,
+                duration: 1.0,
+                ease: 'power2.out',
+                snap: { textContent: 1 },
+                overwrite: 'auto',
+            });
+            // Hero progress
+            gsap.to(heroProgressFill, {
+                width: pct + '%',
+                duration: 1.2,
+                ease: 'power3.out',
+                overwrite: 'auto',
+            });
+            gsap.to(heroProgressLabel, {
+                textContent: pct,
+                duration: 1.0,
+                ease: 'power2.out',
+                snap: { textContent: 1 },
+                overwrite: 'auto',
+            });
+        }
+
+        // ===========================
+        // RENDER CHAPTERS
+        // ===========================
+        function renderChapters() {
+            if (chaptersData.length === 0) {
+                chapterList.innerHTML = '';
+                emptyChapters.classList.remove('hidden');
+                return;
+            }
+            emptyChapters.classList.add('hidden');
+
+            let html = '';
+            chaptersData.forEach((ch, idx) => {
+                const isCurrent = idx === 2; // chapter 3 is current
+                const isCompleted = ch.completed;
+                const statusLabel = isCompleted ? 'Done' : (isCurrent ? 'Current' : '');
+                const statusClass = isCompleted ? 'done' : (isCurrent ? 'current-badge' : '');
+                const itemClass = isCurrent ? 'chapter-item current' : 'chapter-item';
+
+                html += `
+                    <div class="${itemClass}" data-chapter="${ch.number}">
+                        <span class="chapter-number">${String(ch.number).padStart(2, '0')}</span>
+                        <div class="chapter-info">
+                            <div class="chapter-title">${ch.title}</div>
+                            <div class="chapter-meta">
+                                <span class="meta-tag">⏱️ ${ch.duration}</span>
+                                ${ch.hasSummary ? '<span class="meta-tag"><span class="tag-icon">📋</span> Summary</span>' : ''}
+                                ${ch.hasCards ? '<span class="meta-tag"><span class="tag-icon">🧠</span> Cards</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="chapter-status">
+                            ${statusLabel ? `<span class="status-badge ${statusClass}">${isCompleted ? '✓' : ''} ${statusLabel}</span>` : ''}
+                        </div>
+                        <div class="chapter-actions">
+                            <button class="ch-btn primary" data-action="open">Open</button>
+                            <button class="ch-btn" data-action="edit-summary">✎</button>
+                            <button class="ch-btn" data-action="generate-cards">✨</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            chapterList.innerHTML = html;
+
+            // Bind chapter button events
+            chapterList.querySelectorAll('.ch-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const action = this.dataset.action;
+                    const item = this.closest('.chapter-item');
+                    const num = item?.dataset?.chapter || '?';
+                    const label = item?.querySelector('.chapter-title')?.textContent || 'Chapter';
+
+                    gsap.to(this, {
+                        scale: 0.92, duration: 0.12, onComplete: () => gsap.to(this, {
+                            scale: 1,
+                            duration: 0.25, ease: 'back.out(2)'
+                        })
+                    });
+
+                    if (action === 'open') {
+                        showToast(`📖 Opening "${label}"`);
+                    } else if (action === 'edit-summary') {
+                        showToast(`✎ Editing summary for "${label}"`);
+                    } else if (action === 'generate-cards') {
+                        showToast(`✨ Generating cards for "${label}"`);
+                    }
+                });
+            });
+        }
+
+        // ===========================
+        // RENDER RELATED BOOKS
+        // ===========================
+        function renderRelatedBooks() {
+            let html = '';
+            relatedBooks.forEach(book => {
+                html += `
+                    <div class="related-book-card">
+                        <div class="rb-cover">${book.emoji}</div>
+                        <div class="rb-title">${book.title}</div>
+                        <div class="rb-author">${book.author}</div>
+                        <div class="rb-progress">
+                            <div class="rb-track">
+                                <div class="rb-fill" style="width:${book.progress}%;"></div>
+                            </div>
+                            <span class="rb-pct">${book.progress}%</span>
+                        </div>
+                        <button class="rb-btn">Continue</button>
+                    </div>
+                `;
+            });
+            relatedScroll.innerHTML = html;
+
+            relatedScroll.querySelectorAll('.rb-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const card = this.closest('.related-book-card');
+                    const title = card?.querySelector('.rb-title')?.textContent || 'Book';
+                    gsap.to(this, {
+                        scale: 0.92, duration: 0.12, onComplete: () => gsap.to(this, {
+                            scale: 1,
+                            duration: 0.25, ease: 'back.out(2)'
+                        })
+                    });
+                    showToast(`📖 Continuing "${title}"`);
+                });
+            });
+        }
+
+        // ===========================
+        // READ MORE TOGGLE
+        // ===========================
+        readMoreBtn.addEventListener('click', function () {
+            readMoreOpen = !readMoreOpen;
+            if (readMoreOpen) {
+                readMoreTarget.classList.add('open');
+                this.textContent = 'Read less ↑';
+                gsap.fromTo(readMoreTarget, { opacity: 0, y: -8 }, {
+                    opacity: 1, y: 0, duration: 0.35,
+                    ease: 'power2.out'
+                });
+            } else {
+                readMoreTarget.classList.remove('open');
+                this.textContent = 'Read more →';
+            }
+        });
+
+        // ===========================
+        // QUICK NOTES
+        // ===========================
+        document.getElementById('saveNoteBtn').addEventListener('click', function () {
+            const val = quickNotesInput.value.trim();
+            if (val) {
+                showToast('✏️ Note saved');
+                gsap.to(this, {
+                    scale: 0.92, duration: 0.12, onComplete: () => gsap.to(this, {
+                        scale: 1,
+                        duration: 0.25
+                    })
+                });
+            } else {
+                showToast('📝 Write something first');
+            }
+        });
+
+        document.getElementById('clearNoteBtn').addEventListener('click', function () {
+            quickNotesInput.value = '';
+            showToast('🗑️ Note cleared');
+            gsap.to(this, {
+                scale: 0.92, duration: 0.12, onComplete: () => gsap.to(this, {
+                    scale: 1,
+                    duration: 0.25
+                })
+            });
+        });
+
+        // ===========================
+        // ACTION BUTTONS
+        // ===========================
+        document.querySelectorAll('.ab-btn, .btn-primary, .btn-secondary').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                const id = this.id || '';
+                gsap.to(this, {
+                    scale: 0.94, duration: 0.10, onComplete: () => gsap.to(this, {
+                        scale: 1,
+                        duration: 0.25, ease: 'back.out(2)'
+                    })
+                });
+
+                if (id === 'continueReading' || id === 'actionContinue') {
+                    showToast('📖 Opening reading session…');
+                } else if (id === 'editBook') {
+                    showToast('✎ Edit mode activated');
+                } else if (id === 'actionGenerateCards') {
+                    showToast('✨ Generating all knowledge cards…');
+                } else if (id === 'actionExportPdf') {
+                    showToast('📥 Exporting book as PDF — PRO feature');
+                } else if (id === 'actionDownloadCards') {
+                    showToast('📦 Downloading knowledge cards…');
+                } else if (id === 'actionDelete') {
+                    if (confirm('Delete "Zero to One" from your library?')) {
+                        showToast('🗑️ Book deleted');
+                    }
+                } else if (id === 'generateFirstChapter') {
+                    showToast('✨ Generating first chapter summary…');
+                }
+            });
+        });
+
+        // ===========================
+        // GSAP PAGE ENTRANCE
+        // ===========================
+        function initPageAnimations() {
+            const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+            // Hero
+            tl.fromTo('#bookHero', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 })
+                // Book cover zoom
+                .fromTo('#bookCover', { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6 },
+                    '-=0.3')
+                // Stats stagger
+                .fromTo('.stat-card', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
+                    '-=0.2')
+                // Description
+                .fromTo('#descriptionSection', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 },
+                    '-=0.1')
+                // Chapters
+                .fromTo('.chapter-item', { opacity: 0, y: 16 }, {
+                    opacity: 1, y: 0, duration: 0.4,
+                    stagger: 0.05
+                }, '-=0.1')
+                // Insights
+                .fromTo('.insight-card', { opacity: 0, y: 16 }, {
+                    opacity: 1, y: 0, duration: 0.4,
+                    stagger: 0.06
+                }, '-=0.1')
+                // Action bar
+                .fromTo('#actionBar', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.1')
+                // Related
+                .fromTo('#relatedSection', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.1')
+                // Right sidebar
+                .fromTo('#detailSidebar', { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.5 }, '-=0.4');
+
+            // Progress ring animation after page load
+            setTimeout(() => {
+                animateProgressRing(progressPct);
+                // Also animate stat counters
+                document.querySelectorAll('.counter').forEach(counter => {
+                    const target = parseInt(counter.dataset.target);
+                    gsap.fromTo(counter, { textContent: 0 }, {
+                        textContent: target,
+                        duration: 1.2,
+                        ease: 'power2.out',
+                        snap: { textContent: 1 },
+                        overwrite: 'auto',
+                        delay: 0.3,
+                    });
+                });
+            }, 600);
+        }
+
+        // ===========================
+        // SCROLL REVEAL (additional)
+        // ===========================
+        function setupScrollReveal() {
+            const sections = document.querySelectorAll('.description-section, .chapters-section, .insights-section, #actionBar, #relatedSection');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        gsap.fromTo(entry.target, { opacity: 0, y: 20 }, {
+                            opacity: 1, y: 0,
+                            duration: 0.5, ease: 'power2.out'
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+            sections.forEach(s => observer.observe(s));
+        }
+
+        // ===========================
+        // HOVER LIFT (GSAP)
+        // ===========================
+        function initHoverLift() {
+            document.querySelectorAll('.stat-card, .insight-card, .desc-card, .related-book-card').forEach(el => {
+                el.addEventListener('mouseenter', function () {
+                    gsap.to(this, { y: -4, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+                });
+                el.addEventListener('mouseleave', function () {
+                    gsap.to(this, { y: 0, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+                });
+            });
+        }
+
+        // ===========================
+        // KEYBOARD SHORTCUTS
+        // ===========================
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'r' || e.key === 'R') {
+                if (!e.ctrlKey && !e.metaKey && !e.target.matches('textarea, input')) {
+                    e.preventDefault();
+                    document.getElementById('continueReading')?.click();
+                }
+            }
+            if (e.key === 'Escape') {
+                if (readMoreOpen) {
+                    readMoreBtn.click();
+                }
+            }
+        });
+
+        // ===========================
+        // INIT
+        // ===========================
+        function init() {
+            renderChapters();
+            renderRelatedBooks();
+            initPageAnimations();
+            setupScrollReveal();
+            initHoverLift();
+
+            // If no chapters, show empty state (but we have data, so hide it)
+            if (chaptersData.length === 0) {
+                emptyChapters.classList.remove('hidden');
+            }
+
+            console.log('🔥 Foundry — Book Details loaded');
+            console.log('⌨️  Shortcuts: R = Continue Reading | ESC = close read-more');
+        }
+
+        if (document.readyState === 'complete') {
+            init();
+        } else {
+            window.addEventListener('load', init);
+        }
+
+        // Expose for debugging
+        window.__foundry = { chaptersData, relatedBooks, progressPct };
+
+    })();
+</script>
+{% endblock %}

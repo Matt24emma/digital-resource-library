@@ -1,0 +1,2957 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+       DESIGN SYSTEM
+       ============================================================ */
+    :root {
+        --bg-primary: #050505;
+        --bg-card: #111111;
+        --bg-secondary: #171717;
+        --accent: #00E5A8;
+        --white: #FFFFFF;
+        --muted: #9CA3AF;
+        --border: rgba(255, 255, 255, .08);
+        --radius: 16px;
+        --radius-sm: 10px;
+        --radius-xs: 6px;
+        --font: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --transition: 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.6);
+        --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.8);
+        --shadow-drawer: 8px 0 40px rgba(0, 0, 0, 0.6);
+        --sidebar-width: 260px;
+        --nav-width: 220px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-primary);
+        color: var(--white);
+        font-family: var(--font);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* ============================================================
+       ADMIN LAYOUT
+       ============================================================ */
+    .admin-layout {
+        display: flex;
+        min-height: 100vh;
+        background: var(--bg-primary);
+    }
+
+    /* ---- Sidebar ---- */
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: var(--sidebar-width);
+        background: var(--bg-card);
+        border-right: 1px solid var(--border);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        padding: 24px 16px 20px 16px;
+        transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        overflow-y: auto;
+    }
+
+    .admin-sidebar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 4px 20px 4px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+
+    .admin-sidebar .brand .logo {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.3px;
+        color: var(--white);
+    }
+
+    .admin-sidebar .brand .badge {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: rgba(0, 229, 168, 0.15);
+        color: var(--accent);
+        padding: 2px 10px;
+        border-radius: 20px;
+        margin-left: auto;
+    }
+
+    .admin-sidebar .nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 auto 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .admin-sidebar .nav-list li {
+        margin: 0;
+    }
+
+    .admin-sidebar .nav-list a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: var(--radius-sm);
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 450;
+        transition: background var(--transition), color var(--transition);
+        cursor: pointer;
+        position: relative;
+    }
+
+    .admin-sidebar .nav-list a .nav-icon {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.6;
+        flex-shrink: 0;
+    }
+
+    .admin-sidebar .nav-list a .nav-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .admin-sidebar .nav-list a:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+    }
+
+    .admin-sidebar .nav-list a.active {
+        background: rgba(0, 229, 168, 0.08);
+        color: var(--white);
+        box-shadow: inset 0 0 0 1px rgba(0, 229, 168, 0.15);
+    }
+
+    .admin-sidebar .nav-list a.active .nav-icon {
+        opacity: 1;
+        color: var(--accent);
+    }
+
+    .admin-sidebar .nav-list a.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 20%;
+        height: 60%;
+        width: 3px;
+        background: var(--accent);
+        border-radius: 0 4px 4px 0;
+    }
+
+    .admin-sidebar .sidebar-footer {
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .admin-sidebar .sidebar-footer a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 14px;
+        border-radius: var(--radius-sm);
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 450;
+        transition: background var(--transition), color var(--transition);
+    }
+
+    .admin-sidebar .sidebar-footer a:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+    }
+
+    .admin-sidebar .sidebar-footer .logout-link {
+        color: #ef4444;
+    }
+
+    .admin-sidebar .sidebar-footer .logout-link:hover {
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
+    }
+
+    /* ---- Main Content ---- */
+    .admin-main {
+        margin-left: var(--sidebar-width);
+        flex: 1;
+        min-height: 100vh;
+        padding: 24px 32px 100px 32px;
+    }
+
+    /* ---- Top Bar ---- */
+    .admin-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .admin-topbar .left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .admin-topbar .left h1 {
+        font-size: 26px;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.3px;
+        color: var(--white);
+    }
+
+    .admin-topbar .left .subtitle {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .admin-topbar .right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .admin-topbar .right .status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--accent);
+        background: rgba(0, 229, 168, 0.08);
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-weight: 450;
+    }
+
+    .admin-topbar .right .status .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        display: inline-block;
+        animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+
+        0%,
+        100% {
+            opacity: 0.5;
+        }
+
+        50% {
+            opacity: 1;
+        }
+    }
+
+    .admin-topbar .right .search-box {
+        position: relative;
+        width: 200px;
+    }
+
+    .admin-topbar .right .search-box input {
+        width: 100%;
+        padding: 8px 14px 8px 36px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--white);
+        font-family: var(--font);
+        font-size: 13px;
+        outline: none;
+        transition: border-color var(--transition);
+        min-height: 40px;
+    }
+
+    .admin-topbar .right .search-box input:focus {
+        border-color: var(--accent);
+    }
+
+    .admin-topbar .right .search-box input::placeholder {
+        color: rgba(255, 255, 255, 0.25);
+    }
+
+    .admin-topbar .right .search-box .s-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        pointer-events: none;
+    }
+
+    .admin-topbar .right .search-box .s-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .admin-topbar .right .notif-btn {
+        position: relative;
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 50%;
+        transition: background var(--transition), color var(--transition);
+    }
+
+    .admin-topbar .right .notif-btn:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+    }
+
+    .admin-topbar .right .notif-btn .badge-dot {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        border: 2px solid var(--bg-primary);
+    }
+
+    .admin-topbar .right .admin-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--bg-secondary);
+        border: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--white);
+        cursor: pointer;
+        transition: border-color var(--transition);
+    }
+
+    .admin-topbar .right .admin-avatar:hover {
+        border-color: var(--accent);
+    }
+
+    .admin-topbar .right .admin-name {
+        font-size: 14px;
+        font-weight: 450;
+        color: var(--white);
+    }
+
+    /* ============================================================
+       SETTINGS LAYOUT
+       ============================================================ */
+    .settings-layout {
+        display: flex;
+        gap: 32px;
+        position: relative;
+    }
+
+    /* ---- Settings Nav ---- */
+    .settings-nav {
+        width: var(--nav-width);
+        flex-shrink: 0;
+        position: sticky;
+        top: 20px;
+        align-self: flex-start;
+        max-height: calc(100vh - 180px);
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+
+    .settings-nav .nav-group {
+        margin-bottom: 16px;
+    }
+
+    .settings-nav .nav-group .group-label {
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+        padding: 4px 8px;
+        margin-bottom: 4px;
+        opacity: 0.6;
+    }
+
+    .settings-nav .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: var(--radius-xs);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 450;
+        cursor: pointer;
+        transition: background var(--transition), color var(--transition);
+        text-decoration: none;
+        border: none;
+        background: transparent;
+        width: 100%;
+        font-family: var(--font);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .settings-nav .nav-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+    }
+
+    .settings-nav .nav-item.active {
+        background: rgba(0, 229, 168, 0.06);
+        color: var(--white);
+    }
+
+    .settings-nav .nav-item .ni-icon {
+        width: 16px;
+        height: 16px;
+        opacity: 0.5;
+        flex-shrink: 0;
+    }
+
+    .settings-nav .nav-item .ni-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .settings-nav .nav-item.active .ni-icon {
+        opacity: 1;
+        color: var(--accent);
+    }
+
+    /* ---- Settings Content ---- */
+    .settings-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .settings-section {
+        scroll-margin-top: 80px;
+        margin-bottom: 32px;
+    }
+
+    .settings-section .section-title {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--white);
+        margin: 0 0 4px 0;
+        letter-spacing: -0.2px;
+    }
+
+    .settings-section .section-desc {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0 0 16px 0;
+        font-weight: 400;
+    }
+
+    /* ---- Settings Card ---- */
+    .settings-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 24px 28px 28px 28px;
+        margin-bottom: 16px;
+        transition: border-color var(--transition);
+    }
+
+    .settings-card:hover {
+        border-color: rgba(255, 255, 255, 0.10);
+    }
+
+    .settings-card .card-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--white);
+        margin: 0 0 2px 0;
+    }
+
+    .settings-card .card-desc {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 0 0 16px 0;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+
+    /* ---- Form Controls ---- */
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 450;
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 4px;
+        letter-spacing: -0.1px;
+    }
+
+    .form-label .label-hint {
+        font-weight: 400;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .form-control,
+    .form-select {
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--white);
+        font-family: var(--font);
+        font-size: 14px;
+        transition: border-color var(--transition), box-shadow var(--transition);
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 229, 168, 0.08);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.25);
+    }
+
+    .form-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 40px;
+        cursor: pointer;
+    }
+
+    .form-select option {
+        background: var(--bg-secondary);
+        color: var(--white);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .form-row-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+    }
+
+    .form-check input[type="checkbox"],
+    .form-check input[type="radio"] {
+        accent-color: var(--accent);
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .form-check label {
+        font-size: 14px;
+        color: var(--white);
+        cursor: pointer;
+    }
+
+    .form-check .check-desc {
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+        font-weight: 400;
+    }
+
+    /* ---- Toggle ---- */
+    .toggle-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .toggle-wrapper:last-child {
+        border-bottom: none;
+    }
+
+    .toggle-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .toggle-info .toggle-title {
+        font-size: 14px;
+        font-weight: 450;
+        color: var(--white);
+        margin: 0 0 2px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .toggle-info .toggle-desc {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 0;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+    .toggle-switch {
+        flex-shrink: 0;
+        width: 48px;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        cursor: pointer;
+        position: relative;
+        transition: background var(--transition);
+        border: none;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .toggle-switch:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    .toggle-switch .toggle-knob {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 22px;
+        height: 22px;
+        background: var(--white);
+        border-radius: 50%;
+        transition: transform var(--transition), background var(--transition);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .toggle-switch.active {
+        background: var(--accent);
+    }
+
+    .toggle-switch.active .toggle-knob {
+        transform: translateX(20px);
+        background: #050505;
+    }
+
+    /* ---- Buttons ---- */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 24px;
+        border-radius: var(--radius-xs);
+        font-family: var(--font);
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background var(--transition), transform 0.2s ease, box-shadow var(--transition);
+        text-decoration: none;
+        min-height: 44px;
+        -webkit-tap-highlight-color: transparent;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn:active {
+        transform: translateY(0px);
+    }
+
+    .btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: #050505;
+        font-weight: 550;
+    }
+
+    .btn-primary:hover {
+        background: #00d49a;
+        color: #050505;
+        box-shadow: 0 4px 20px rgba(0, 229, 168, 0.25);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-danger {
+        background: rgba(239, 68, 68, 0.12);
+        color: #ef4444;
+    }
+
+    .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.22);
+    }
+
+    .btn-sm {
+        padding: 6px 16px;
+        font-size: 13px;
+        min-height: 36px;
+    }
+
+    .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+    }
+
+    /* ---- Save Bar ---- */
+    .save-bar {
+        position: fixed;
+        bottom: 0;
+        left: var(--sidebar-width);
+        right: 0;
+        background: var(--bg-card);
+        border-top: 1px solid var(--border);
+        padding: 14px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 50;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .save-bar.visible {
+        transform: translateY(0);
+    }
+
+    .save-bar .sb-info {
+        font-size: 14px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .save-bar .sb-info .sb-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #f59e0b;
+        display: inline-block;
+        animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+
+    .save-bar .sb-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    /* ---- Modal ---- */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+        padding: 24px;
+    }
+
+    .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 32px 36px 36px 36px;
+        max-width: 480px;
+        width: 100%;
+        box-shadow: var(--shadow-modal);
+        transform: scale(0.92) translateY(16px);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+        opacity: 0;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-overlay.open .modal {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+
+    .modal .modal-close {
+        float: right;
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0 0 0 12px;
+        line-height: 1;
+        transition: color var(--transition);
+    }
+
+    .modal .modal-close:hover {
+        color: var(--white);
+    }
+
+    .modal h2 {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        letter-spacing: -0.3px;
+        color: var(--white);
+    }
+
+    .modal .modal-sub {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0 0 20px 0;
+        font-weight: 400;
+        line-height: 1.6;
+    }
+
+    .modal .modal-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+
+    .modal .modal-actions .btn {
+        flex: 1;
+        min-width: 100px;
+        justify-content: center;
+    }
+
+    .modal .modal-warning {
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: var(--radius-xs);
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* ---- Toast ---- */
+    .toast-container {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 380px;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    .toast {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 16px 20px;
+        box-shadow: var(--shadow-card);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        pointer-events: auto;
+        transform: translateX(calc(100% + 40px));
+        opacity: 0;
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+    }
+
+    .toast.visible {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    .toast .toast-icon {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        margin-top: 1px;
+    }
+
+    .toast .toast-icon.success {
+        background: rgba(0, 229, 168, 0.15);
+        color: var(--accent);
+    }
+
+    .toast .toast-icon.error {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .toast .toast-icon.info {
+        background: rgba(96, 165, 250, 0.15);
+        color: #60a5fa;
+    }
+
+    .toast .toast-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .toast .toast-body .toast-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--white);
+        margin: 0 0 2px 0;
+    }
+
+    .toast .toast-body .toast-desc {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 0;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+    .toast .toast-close {
+        flex-shrink: 0;
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 4px;
+        font-size: 18px;
+        line-height: 1;
+        transition: color var(--transition);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .toast .toast-close:hover {
+        color: var(--white);
+    }
+
+    /* ============================================================
+       MOBILE NAV DRAWER
+       ============================================================ */
+    .mobile-nav-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 150;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .mobile-nav-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .mobile-nav-drawer {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        background: var(--bg-card);
+        border-right: 1px solid var(--border);
+        z-index: 151;
+        transform: translateX(-100%);
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        padding: 20px 16px;
+        overflow-y: auto;
+    }
+
+    .mobile-nav-drawer.open {
+        transform: translateX(0);
+    }
+
+    .mobile-nav-drawer .mnd-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 16px;
+    }
+
+    .mobile-nav-drawer .mnd-header .mnd-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--white);
+    }
+
+    .mobile-nav-drawer .mnd-header .mnd-close {
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 4px;
+        line-height: 1;
+        transition: color var(--transition);
+    }
+
+    .mobile-nav-drawer .mnd-header .mnd-close:hover {
+        color: var(--white);
+    }
+
+    .mobile-nav-drawer .nav-group .group-label {
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+        padding: 4px 8px;
+        margin-bottom: 4px;
+        opacity: 0.6;
+    }
+
+    .mobile-nav-drawer .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: var(--radius-xs);
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 450;
+        cursor: pointer;
+        transition: background var(--transition), color var(--transition);
+        width: 100%;
+        border: none;
+        background: transparent;
+        font-family: var(--font);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-nav-drawer .nav-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+    }
+
+    .mobile-nav-drawer .nav-item.active {
+        background: rgba(0, 229, 168, 0.06);
+        color: var(--white);
+    }
+
+    .mobile-nav-drawer .nav-item .ni-icon {
+        width: 16px;
+        height: 16px;
+        opacity: 0.5;
+        flex-shrink: 0;
+    }
+
+    .mobile-nav-drawer .nav-item .ni-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .mobile-nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 1200px) {
+        .settings-nav {
+            width: 180px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-main {
+            padding: 20px 24px 100px 24px;
+        }
+
+        .save-bar {
+            padding: 14px 24px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .admin-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .admin-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.open {
+            display: block;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .admin-main {
+            margin-left: 0;
+            padding: 16px 20px 100px 20px;
+        }
+
+        .save-bar {
+            left: 0;
+            padding: 12px 20px;
+        }
+
+        .settings-nav {
+            display: none;
+        }
+
+        .mobile-nav-toggle {
+            display: inline-flex;
+        }
+
+        .form-row-3 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .admin-topbar .right .search-box {
+            width: 140px;
+        }
+
+        .admin-topbar .right .admin-name {
+            display: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .admin-topbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .admin-topbar .right {
+            justify-content: space-between;
+        }
+
+        .admin-topbar .right .search-box {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .admin-main {
+            padding: 12px 14px 100px 14px;
+        }
+
+        .settings-card {
+            padding: 18px 18px 20px 18px;
+        }
+
+        .form-row-3 {
+            grid-template-columns: 1fr;
+        }
+
+        .save-bar {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 12px 16px;
+        }
+
+        .save-bar .sb-actions {
+            justify-content: stretch;
+        }
+
+        .save-bar .sb-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .modal {
+            padding: 24px 20px 28px 20px;
+            border-radius: var(--radius-sm);
+            margin: 0 8px;
+        }
+
+        .modal .modal-actions {
+            flex-direction: column;
+        }
+
+        .modal .modal-actions .btn {
+            flex: none;
+            width: 100%;
+        }
+
+        .toast-container {
+            top: 12px;
+            right: 12px;
+            left: 12px;
+            max-width: 100%;
+        }
+
+        .toast {
+            padding: 14px 16px;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn-group .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .settings-nav {
+            display: none;
+        }
+
+        .mobile-nav-toggle {
+            display: inline-flex;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .admin-main {
+            padding: 8px 10px 100px 10px;
+        }
+
+        .settings-card {
+            padding: 14px 14px 16px 14px;
+        }
+
+        .save-bar {
+            padding: 10px 12px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-topbar .right .status {
+            font-size: 12px;
+            padding: 2px 10px;
+        }
+    }
+
+    /* ============================================================
+       REDUCED MOTION
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        .btn:hover {
+            transform: none !important;
+        }
+
+        .settings-nav .nav-item:hover {
+            transform: none !important;
+        }
+
+        .save-bar {
+            transition: none !important;
+        }
+
+        .modal {
+            transition: none !important;
+        }
+
+        .toast {
+            transition: none !important;
+        }
+
+        .mobile-nav-drawer {
+            transition: none !important;
+        }
+
+        .admin-sidebar {
+            transition: none !important;
+        }
+    }
+
+    /* ============================================================
+       SKELETON
+       ============================================================ */
+    .sk-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 24px 28px 28px 28px;
+        margin-bottom: 16px;
+    }
+
+    .sk-line {
+        height: 12px;
+        border-radius: 4px;
+        background: var(--bg-secondary);
+        margin-bottom: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sk-line::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+        animation: shimmer 1.6s ease-in-out infinite;
+    }
+
+    .sk-line.sk-short {
+        width: 40%;
+    }
+
+    .sk-line.sk-med {
+        width: 70%;
+    }
+
+    .sk-line.sk-tiny {
+        width: 20%;
+        height: 8px;
+    }
+
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            transform: translateX(200%);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .sk-line::after {
+            animation: none;
+            display: none;
+        }
+    }
+
+    /* ============================================================
+       UTILITY
+       ============================================================ */
+    .text-muted {
+        color: var(--muted);
+    }
+
+    .text-accent {
+        color: var(--accent);
+    }
+
+    .mt-8 {
+        margin-top: 8px;
+    }
+
+    .mt-12 {
+        margin-top: 12px;
+    }
+
+    .mt-16 {
+        margin-top: 16px;
+    }
+
+    .mb-8 {
+        margin-bottom: 8px;
+    }
+
+    .flex {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .gap-12 {
+        gap: 12px;
+    }
+
+    .w-full {
+        width: 100%;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .sidebar-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    @media (max-width: 992px) {
+        .sidebar-toggle {
+            display: inline-flex;
+        }
+    }
+
+    .nav-trigger {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 20px;
+        cursor: pointer;
+        padding: 4px;
+        transition: color var(--transition);
+    }
+
+    .nav-trigger:hover {
+        color: var(--white);
+    }
+
+    @media (max-width: 992px) {
+        .nav-trigger {
+            display: inline-flex;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="adminSidebar" role="navigation" aria-label="Admin navigation">
+        <div class="brand">
+            <span class="logo">FOUNDRY</span>
+            <span class="badge">SUPER ADMIN</span>
+        </div>
+
+        <ul class="nav-list">
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <path d="M3 9h18M9 21V9" />
+                        </svg></span>
+                    Dashboard
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></span>
+                    Users
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                            <path d="M1 10h22" />
+                        </svg></span>
+                    Subscriptions
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                        </svg></span>
+                    Revenue
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M12 2a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2V4a2 2 0 012-2z" />
+                            <path
+                                d="M7.5 6.5l-2-2M16.5 6.5l2-2M4 12h2M18 12h2M6.5 16.5l-2 2M17.5 16.5l2 2M12 18a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2v-2a2 2 0 012-2z" />
+                        </svg></span>
+                    AI Usage
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M4 4h16v16H4z" />
+                            <path d="M9 8h6M9 12h4M9 16h2" />
+                        </svg></span>
+                    Book Analytics
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
+                            <path d="M8 8h8M8 12h8M8 16h5" />
+                        </svg></span>
+                    Knowledge Card Analytics
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                            <path d="M1 10h22" />
+                            <path d="M7 15h.01M11 15h.01" />
+                        </svg></span>
+                    Payment Dashboard
+                </a></li>
+            <li><a href="#" class="active" aria-current="page">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                        </svg></span>
+                    System Settings
+                </a></li>
+            <li><a href="#">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                            <path d="M7 10l5 5 5-5" />
+                            <path d="M12 15V3" />
+                        </svg></span>
+                    Support
+                </a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="#">
+                <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4l2 2" />
+                    </svg></span>
+                Admin Profile
+            </a>
+            <a href="#">
+                <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                    </svg></span>
+                Settings
+            </a>
+            <a href="{% url 'logout' %}" class="logout-link">
+                <span class="nav-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                        <path d="M16 17l5-5-5-5" />
+                        <path d="M21 12H9" />
+                    </svg></span>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main" id="adminMain">
+
+        <!-- Top Bar -->
+        <header class="admin-topbar">
+            <div class="left">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button class="nav-trigger" id="mobileNavTrigger" aria-label="Open settings navigation">
+                        <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none"
+                            stroke-width="2">
+                            <path d="M3 12h18M3 6h18M3 18h18" />
+                        </svg>
+                    </button>
+                    <div>
+                        <h1>System Settings</h1>
+                        <span class="subtitle">Configure and manage the Foundry platform.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="right">
+                <span class="status"><span class="dot"></span> Operational</span>
+                <div class="search-box">
+                    <span class="s-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="M21 21l-4.35-4.35" />
+                        </svg></span>
+                    <input type="text" id="settingsSearch" placeholder="Search settings..."
+                        aria-label="Search settings">
+                </div>
+                <button class="notif-btn" aria-label="Notifications">
+                    <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none"
+                        stroke-width="1.8">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 01-3.46 0" />
+                    </svg>
+                    <span class="badge-dot"></span>
+                </button>
+                <div class="admin-avatar" aria-label="Admin avatar">SA</div>
+                <span class="admin-name">Admin</span>
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-expanded="false">
+                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Settings Layout -->
+        <div class="settings-layout">
+
+            <!-- Settings Navigation -->
+            <nav class="settings-nav" id="settingsNav" aria-label="Settings navigation">
+                <div class="nav-group">
+                    <div class="group-label">Platform</div>
+                    <button class="nav-item active" data-section="general"><span class="ni-icon"><svg
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                            </svg></span> General</button>
+                    <button class="nav-item" data-section="branding"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
+                            </svg></span> Branding</button>
+                </div>
+
+                <div class="nav-group">
+                    <div class="group-label">Users &amp; Access</div>
+                    <button class="nav-item" data-section="auth"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <path d="M12 8v4M12 16h.01" />
+                            </svg></span> Authentication</button>
+                    <button class="nav-item" data-section="users"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg></span> Users</button>
+                    <button class="nav-item" data-section="security"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <path d="M12 8v4M12 16h.01" />
+                            </svg></span> Security</button>
+                </div>
+
+                <div class="nav-group">
+                    <div class="group-label">Business</div>
+                    <button class="nav-item" data-section="subscriptions"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                <path d="M1 10h22" />
+                            </svg></span> Subscriptions</button>
+                    <button class="nav-item" data-section="payments"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                <path d="M1 10h22" />
+                                <path d="M7 15h.01M11 15h.01" />
+                            </svg></span> Payments</button>
+                </div>
+
+                <div class="nav-group">
+                    <div class="group-label">Technology</div>
+                    <button class="nav-item" data-section="ai"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M12 2a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2V4a2 2 0 012-2z" />
+                                <path
+                                    d="M7.5 6.5l-2-2M16.5 6.5l2-2M4 12h2M18 12h2M6.5 16.5l-2 2M17.5 16.5l2 2M12 18a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2v-2a2 2 0 012-2z" />
+                            </svg></span> AI</button>
+                    <button class="nav-item" data-section="storage"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                            </svg></span> Storage</button>
+                    <button class="nav-item" data-section="integrations"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+                                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+                            </svg></span> Integrations</button>
+                </div>
+
+                <div class="nav-group">
+                    <div class="group-label">Operations</div>
+                    <button class="nav-item" data-section="notifications"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                <path d="M13.73 21a2 2 0 01-3.46 0" />
+                            </svg></span> Notifications</button>
+                    <button class="nav-item" data-section="email"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                <path d="M22 7l-10 7L2 7" />
+                            </svg></span> Email</button>
+                    <button class="nav-item" data-section="backups"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                <path d="M7 10l5 5 5-5" />
+                                <path d="M12 15V3" />
+                            </svg></span> Backups</button>
+                    <button class="nav-item" data-section="logs"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M4 4h16v16H4z" />
+                                <path d="M8 8h8M8 12h6M8 16h4" />
+                            </svg></span> Logs</button>
+                    <button class="nav-item" data-section="advanced"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path
+                                    d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                            </svg></span> Advanced</button>
+                </div>
+            </nav>
+
+            <!-- Settings Content -->
+            <div class="settings-content" id="settingsContent">
+
+                <!-- ============================================================
+                GENERAL
+                ============================================================ -->
+                <section class="settings-section" id="section-general">
+                    <h2 class="section-title">General</h2>
+                    <p class="section-desc">Basic platform settings and preferences.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Platform Settings</div>
+                        <div class="card-desc">Configure the core identity of your Foundry instance.</div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="platformName">Platform Name</label>
+                            <input class="form-control" type="text" id="platformName" value="Foundry"
+                                placeholder="Enter platform name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="tagline">Tagline</label>
+                            <input class="form-control" type="text" id="tagline"
+                                value="Every Chapter Builds Your Business." placeholder="Enter tagline">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="timezone">Timezone</label>
+                                <select class="form-select" id="timezone">
+                                    <option value="Africa/Lagos" selected>Africa/Lagos</option>
+                                    <option value="America/New_York">America/New_York</option>
+                                    <option value="Europe/London">Europe/London</option>
+                                    <option value="Asia/Dubai">Asia/Dubai</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="dateFormat">Date Format</label>
+                                <select class="form-select" id="dateFormat">
+                                    <option value="DD/MM/YYYY" selected>DD/MM/YYYY</option>
+                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="language">Language</label>
+                            <select class="form-select" id="language">
+                                <option value="en" selected>English</option>
+                                <option value="fr">Français</option>
+                                <option value="es">Español</option>
+                                <option value="de">Deutsch</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                BRANDING
+                ============================================================ -->
+                <section class="settings-section" id="section-branding">
+                    <h2 class="section-title">Branding</h2>
+                    <p class="section-desc">Customize the look and feel of Foundry.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Visual Identity</div>
+                        <div class="card-desc">Upload your brand assets and customize colors.</div>
+
+                        <div class="form-group">
+                            <label class="form-label">Logo</label>
+                            <input class="form-control" type="file" accept="image/*" style="padding:8px;">
+                            <span class="text-muted" style="font-size:12px;">Recommended: PNG, SVG, max 2MB</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Favicon</label>
+                            <input class="form-control" type="file" accept="image/*" style="padding:8px;">
+                            <span class="text-muted" style="font-size:12px;">Recommended: 32x32px, PNG, ICO</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="primaryColor">Primary Color</label>
+                                <input class="form-control" type="color" id="primaryColor" value="#00E5A8"
+                                    style="height:48px;padding:4px;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="accentColor">Accent Color</label>
+                                <input class="form-control" type="color" id="accentColor" value="#00E5A8"
+                                    style="height:48px;padding:4px;">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                AUTHENTICATION
+                ============================================================ -->
+                <section class="settings-section" id="section-auth">
+                    <h2 class="section-title">Authentication</h2>
+                    <p class="section-desc">Login, registration, and security policies.</p>
+
+                    <div class="settings-card">
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">User Registration</div>
+                                <div class="toggle-desc">Allow new users to register for accounts.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="registration"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Email Verification</div>
+                                <div class="toggle-desc">Require email verification for new accounts.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="email-verify"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Two-Factor Authentication</div>
+                                <div class="toggle-desc">Allow users to enable 2FA on their accounts.</div>
+                            </div>
+                            <button class="toggle-switch" role="switch" aria-checked="false" data-toggle="2fa"><span
+                                    class="toggle-knob"></span></button>
+                        </div>
+                        <div class="form-group mt-16">
+                            <label class="form-label" for="sessionTimeout">Session Timeout</label>
+                            <select class="form-select" id="sessionTimeout">
+                                <option value="1h">1 hour</option>
+                                <option value="4h" selected>4 hours</option>
+                                <option value="8h">8 hours</option>
+                                <option value="24h">24 hours</option>
+                                <option value="7d">7 days</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="maxLoginAttempts">Max Login Attempts</label>
+                            <select class="form-select" id="maxLoginAttempts">
+                                <option value="3">3 attempts</option>
+                                <option value="5" selected>5 attempts</option>
+                                <option value="10">10 attempts</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                USERS
+                ============================================================ -->
+                <section class="settings-section" id="section-users">
+                    <h2 class="section-title">Users</h2>
+                    <p class="section-desc">User management and account policies.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">User Policies</div>
+                        <div class="card-desc">Configure how users are managed on the platform.</div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="defaultRole">Default User Role</label>
+                            <select class="form-select" id="defaultRole">
+                                <option value="user" selected>User</option>
+                                <option value="premium">Premium User</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Account Approval</div>
+                                <div class="toggle-desc">Require admin approval for new accounts.</div>
+                            </div>
+                            <button class="toggle-switch" role="switch" aria-checked="false"
+                                data-toggle="account-approval"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Self-Service Deletion</div>
+                                <div class="toggle-desc">Allow users to delete their own accounts.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="self-delete"><span class="toggle-knob"></span></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                SECURITY
+                ============================================================ -->
+                <section class="settings-section" id="section-security">
+                    <h2 class="section-title">Security</h2>
+                    <p class="section-desc">Platform security policies and restrictions.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Security Policies</div>
+                        <div class="card-desc">Configure security settings for the entire platform.</div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="passwordPolicy">Password Policy</label>
+                            <select class="form-select" id="passwordPolicy">
+                                <option value="basic">Basic</option>
+                                <option value="moderate" selected>Moderate</option>
+                                <option value="strict">Strict</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="allowedDomains">Allowed Domains</label>
+                            <input class="form-control" type="text" id="allowedDomains"
+                                placeholder="foundry.com, example.com" value="foundry.com">
+                            <span class="text-muted" style="font-size:12px;">Comma-separated list of allowed email
+                                domains.</span>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Login Alerts</div>
+                                <div class="toggle-desc">Send email alerts for suspicious login attempts.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="login-alerts"><span class="toggle-knob"></span></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                SUBSCRIPTIONS
+                ============================================================ -->
+                <section class="settings-section" id="section-subscriptions">
+                    <h2 class="section-title">Subscriptions</h2>
+                    <p class="section-desc">Premium subscription configuration.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Plan Settings</div>
+                        <div class="card-desc">Configure how subscriptions work on the platform.</div>
+
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Enable Premium Plans</div>
+                                <div class="toggle-desc">Allow premium subscription plans on the platform.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="premium-enabled"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="trialLength">Trial Length</label>
+                            <select class="form-select" id="trialLength">
+                                <option value="0">No trial</option>
+                                <option value="3">3 days</option>
+                                <option value="7" selected>7 days</option>
+                                <option value="14">14 days</option>
+                                <option value="30">30 days</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="billingCycle">Default Billing Cycle</label>
+                            <select class="form-select" id="billingCycle">
+                                <option value="monthly" selected>Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="cancellationPolicy">Cancellation Policy</label>
+                            <select class="form-select" id="cancellationPolicy">
+                                <option value="immediate">Immediate</option>
+                                <option value="end_period" selected>End of billing period</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                PAYMENTS
+                ============================================================ -->
+                <section class="settings-section" id="section-payments">
+                    <h2 class="section-title">Payments</h2>
+                    <p class="section-desc">Payment gateway and financial configuration.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Payment Configuration</div>
+                        <div class="card-desc">Configure payment processing settings.</div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="paymentGateway">Payment Gateway</label>
+                            <select class="form-select" id="paymentGateway">
+                                <option value="paystack" selected>Paystack</option>
+                                <option value="stripe">Stripe</option>
+                                <option value="flutterwave">Flutterwave</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="currency">Currency</label>
+                            <select class="form-select" id="currency">
+                                <option value="NGN" selected>NGN (₦)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="taxRate">Tax Rate (%)</label>
+                            <input class="form-control" type="text" id="taxRate" value="7.5" placeholder="0.0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="invoicePrefix">Invoice Prefix</label>
+                            <input class="form-control" type="text" id="invoicePrefix" value="INV-" placeholder="INV-">
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Test Mode</div>
+                                <div class="toggle-desc">Use test gateway for development and testing.</div>
+                            </div>
+                            <button class="toggle-switch" role="switch" aria-checked="false"
+                                data-toggle="test-mode"><span class="toggle-knob"></span></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                AI
+                ============================================================ -->
+                <section class="settings-section" id="section-ai">
+                    <h2 class="section-title">AI</h2>
+                    <p class="section-desc">Artificial intelligence and machine learning settings.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">AI Configuration</div>
+                        <div class="card-desc">Configure AI features and usage limits.</div>
+
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Enable AI Features</div>
+                                <div class="toggle-desc">Enable all AI-powered features across the platform.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="ai-enabled"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">AI Summaries</div>
+                                <div class="toggle-desc">Generate AI summaries for books and content.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="ai-summaries"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Knowledge Card Generation</div>
+                                <div class="toggle-desc">Automatically generate knowledge cards using AI.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="ai-cards"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="aiModel">Default AI Model</label>
+                            <select class="form-select" id="aiModel">
+                                <option value="gpt-4" selected>GPT-4</option>
+                                <option value="gpt-3.5">GPT-3.5</option>
+                                <option value="claude-3">Claude 3</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="aiRateLimit">Rate Limit (requests/minute)</label>
+                            <input class="form-control" type="number" id="aiRateLimit" value="60" placeholder="60">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                STORAGE
+                ============================================================ -->
+                <section class="settings-section" id="section-storage">
+                    <h2 class="section-title">Storage</h2>
+                    <p class="section-desc">File storage and content management.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Storage Configuration</div>
+                        <div class="card-desc">Configure file storage limits and providers.</div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="storageProvider">Storage Provider</label>
+                            <select class="form-select" id="storageProvider">
+                                <option value="local" selected>Local Storage</option>
+                                <option value="s3">Amazon S3</option>
+                                <option value="cloudinary">Cloudinary</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="maxFileSize">Maximum File Size (MB)</label>
+                            <input class="form-control" type="number" id="maxFileSize" value="10" placeholder="10">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="allowedFormats">Allowed File Formats</label>
+                            <input class="form-control" type="text" id="allowedFormats"
+                                value=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt" placeholder=".pdf,.doc,.txt">
+                            <span class="text-muted" style="font-size:12px;">Comma-separated list of allowed
+                                extensions.</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="storageLimit">Storage Limit (GB)</label>
+                            <input class="form-control" type="number" id="storageLimit" value="10" placeholder="10">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                NOTIFICATIONS
+                ============================================================ -->
+                <section class="settings-section" id="section-notifications">
+                    <h2 class="section-title">Notifications</h2>
+                    <p class="section-desc">Global notification and alert configuration.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Notification Settings</div>
+                        <div class="card-desc">Configure how users receive notifications.</div>
+
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Email Notifications</div>
+                                <div class="toggle-desc">Send email notifications to users.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="email-notifs"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Admin Alerts</div>
+                                <div class="toggle-desc">Send critical alerts to admin users.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="admin-alerts"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">User Activity Alerts</div>
+                                <div class="toggle-desc">Notify users about important account activity.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="user-alerts"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="digestFrequency">Digest Frequency</label>
+                            <select class="form-select" id="digestFrequency">
+                                <option value="daily" selected>Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="never">Never</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                EMAIL
+                ============================================================ -->
+                <section class="settings-section" id="section-email">
+                    <h2 class="section-title">Email</h2>
+                    <p class="section-desc">Email delivery and sender configuration.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Email Configuration</div>
+                        <div class="card-desc">Configure SMTP and email sender settings.</div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="emailProvider">Email Provider</label>
+                            <select class="form-select" id="emailProvider">
+                                <option value="smtp" selected>SMTP</option>
+                                <option value="sendgrid">SendGrid</option>
+                                <option value="postmark">Postmark</option>
+                                <option value="resend">Resend</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="senderName">Sender Name</label>
+                            <input class="form-control" type="text" id="senderName" value="Foundry"
+                                placeholder="Sender name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="senderEmail">Sender Email</label>
+                            <input class="form-control" type="email" id="senderEmail" value="support@foundry.com"
+                                placeholder="noreply@foundry.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="supportEmail">Support Email</label>
+                            <input class="form-control" type="email" id="supportEmail" value="support@foundry.com"
+                                placeholder="support@foundry.com">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                INTEGRATIONS
+                ============================================================ -->
+                <section class="settings-section" id="section-integrations">
+                    <h2 class="section-title">Integrations</h2>
+                    <p class="section-desc">Third-party service integrations.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Connected Services</div>
+                        <div class="card-desc">Manage third-party integrations.</div>
+
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Paystack</div>
+                                <div class="toggle-desc">Payment processing integration.</div>
+                            </div>
+                            <span class="text-accent" style="font-size:13px;font-weight:450;">Connected</span>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">OpenAI</div>
+                                <div class="toggle-desc">AI and language model integration.</div>
+                            </div>
+                            <span class="text-accent" style="font-size:13px;font-weight:450;">Connected</span>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Cloudinary</div>
+                                <div class="toggle-desc">Image and media storage.</div>
+                            </div>
+                            <span class="text-muted" style="font-size:13px;font-weight:450;">Not connected</span>
+                        </div>
+                        <div class="btn-group mt-12">
+                            <button class="btn btn-secondary btn-sm" disabled>Configure Integration</button>
+                            <button class="btn btn-secondary btn-sm" disabled>Add Integration</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                BACKUPS
+                ============================================================ -->
+                <section class="settings-section" id="section-backups">
+                    <h2 class="section-title">Backups</h2>
+                    <p class="section-desc">Data backup and restoration settings.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Backup Configuration</div>
+                        <div class="card-desc">Manage database and file backups.</div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="backupFrequency">Backup Frequency</label>
+                            <select class="form-select" id="backupFrequency">
+                                <option value="daily" selected>Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="backupRetention">Retention Period (days)</label>
+                            <input class="form-control" type="number" id="backupRetention" value="30" placeholder="30">
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Automated Backups</div>
+                                <div class="toggle-desc">Enable scheduled automated backups.</div>
+                            </div>
+                            <button class="toggle-switch active" role="switch" aria-checked="true"
+                                data-toggle="auto-backup"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary btn-sm" disabled>Restore Backup</button>
+                            <button class="btn btn-secondary btn-sm" disabled>Download Backup</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                LOGS
+                ============================================================ -->
+                <section class="settings-section" id="section-logs">
+                    <h2 class="section-title">Logs</h2>
+                    <p class="section-desc">System activity and error logs.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">System Logs</div>
+                        <div class="card-desc">Recent system events and errors.</div>
+
+                        <div
+                            style="background:var(--bg-secondary);border-radius:var(--radius-xs);padding:12px 16px;font-family:monospace;font-size:12px;color:var(--muted);max-height:200px;overflow-y:auto;">
+                            <div style="color:var(--accent);">[INFO] 2026-08-14 12:34:56 — System started</div>
+                            <div style="color:var(--white);">[INFO] 2026-08-14 12:35:10 — User authentication successful
+                            </div>
+                            <div style="color:#f59e0b;">[WARN] 2026-08-14 12:40:22 — Slow query detected (2.4s)</div>
+                            <div style="color:var(--white);">[INFO] 2026-08-14 12:45:01 — Background job completed</div>
+                            <div style="color:#ef4444;">[ERROR] 2026-08-14 12:50:33 — Payment gateway timeout</div>
+                            <div style="color:var(--white);">[INFO] 2026-08-14 12:55:12 — Cache cleared</div>
+                            <div style="color:var(--muted);">...</div>
+                        </div>
+                        <div class="btn-group mt-12">
+                            <button class="btn btn-secondary btn-sm" disabled>View All Logs</button>
+                            <button class="btn btn-secondary btn-sm" disabled>Download Logs</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                ADVANCED
+                ============================================================ -->
+                <section class="settings-section" id="section-advanced">
+                    <h2 class="section-title">Advanced</h2>
+                    <p class="section-desc">Advanced platform configuration and tools.</p>
+
+                    <div class="settings-card">
+                        <div class="card-title">Advanced Controls</div>
+                        <div class="card-desc">High-risk configuration options.</div>
+
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Maintenance Mode</div>
+                                <div class="toggle-desc">Take the platform offline for maintenance.</div>
+                            </div>
+                            <button class="toggle-switch" role="switch" aria-checked="false"
+                                data-toggle="maintenance"><span class="toggle-knob"></span></button>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <div class="toggle-info">
+                                <div class="toggle-title">Debug Mode</div>
+                                <div class="toggle-desc">Enable detailed error reporting.</div>
+                            </div>
+                            <button class="toggle-switch" role="switch" aria-checked="false" data-toggle="debug"><span
+                                    class="toggle-knob"></span></button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-danger btn-sm" data-action="clear-cache">Clear Cache</button>
+                            <button class="btn btn-danger btn-sm" data-action="reset-config">Reset
+                                Configuration</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- SAVE BAR -->
+<div class="save-bar" id="saveBar">
+    <div class="sb-info">
+        <span class="sb-dot"></span>
+        Unsaved changes
+    </div>
+    <div class="sb-actions">
+        <button class="btn btn-secondary btn-sm" id="discardChanges">Discard</button>
+        <button class="btn btn-primary btn-sm" id="saveChanges">Save Changes</button>
+    </div>
+</div>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+<div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <div class="mnd-header">
+        <span class="mnd-title">Settings</span>
+        <button class="mnd-close" id="mobileNavClose">&times;</button>
+    </div>
+    <div class="nav-group">
+        <div class="group-label">Platform</div>
+        <button class="nav-item active" data-section="general"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                </svg></span> General</button>
+        <button class="nav-item" data-section="branding"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                </svg></span> Branding</button>
+    </div>
+    <div class="nav-group">
+        <div class="group-label">Users &amp; Access</div>
+        <button class="nav-item" data-section="auth"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M12 8v4M12 16h.01" />
+                </svg></span> Authentication</button>
+        <button class="nav-item" data-section="users"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg></span> Users</button>
+        <button class="nav-item" data-section="security"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M12 8v4M12 16h.01" />
+                </svg></span> Security</button>
+    </div>
+    <div class="nav-group">
+        <div class="group-label">Business</div>
+        <button class="nav-item" data-section="subscriptions"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                    <path d="M1 10h22" />
+                </svg></span> Subscriptions</button>
+        <button class="nav-item" data-section="payments"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                    <path d="M1 10h22" />
+                    <path d="M7 15h.01M11 15h.01" />
+                </svg></span> Payments</button>
+    </div>
+    <div class="nav-group">
+        <div class="group-label">Technology</div>
+        <button class="nav-item" data-section="ai"><span class="ni-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M12 2a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2V4a2 2 0 012-2z" />
+                    <path
+                        d="M7.5 6.5l-2-2M16.5 6.5l2-2M4 12h2M18 12h2M6.5 16.5l-2 2M17.5 16.5l2 2M12 18a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2v-2a2 2 0 012-2z" />
+                </svg></span> AI</button>
+        <button class="nav-item" data-section="storage"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <ellipse cx="12" cy="5" rx="9" ry="3" />
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                </svg></span> Storage</button>
+        <button class="nav-item" data-section="integrations"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+                </svg></span> Integrations</button>
+    </div>
+    <div class="nav-group">
+        <div class="group-label">Operations</div>
+        <button class="nav-item" data-section="notifications"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 01-3.46 0" />
+                </svg></span> Notifications</button>
+        <button class="nav-item" data-section="email"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="M22 7l-10 7L2 7" />
+                </svg></span> Email</button>
+        <button class="nav-item" data-section="backups"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <path d="M7 10l5 5 5-5" />
+                    <path d="M12 15V3" />
+                </svg></span> Backups</button>
+        <button class="nav-item" data-section="logs"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path d="M4 4h16v16H4z" />
+                    <path d="M8 8h8M8 12h6M8 16h4" />
+                </svg></span> Logs</button>
+        <button class="nav-item" data-section="advanced"><span class="ni-icon"><svg viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path
+                        d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                </svg></span> Advanced</button>
+    </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        // ============================================================
+        // SIDEBAR TOGGLE
+        // ============================================================
+        var sidebar = document.getElementById('adminSidebar');
+        var sidebarOverlay = document.getElementById('sidebarOverlay');
+        var sidebarToggle = document.getElementById('sidebarToggle');
+
+        function toggleSidebar(open) {
+            var isOpen = typeof open === 'boolean' ? open : sidebar.classList.contains('open');
+            if (isOpen) {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+                sidebarToggle.setAttribute('aria-expanded', 'false');
+            } else {
+                sidebar.classList.add('open');
+                sidebarOverlay.classList.add('open');
+                sidebarToggle.setAttribute('aria-expanded', 'true');
+            }
+        }
+
+        sidebarToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        sidebarOverlay.addEventListener('click', function () {
+            toggleSidebar(false);
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                toggleSidebar(false);
+            }
+        });
+
+        // ============================================================
+        // MOBILE NAV DRAWER
+        // ============================================================
+        var mobileNavTrigger = document.getElementById('mobileNavTrigger');
+        var mobileNavOverlay = document.getElementById('mobileNavOverlay');
+        var mobileNavDrawer = document.getElementById('mobileNavDrawer');
+        var mobileNavClose = document.getElementById('mobileNavClose');
+
+        function toggleMobileNav(open) {
+            var isOpen = typeof open === 'boolean' ? open : mobileNavDrawer.classList.contains('open');
+            if (isOpen) {
+                mobileNavDrawer.classList.remove('open');
+                mobileNavOverlay.classList.remove('open');
+            } else {
+                mobileNavDrawer.classList.add('open');
+                mobileNavOverlay.classList.add('open');
+            }
+        }
+
+        mobileNavTrigger.addEventListener('click', function () { toggleMobileNav(); });
+        mobileNavClose.addEventListener('click', function () { toggleMobileNav(false); });
+        mobileNavOverlay.addEventListener('click', function () { toggleMobileNav(false); });
+
+        // ============================================================
+        // SETTINGS NAVIGATION
+        // ============================================================
+        var navItems = document.querySelectorAll('.settings-nav .nav-item, .mobile-nav-drawer .nav-item');
+        var sections = document.querySelectorAll('.settings-section');
+        var saveBar = document.getElementById('saveBar');
+        var hasUnsavedChanges = false;
+
+        function activateSection(sectionId) {
+            // Update nav items
+            navItems.forEach(function (item) {
+                var isActive = item.dataset.section === sectionId;
+                item.classList.toggle('active', isActive);
+            });
+
+            // Update sections
+            sections.forEach(function (sec) {
+                var isActive = sec.id === 'section-' + sectionId;
+                sec.style.display = isActive ? '' : 'none';
+                if (isActive) {
+                    sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+
+            // Close mobile nav
+            toggleMobileNav(false);
+        }
+
+        navItems.forEach(function (item) {
+            item.addEventListener('click', function () {
+                var sectionId = this.dataset.section;
+                if (hasUnsavedChanges) {
+                    if (!confirm('You have unsaved changes. Switch anyway?')) return;
+                }
+                activateSection(sectionId);
+            });
+        });
+
+        // Activate default section
+        activateSection('general');
+
+        // ============================================================
+        // UNSAVED CHANGES
+        // ============================================================
+        var formControls = document.querySelectorAll('input, select, .toggle-switch');
+        var saveBtn = document.getElementById('saveChanges');
+        var discardBtn = document.getElementById('discardChanges');
+
+        function markUnsaved() {
+            if (!hasUnsavedChanges) {
+                hasUnsavedChanges = true;
+                saveBar.classList.add('visible');
+                if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    gsap.fromTo(saveBar, { y: '100%' }, { y: '0%', duration: 0.4, ease: 'power3.out' });
+                }
+            }
+        }
+
+        formControls.forEach(function (el) {
+            el.addEventListener('change', markUnsaved);
+            el.addEventListener('input', markUnsaved);
+            el.addEventListener('click', function (e) {
+                if (this.classList.contains('toggle-switch')) {
+                    markUnsaved();
+                }
+            });
+        });
+
+        // ============================================================
+        // TOGGLES
+        // ============================================================
+        document.querySelectorAll('.toggle-switch').forEach(function (toggle) {
+            toggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var isActive = this.classList.toggle('active');
+                this.setAttribute('aria-checked', isActive ? 'true' : 'false');
+                if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    var knob = this.querySelector('.toggle-knob');
+                    gsap.fromTo(knob, { scale: 0.9 }, { scale: 1, duration: 0.2, ease: 'back.out(2)' });
+                }
+                markUnsaved();
+            });
+            toggle.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+
+        // ============================================================
+        // SAVE / DISCARD
+        // ============================================================
+        saveBtn.addEventListener('click', function () {
+            var btn = this;
+            var origText = btn.textContent;
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
+
+            setTimeout(function () {
+                hasUnsavedChanges = false;
+                saveBar.classList.remove('visible');
+                btn.textContent = 'Saved ✓';
+                btn.style.background = 'var(--accent)';
+                btn.style.color = '#050505';
+                showToast('success', 'Settings Saved', 'All configuration changes have been applied.');
+
+                setTimeout(function () {
+                    btn.textContent = 'Save Changes';
+                    btn.disabled = false;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 1200);
+            }, 1000);
+        });
+
+        discardBtn.addEventListener('click', function () {
+            if (confirm('Discard all unsaved changes?')) {
+                hasUnsavedChanges = false;
+                saveBar.classList.remove('visible');
+                showToast('info', 'Changes Discarded', 'Your changes have been discarded.');
+                // Reset form elements (simple approach)
+                document.querySelectorAll('input[type="text"], input[type="email"], input[type="number"]').forEach(
+                    function (el) {
+                        var defaultVal = el.getAttribute('value') || el.placeholder || '';
+                        if (el.id === 'platformName') el.value = 'Foundry';
+                        else if (el.id === 'tagline') el.value = 'Every Chapter Builds Your Business.';
+                        else if (el.id === 'senderEmail') el.value = 'support@foundry.com';
+                        else if (el.id === 'supportEmail') el.value = 'support@foundry.com';
+                        else if (el.id === 'allowedDomains') el.value = 'foundry.com';
+                        else if (el.id === 'taxRate') el.value = '7.5';
+                        else if (el.id === 'invoicePrefix') el.value = 'INV-';
+                        else if (el.id === 'aiRateLimit') el.value = '60';
+                        else if (el.id === 'maxFileSize') el.value = '10';
+                        else if (el.id === 'storageLimit') el.value = '10';
+                        else if (el.id === 'backupRetention') el.value = '30';
+                        else if (el.id === 'allowedFormats') el.value = '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt';
+                    });
+                document.querySelectorAll('select').forEach(function (el) {
+                    var firstOpt = el.querySelector('option[selected]');
+                    if (firstOpt) el.value = firstOpt.value;
+                    else if (el.options.length) el.value = el.options[0].value;
+                });
+                // Reset toggles to default state (approximate)
+                document.querySelectorAll('.toggle-switch').forEach(function (el) {
+                    var isDefault = false;
+                    if (el.dataset.toggle === 'registration') isDefault = true;
+                    else if (el.dataset.toggle === 'email-verify') isDefault = true;
+                    else if (el.dataset.toggle === 'self-delete') isDefault = true;
+                    else if (el.dataset.toggle === 'login-alerts') isDefault = true;
+                    else if (el.dataset.toggle === 'premium-enabled') isDefault = true;
+                    else if (el.dataset.toggle === 'ai-enabled') isDefault = true;
+                    else if (el.dataset.toggle === 'ai-summaries') isDefault = true;
+                    else if (el.dataset.toggle === 'ai-cards') isDefault = true;
+                    else if (el.dataset.toggle === 'email-notifs') isDefault = true;
+                    else if (el.dataset.toggle === 'admin-alerts') isDefault = true;
+                    else if (el.dataset.toggle === 'user-alerts') isDefault = true;
+                    else if (el.dataset.toggle === 'auto-backup') isDefault = true;
+                    el.classList.toggle('active', isDefault);
+                    el.setAttribute('aria-checked', isDefault ? 'true' : 'false');
+                });
+            }
+        });
+
+        // ============================================================
+        // SEARCH
+        // ============================================================
+        var searchInput = document.getElementById('settingsSearch');
+
+        searchInput.addEventListener('input', function () {
+            var query = this.value.toLowerCase().trim();
+            var items = document.querySelectorAll('.settings-nav .nav-item');
+            var visibleSections = [];
+
+            items.forEach(function (item) {
+                var text = item.textContent.toLowerCase();
+                var sectionId = item.dataset.section;
+                var section = document.getElementById('section-' + sectionId);
+                if (query && text.includes(query)) {
+                    item.style.display = '';
+                    if (section) visibleSections.push(sectionId);
+                } else if (!query) {
+                    item.style.display = '';
+                    if (section) visibleSections.push(sectionId);
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Show/hide sections based on search
+            sections.forEach(function (sec) {
+                var sectionId = sec.id.replace('section-', '');
+                if (!query || visibleSections.includes(sectionId)) {
+                    sec.style.display = '';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
+
+            // If no results, show message (simple)
+            var noResults = document.getElementById('noSearchResults');
+            if (query && visibleSections.length === 0) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.id = 'noSearchResults';
+                    noResults.className = 'settings-card';
+                    noResults.style.textAlign = 'center';
+                    noResults.style.padding = '40px 20px';
+                    noResults.innerHTML = '<div style="font-size:20px;color:var(--muted);">🔍</div><h3 style="margin:8px 0 4px 0;color:var(--white);">No settings found</h3><p style="color:var(--muted);font-size:14px;">Try a different search term.</p>';
+                    document.getElementById('settingsContent').appendChild(noResults);
+                }
+                noResults.style.display = '';
+            } else if (noResults) {
+                noResults.style.display = 'none';
+            }
+        });
+
+        // ============================================================
+        // TOAST SYSTEM
+        // ============================================================
+        var toastContainer = document.getElementById('toastContainer');
+
+        function showToast(type, title, desc) {
+            var iconMap = { success: '✓', error: '✕', info: 'ℹ' };
+            var toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML =
+                '<span class="toast-icon ' + type + '">' + (iconMap[type] || 'ℹ') + '</span>' +
+                '<div class="toast-body">' +
+                '<div class="toast-title">' + title + '</div>' +
+                '<div class="toast-desc">' + desc + '</div>' +
+                '</div>' +
+                '<button class="toast-close" aria-label="Close notification">&times;</button>';
+            toastContainer.appendChild(toast);
+
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.fromTo(toast, { x: 'calc(100% + 40px)', opacity: 0 },
+                    { x: 0, opacity: 1, duration: 0.45, ease: 'power3.out' });
+            } else {
+                toast.style.transform = 'translateX(0)';
+                toast.style.opacity = '1';
+            }
+
+            toast.querySelector('.toast-close').addEventListener('click', function () {
+                dismissToast(toast);
+            });
+
+            setTimeout(function () { dismissToast(toast); }, 5000);
+        }
+
+        function dismissToast(toast) {
+            if (!toast.parentNode) return;
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.to(toast, {
+                    x: 'calc(100% + 40px)', opacity: 0, duration: 0.35, ease: 'power2.in',
+                    onComplete: function () { if (toast.parentNode) toast.remove(); }
+                });
+            } else {
+                toast.remove();
+            }
+        }
+
+        // ============================================================
+        // GSAP REVEALS
+        // ============================================================
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            gsap.from('.admin-sidebar', {
+                opacity: 0,
+                x: -20,
+                duration: 0.5,
+                ease: 'power3.out',
+                delay: 0.1
+            });
+            gsap.from('.admin-topbar', {
+                opacity: 0,
+                y: -10,
+                duration: 0.4,
+                ease: 'power3.out',
+                delay: 0.2
+            });
+            gsap.from('.settings-nav', {
+                opacity: 0,
+                x: -16,
+                duration: 0.4,
+                ease: 'power3.out',
+                delay: 0.3
+            });
+            gsap.from('.settings-section', {
+                opacity: 0,
+                y: 16,
+                duration: 0.5,
+                ease: 'power3.out',
+                delay: 0.4,
+                stagger: 0.06
+            });
+        }
+
+        // ============================================================
+        // KEYBOARD SHORTCUTS
+        // ============================================================
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (hasUnsavedChanges) saveBtn.click();
+            }
+            if (e.key === 'Escape') {
+                if (mobileNavDrawer.classList.contains('open')) toggleMobileNav(false);
+                if (sidebar.classList.contains('open')) toggleSidebar(false);
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        console.log('⚙️ Foundry System Settings initialized.');
+    })();
+</script>
+{% endblock %}

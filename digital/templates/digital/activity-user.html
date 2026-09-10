@@ -1,0 +1,1208 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+       DESIGN SYSTEM (Your existing brand styles)
+       ============================================================ */
+    :root {
+        --bg-primary: #050505;
+        --bg-card: #111111;
+        --bg-secondary: #171717;
+        --accent: #00E5A8;
+        --white: #FFFFFF;
+        --muted: #9CA3AF;
+        --border: rgba(255, 255, 255, 0.08);
+        --radius: 16px;
+        --radius-sm: 10px;
+        --radius-xs: 6px;
+        --font: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --transition: 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.6);
+        --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.8);
+        --shadow-drawer: -8px 0 40px rgba(0, 0, 0, 0.6);
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-primary);
+        color: var(--white);
+        font-family: var(--font);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Activity Layout */
+    .activity-wrapper {
+        display: flex;
+        gap: 32px;
+        padding: 28px 40px 80px 40px;
+        max-width: 1440px;
+        margin: 0 auto;
+        min-height: calc(100vh - 72px);
+    }
+
+    .activity-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .activity-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .activity-header-left h1 {
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.4px;
+        color: var(--white);
+        margin: 0 0 2px 0;
+    }
+
+    .activity-header-left p {
+        font-size: 15px;
+        color: var(--muted);
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .activity-header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 22px;
+        border-radius: var(--radius-xs);
+        font-family: var(--font);
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background var(--transition), transform 0.2s ease, box-shadow var(--transition);
+        text-decoration: none;
+        min-height: 44px;
+        -webkit-tap-highlight-color: transparent;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn:active {
+        transform: translateY(0px);
+    }
+
+    .btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: #050505;
+        font-weight: 550;
+    }
+
+    .btn-primary:hover {
+        background: #00d49a;
+        color: #050505;
+        box-shadow: 0 4px 20px rgba(0, 229, 168, 0.25);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-sm {
+        padding: 6px 16px;
+        font-size: 13px;
+        min-height: 36px;
+    }
+
+    /* Overview Cards */
+    .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .overview-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 18px 20px 20px 20px;
+        transition: border-color var(--transition), transform 0.2s ease;
+    }
+
+    .overview-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .overview-card .ov-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .overview-card .ov-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        flex-shrink: 0;
+    }
+
+    .overview-card .ov-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .overview-card .ov-number {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--white);
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+    }
+
+    .overview-card .ov-label {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 400;
+        margin-top: 1px;
+    }
+
+    .overview-card .ov-indicator {
+        font-size: 12px;
+        font-weight: 450;
+        padding: 2px 10px;
+        border-radius: 20px;
+        background: rgba(0, 229, 168, 0.1);
+        color: var(--accent);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .overview-card .ov-indicator.amber {
+        background: rgba(245, 158, 11, 0.12);
+        color: #f59e0b;
+    }
+
+    .overview-card .ov-indicator.muted {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px 18px;
+        margin-bottom: 28px;
+    }
+
+    .filter-bar .filter-search {
+        flex: 1;
+        min-width: 160px;
+        position: relative;
+    }
+
+    .filter-bar .filter-search input {
+        width: 100%;
+        padding: 8px 14px 8px 38px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--white);
+        font-family: var(--font);
+        font-size: 14px;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition);
+        min-height: 40px;
+    }
+
+    .filter-bar .filter-search input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 229, 168, 0.08);
+    }
+
+    .filter-bar .filter-search input::placeholder {
+        color: rgba(255, 255, 255, 0.25);
+    }
+
+    .filter-bar .filter-search .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        pointer-events: none;
+    }
+
+    .filter-bar .filter-search .search-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .filter-bar .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .filter-bar .filter-select {
+        padding: 8px 32px 8px 14px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--white);
+        font-family: var(--font);
+        font-size: 13px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color var(--transition);
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        min-height: 40px;
+    }
+
+    .filter-bar .filter-select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 229, 168, 0.08);
+    }
+
+    .filter-bar .filter-select option {
+        background: var(--bg-secondary);
+        color: var(--white);
+    }
+
+    .filter-bar .filter-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .filter-bar .filter-actions .btn {
+        min-height: 40px;
+        padding: 0 18px;
+        font-size: 13px;
+    }
+
+    .filter-drawer-toggle {
+        display: none;
+    }
+
+    /* Timeline */
+    .timeline-container {
+        position: relative;
+        padding-left: 28px;
+        margin-bottom: 32px;
+    }
+
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 4px;
+        bottom: 4px;
+        width: 2px;
+        background: var(--border);
+        border-radius: 2px;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+        padding: 16px 20px 16px 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        transition: border-color var(--transition), transform 0.2s ease, background var(--transition);
+        cursor: pointer;
+    }
+
+    .timeline-item:hover {
+        border-color: rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.02);
+        transform: translateX(4px);
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 22px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+        background: var(--bg-card);
+        transition: border-color var(--transition), background var(--transition), transform 0.2s ease;
+    }
+
+    .timeline-item:hover::before {
+        transform: scale(1.15);
+    }
+
+    .timeline-item .tl-status-dot {
+        position: absolute;
+        left: -24px;
+        top: 22px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+        background: var(--bg-card);
+        transition: border-color var(--transition), background var(--transition), transform 0.2s ease;
+        pointer-events: none;
+    }
+
+    .timeline-item .tl-status-dot.success {
+        border-color: var(--accent);
+        background: var(--accent);
+        box-shadow: 0 0 12px rgba(0, 229, 168, 0.2);
+    }
+
+    .timeline-item .tl-status-dot.pending {
+        border-color: #f59e0b;
+        background: #f59e0b;
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+    }
+
+    .timeline-item .tl-status-dot.failed {
+        border-color: #ef4444;
+        background: #ef4444;
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+    }
+
+    .timeline-item .tl-status-dot.security {
+        border-color: #60a5fa;
+        background: #60a5fa;
+        box-shadow: 0 0 12px rgba(96, 165, 250, 0.2);
+    }
+
+    .timeline-item .tl-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .timeline-item .tl-icon {
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        transition: color var(--transition), transform 0.2s ease;
+        margin-top: 1px;
+    }
+
+    .timeline-item:hover .tl-icon {
+        transform: scale(1.05);
+    }
+
+    .timeline-item .tl-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .timeline-item .tl-icon.accent {
+        color: var(--accent);
+    }
+
+    .timeline-item .tl-icon.security-icon {
+        color: #60a5fa;
+    }
+
+    .timeline-item .tl-icon.billing-icon {
+        color: #fbbf24;
+    }
+
+    .timeline-item .tl-icon.ai-icon {
+        color: #a78bfa;
+    }
+
+    .timeline-item .tl-icon.export-icon {
+        color: #f472b6;
+    }
+
+    .timeline-item .tl-icon.book-icon {
+        color: #34d399;
+    }
+
+    .timeline-item .tl-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .timeline-item .tl-title {
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--white);
+        margin: 0 0 2px 0;
+        letter-spacing: -0.2px;
+    }
+
+    .timeline-item .tl-desc {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0 0 4px 0;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+
+    .timeline-item .tl-meta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .timeline-item .tl-meta .tl-time {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .timeline-item .tl-meta .tl-time svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .timeline-item .tl-meta .tl-badge {
+        font-size: 11px;
+        font-weight: 500;
+        padding: 2px 10px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .timeline-item .tl-meta .tl-badge.success {
+        background: rgba(0, 229, 168, 0.1);
+        color: var(--accent);
+    }
+
+    .timeline-item .tl-meta .tl-badge.pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+
+    .timeline-item .tl-meta .tl-badge.failed {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .timeline-item .tl-meta .tl-badge.security {
+        background: rgba(96, 165, 250, 0.1);
+        color: #60a5fa;
+    }
+
+    .timeline-item .tl-device {
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* Empty State & Pagination */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px 50px 20px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+    }
+
+    .empty-state .empty-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 16px auto;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+    }
+
+    .empty-state .empty-icon svg {
+        width: 28px;
+        height: 28px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+    }
+
+    .empty-state h3 {
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--white);
+        margin: 0 0 4px 0;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0 0 20px 0;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+
+    .pagination-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 8px;
+        flex-wrap: wrap;
+        gap: 12px;
+        border-top: 1px solid var(--border);
+        padding-bottom: 4px;
+    }
+
+    .pagination-wrap .pag-info {
+        font-size: 14px;
+        color: var(--muted);
+    }
+
+    .pagination-wrap .pag-info strong {
+        color: var(--white);
+        font-weight: 450;
+    }
+
+    .pagination-wrap .pag-controls {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-wrap .pag-controls .pag-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        border-radius: var(--radius-xs);
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-family: var(--font);
+        font-size: 14px;
+        cursor: pointer;
+        transition: background var(--transition), color var(--transition), transform 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .pagination-wrap .pag-controls .pag-btn:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+    }
+
+    .pagination-wrap .pag-controls .pag-btn.active {
+        background: var(--accent);
+        color: #050505;
+        font-weight: 500;
+    }
+
+    .pagination-wrap .pag-controls .pag-btn:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .activity-wrapper {
+            padding: 20px 28px 60px 28px;
+            gap: 24px;
+        }
+
+        .overview-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .activity-wrapper {
+            padding: 16px 20px 60px 20px;
+            gap: 20px;
+        }
+
+        .overview-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .filter-bar {
+            flex-wrap: wrap;
+            padding: 12px 14px;
+        }
+
+        .filter-bar .filter-search {
+            min-width: 120px;
+            flex-basis: 100%;
+        }
+
+        .filter-bar .filter-group {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .activity-wrapper {
+            padding: 12px 14px 60px 14px;
+            gap: 0;
+            flex-direction: column;
+        }
+
+        .overview-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .overview-card {
+            padding: 14px 16px 16px 16px;
+        }
+
+        .overview-card .ov-number {
+            font-size: 22px;
+        }
+
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 12px 14px;
+            gap: 10px;
+        }
+
+        .filter-bar .filter-search {
+            flex-basis: auto;
+        }
+
+        .filter-bar .filter-group {
+            flex-wrap: wrap;
+        }
+
+        .pagination-wrap {
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .overview-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .activity-wrapper {
+            padding: 8px 10px 60px 10px;
+        }
+
+        .btn {
+            font-size: 13px;
+            padding: 8px 16px;
+            min-height: 38px;
+        }
+    }
+
+    /* Modals & Drawer (simplified for brevity, keep your original if needed) */
+    .modal-overlay,
+    .drawer-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay.open,
+    .drawer-overlay.open {
+        display: flex;
+    }
+
+    .modal,
+    .drawer {
+        background: var(--bg-card);
+        border-radius: var(--radius);
+        padding: 32px;
+        max-width: 520px;
+        width: 100%;
+    }
+
+    .drawer {
+        position: fixed;
+        right: 0;
+        top: 0;
+        height: 100%;
+        max-width: 460px;
+        border-radius: 0;
+        border-left: 1px solid var(--border);
+        transform: translateX(100%);
+        transition: transform 0.4s ease;
+    }
+
+    .drawer-overlay.open .drawer {
+        transform: translateX(0);
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .drawer-close {
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .detail-group {
+        margin-bottom: 16px;
+    }
+
+    .detail-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 4px;
+    }
+
+    .detail-value {
+        font-size: 15px;
+        color: var(--white);
+    }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="activity-wrapper" id="activityApp">
+    <main class="activity-main">
+        <!-- Header -->
+        <header class="activity-header">
+            <div class="activity-header-left">
+                <h1>Activity History</h1>
+                <p>Track everything happening across your Foundry account.</p>
+            </div>
+            <div class="activity-header-actions">
+                <button class="btn btn-secondary btn-sm" data-action="export-activity">
+                    <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"
+                        style="flex-shrink:0;">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <path d="M7 10l5 5 5-5" />
+                        <path d="M12 15V3" />
+                    </svg>
+                    Export Activity
+                </button>
+                <button class="btn btn-secondary btn-sm" data-action="clear-filters">
+                    <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"
+                        style="flex-shrink:0;">
+                        <path d="M18 6L6 18" />
+                        <path d="M6 6l12 12" />
+                    </svg>
+                    Clear Filters
+                </button>
+            </div>
+        </header>
+
+        <!-- Overview Cards (Live Data) -->
+        <div class="overview-grid" id="overviewGrid">
+            <div class="overview-card">
+                <div class="ov-top">
+                    <div class="ov-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M4 4h16v16H4z" />
+                            <path d="M9 8h6M9 12h4M9 16h2" />
+                        </svg></div>
+                    <span class="ov-indicator">+12% this week</span>
+                </div>
+                <div class="ov-number">{{ total_activities }}</div>
+                <div class="ov-label">Total Activities</div>
+            </div>
+            <div class="overview-card">
+                <div class="ov-top">
+                    <div class="ov-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg></div>
+                    <span class="ov-indicator">{{ today_count }} today</span>
+                </div>
+                <div class="ov-number">{{ today_count }}</div>
+                <div class="ov-label">Today</div>
+            </div>
+            <div class="overview-card">
+                <div class="ov-top">
+                    <div class="ov-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <path d="M16 2v4M8 2v4M3 10h18" />
+                        </svg></div>
+                    <span class="ov-indicator">{{ week_count }} this week</span>
+                </div>
+                <div class="ov-number">{{ week_count }}</div>
+                <div class="ov-label">This Week</div>
+            </div>
+            <div class="overview-card">
+                <div class="ov-top">
+                    <div class="ov-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <path d="M12 8v4M12 16h.01" />
+                        </svg></div>
+                    <span class="ov-indicator amber">{{ security_count }} security events</span>
+                </div>
+                <div class="ov-number">{{ security_count }}</div>
+                <div class="ov-label">Security Events</div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+<form method="get" action="{% url 'activity' %}" class="filter-bar" id="filterBar">
+    <div class="filter-search">
+        <span class="search-icon" aria-hidden="true"><svg viewBox="0 0 24 24" stroke="currentColor">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+            </svg></span>
+        <input type="text" name="q" id="searchInput" placeholder="Search activity..." autocomplete="off" value="{{ search_query }}">
+    </div>
+    <div class="filter-group">
+        <select class="filter-select" name="category" id="categoryFilter">
+            <option value="all" {% if selected_category == 'all' %}selected{% endif %}>All Activity</option>
+            <option value="upload_book" {% if selected_category == 'upload_book' %}selected{% endif %}>Books</option>
+            <option value="create_summary" {% if selected_category == 'create_summary' %}selected{% endif %}>Summaries</option>
+            <option value="generate_cards" {% if selected_category == 'generate_cards' %}selected{% endif %}>Knowledge Cards</option>
+            <option value="export_pdf" {% if selected_category == 'export_pdf' %}selected{% endif %}>Exports</option>
+            <option value="login" {% if selected_category == 'login' %}selected{% endif %}>Security</option>
+            <option value="upgrade" {% if selected_category == 'upgrade' %}selected{% endif %}>Billing</option>
+        </select>
+        <select class="filter-select" name="date" id="dateFilter">
+            <option value="today" {% if selected_date == 'today' %}selected{% endif %}>Today</option>
+            <option value="7d" {% if selected_date == '7d' %}selected{% endif %}>Last 7 Days</option>
+            <option value="30d" {% if selected_date == '30d' %}selected{% endif %}>Last 30 Days</option>
+            <option value="90d" {% if selected_date == '90d' %}selected{% endif %}>Last 90 Days</option>
+            <option value="all" {% if selected_date == 'all' %}selected{% endif %}>All Time</option>
+        </select>
+        <select class="filter-select" name="status" id="statusFilter">
+            <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All Status</option>
+            <option value="success" {% if selected_status == 'success' %}selected{% endif %}>Success</option>
+            <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="failed" {% if selected_status == 'failed' %}selected{% endif %}>Failed</option>
+        </select>
+    </div>
+    <div class="filter-actions">
+        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+        <a href="{% url 'activity' %}" class="btn btn-secondary btn-sm">Clear</a>
+    </div>
+</form>
+
+        <!-- Timeline (Live Data) -->
+        <div class="timeline-container" id="timelineContainer" role="list">
+            {% if activities %}
+            {% for activity in activities %}
+            <article class="timeline-item" role="listitem" data-category="{{ activity.action }}" data-status="success"
+                data-id="{{ activity.id }}">
+                <span class="tl-status-dot success"></span>
+                <div class="tl-row">
+                    <div class="tl-icon 
+                            {% if activity.action == 'login' %}security-icon
+                            {% elif activity.action == 'upgrade' %}billing-icon
+                            {% elif activity.action == 'generate_cards' %}ai-icon
+                            {% elif activity.action == 'export_pdf' %}export-icon
+                            {% elif activity.action == 'upload_book' %}book-icon
+                            {% else %}accent{% endif %}">
+                        {% if activity.action == 'upload_book' %}
+                        <svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M4 4h16v16H4z" />
+                            <path d="M9 8h6M9 12h4M9 16h2" />
+                        </svg>
+                        {% elif activity.action == 'create_summary' %}
+                        <svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
+                            <path d="M8 8h8M8 12h8M8 16h5" />
+                        </svg>
+                        {% elif activity.action == 'generate_cards' %}
+                        <svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M12 2a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2V4a2 2 0 012-2z" />
+                            <path
+                                d="M7.5 6.5l-2-2M16.5 6.5l2-2M4 12h2M18 12h2M6.5 16.5l-2 2M17.5 16.5l2 2M12 18a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2v-2a2 2 0 012-2z" />
+                        </svg>
+                        {% elif activity.action == 'export_pdf' %}
+                        <svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                            <path d="M7 10l5 5 5-5" />
+                            <path d="M12 15V3" />
+                        </svg>
+                        {% elif activity.action == 'upgrade' %}
+                        <svg viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                            <path d="M1 10h22" />
+                        </svg>
+                        {% elif activity.action == 'login' %}
+                        <svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <path d="M12 8v4M12 16h.01" />
+                        </svg>
+                        {% else %}
+                        <svg viewBox="0 0 24 24" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 8v4l2 2" />
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="tl-body">
+                        <div class="tl-title">{{ activity.get_action_display|default:activity.action }}</div>
+                        <div class="tl-desc">{{ activity.description|default:"No description provided." }}</div>
+                        <div class="tl-meta">
+                            <span class="tl-time"><svg viewBox="0 0 24 24" stroke="currentColor">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg> <time>{{ activity.created_at|timesince }} ago</time></span>
+                            <span class="tl-badge success">Successful</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon"><svg viewBox="0 0 24 24" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                    </svg></div>
+                <h3>No activity found</h3>
+                <p>You haven't performed any actions yet.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination (Live) -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-wrap" id="paginationWrap">
+            <div class="pag-info">
+                Showing <strong>{{ page_obj.start_index }}</strong>–<strong>{{ page_obj.end_index }}</strong> of
+                <strong>{{ page_obj.paginator.count }}</strong> activities
+            </div>
+            <div class="pag-controls" role="navigation" aria-label="Pagination">
+                {% if page_obj.has_previous %}
+                <a class="pag-btn" href="?page={{ page_obj.previous_page_number }}">←</a>
+                {% else %}
+                <span class="pag-btn" disabled>←</span>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                <span class="pag-btn active">{{ num }}</span>
+                {% else %}
+                <a class="pag-btn" href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <a class="pag-btn" href="?page={{ page_obj.next_page_number }}">→</a>
+                {% else %}
+                <span class="pag-btn" disabled>→</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Security Activity (Live, from last 4 login/upgrade actions) -->
+        <div class="security-activity-card">
+            <div class="sec-header">
+                <div>
+                    <h3>Security Activity</h3>
+                    <p>Important account and authentication events.</p>
+                </div>
+                <button class="btn btn-secondary btn-sm" data-action="view-all-security">View All Security</button>
+            </div>
+            {% for activity in security_activities %}
+            <div class="sec-item">
+                <div class="sec-left">
+                    <div class="sec-icon">
+                        <svg viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <path d="M12 8v4M12 16h.01" />
+                        </svg>
+                    </div>
+                    <div class="sec-text">
+                        <div class="sec-title">{{ activity.get_action_display|default:activity.action }}</div>
+                        <div class="sec-sub">{{ activity.description|default:"N/A" }} • {{ activity.created_at|timesince
+                            }} ago</div>
+                    </div>
+                </div>
+                <div class="sec-right">
+                    <span class="sec-status secure">Secure</span>
+                    <button class="sec-action" data-action="view-security-detail">View Details</button>
+                </div>
+            </div>
+            {% empty %}
+            <div class="sec-item">
+                <div class="sec-text">No recent security events.</div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+<!-- Detail Drawer (simplified) -->
+<div class="drawer-overlay" id="detailDrawerOverlay">
+    <div class="drawer" id="detailDrawer">
+        <div class="drawer-header">
+            <h2 id="drawerTitle">Activity Details</h2>
+            <button class="drawer-close" data-close-drawer>&times;</button>
+        </div>
+        <div class="drawer-body" id="drawerBody">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Basic filter interaction (client-side simple filtering for demo)
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const timelineItems = document.querySelectorAll('.timeline-item');
+
+        function applyFilters() {
+            const search = searchInput.value.toLowerCase();
+            const category = categoryFilter.value;
+            const status = statusFilter.value;
+            let visibleCount = 0;
+            timelineItems.forEach(item => {
+                let match = true;
+                const text = item.textContent.toLowerCase();
+                if (search && !text.includes(search)) match = false;
+                if (category !== 'all' && item.dataset.category !== category) match = false;
+                // Status is always "success" in this demo, but keep logic
+                if (status !== 'all' && item.dataset.status !== status) match = false;
+                item.style.display = match ? '' : 'none';
+                if (match) visibleCount++;
+            });
+        }
+        searchInput.addEventListener('input', applyFilters);
+        categoryFilter.addEventListener('change', applyFilters);
+        statusFilter.addEventListener('change', applyFilters);
+
+        // Clear filters
+        document.querySelector('[data-action="clear-filters"]').addEventListener('click', function () {
+            searchInput.value = '';
+            categoryFilter.value = 'all';
+            statusFilter.value = 'all';
+            applyFilters();
+        });
+
+        // Detail Drawer opening (using activity data from DOM)
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.addEventListener('click', function () {
+                const title = this.querySelector('.tl-title').textContent;
+                const desc = this.querySelector('.tl-desc').textContent;
+                const time = this.querySelector('time').textContent;
+                document.getElementById('drawerBody').innerHTML = `
+                    <div class="detail-group"><div class="detail-label">Title</div><div class="detail-value">${title}</div></div>
+                    <div class="detail-group"><div class="detail-label">Description</div><div class="detail-value">${desc}</div></div>
+                    <div class="detail-group"><div class="detail-label">Time</div><div class="detail-value">${time}</div></div>
+                `;
+                document.getElementById('detailDrawerOverlay').classList.add('open');
+            });
+        });
+
+        document.querySelector('[data-close-drawer]').addEventListener('click', function () {
+            document.getElementById('detailDrawerOverlay').classList.remove('open');
+        });
+    });
+</script>
+{% endblock %}

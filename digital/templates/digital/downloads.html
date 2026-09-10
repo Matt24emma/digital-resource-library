@@ -1,83 +1,409 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}Leads & Analytics | Foundry{% endblock %}
+
+{% block extra_css %}
 <style>
-    table {
-    border-collapse: collapse;
-    box-shadow: 3px 4px 6px gainsboro;
-    min-width: 60rem;
-}
+    :root {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8FAFC;
+        --bg-tertiary: #F1F5F9;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #2563EB;
+        --primary-hover: #1D4ED8;
+        --primary-light: #EFF6FF;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --font-heading: 'Poppins', sans-serif;
+        --font-body: 'Inter', sans-serif;
+    }
 
-table, th,td {
-    border: 1px solid rgb(0, 0, 0,0.1) ;
-}
+    body { font-family: var(--font-body); background: var(--bg-secondary); color: var(--text-primary); }
+    h1, h2, h3 { font-family: var(--font-heading); }
 
-th,td {
-    padding: 1rem;
-    text-align: left;
-}
+    .dl-wrap { max-width: 1200px; margin: 0 auto; padding: 8px 0 60px; }
 
-th {
-    background-color: #2563eb;
-    color: white;
-}
+    /* Header */
+    .dl-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+    .dl-header h1 { font-size: 26px; font-weight: 700; color: var(--text-primary); margin: 0; }
+    .dl-header p { font-size: 14px; color: var(--text-secondary); margin: 4px 0 0; }
+    .dl-header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-#edit, #delete {
-    padding: 0.2rem 0.7rem;
-    margin-left: 1rem;
-}
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .btn:hover { background: var(--bg-tertiary); color: var(--text-primary); border-color: var(--text-muted); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: #fff; }
+    .btn-sm { padding: 6px 14px; font-size: 13px; }
 
-.table-container {
-    overflow-x: scroll;
-    margin: 0.8rem;
-}
+    /* Period selector */
+    .dl-period { display: flex; gap: 4px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 20px; width: fit-content; }
+    .dl-period a { padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+    .dl-period a:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .dl-period a.active { background: var(--primary); color: #fff; }
+
+    /* Metrics */
+    .dl-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .dl-metric { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: border-color 0.2s, transform 0.2s; }
+    .dl-metric:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .dl-metric .m-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+    .dl-metric .m-icon.blue { background: rgba(37,99,235,0.1); color: var(--primary); }
+    .dl-metric .m-icon.green { background: rgba(34,197,94,0.1); color: var(--success); }
+    .dl-metric .m-icon.amber { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .dl-metric .m-icon.purple { background: rgba(167,139,250,0.12); color: #A78BFA; }
+    .dl-metric .m-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+    .dl-metric .m-label { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+    /* Chart card */
+    .dl-chart-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+    .dl-chart-card h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0 0 16px 0; }
+    .dl-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 13px; }
+    .dl-bar .bar-label { width: 120px; color: var(--text-secondary); flex-shrink: 0; }
+    .dl-bar .bar-track { flex: 1; height: 8px; background: var(--bg-tertiary); border-radius: 100px; overflow: hidden; }
+    .dl-bar .bar-fill { height: 100%; background: var(--primary); border-radius: 100px; transition: width 0.6s ease; }
+    .dl-bar .bar-count { width: 40px; text-align: right; color: var(--text-primary); font-weight: 600; }
+
+    /* Table */
+    .dl-table-wrap { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; margin-bottom: 20px; }
+    .dl-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 800px; }
+    .dl-table thead { background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+    .dl-table thead th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .dl-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.2s; }
+    .dl-table tbody tr:hover { background: var(--bg-tertiary); }
+    .dl-table tbody td { padding: 12px 16px; vertical-align: middle; color: var(--text-secondary); }
+
+    .dl-table .lead-cell { display: flex; align-items: center; gap: 10px; }
+    .dl-table .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .dl-table .lead-name { font-weight: 500; color: var(--text-primary); }
+    .dl-table .lead-email { font-size: 12px; color: var(--text-muted); }
+
+    .dl-table .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .dl-table .badge.unique { background: rgba(37,99,235,0.1); color: var(--primary); }
+    .dl-table .badge.returning { background: rgba(34,197,94,0.1); color: var(--success); }
+
+    .dl-table .resource-list { font-size: 13px; color: var(--text-secondary); }
+    .dl-table .resource-list .res-item { display: block; padding: 2px 0; }
+
+    /* Resource management */
+    .dl-resources { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .dl-resources-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .dl-resources-header h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0; }
+    .dl-resources-body { padding: 8px 20px 16px; }
+    .dl-resource-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
+    .dl-resource-row:last-child { border-bottom: none; }
+    .dl-resource-row .r-title { font-weight: 500; color: var(--text-primary); }
+    .dl-resource-row .r-meta { font-size: 12px; color: var(--text-muted); }
+    .dl-resource-row .r-actions { display: flex; gap: 6px; }
+    .dl-resource-row .r-actions .r-btn { padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; text-decoration: none; border: 1px solid var(--border); color: var(--text-secondary); background: transparent; cursor: pointer; }
+    .dl-resource-row .r-actions .r-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .dl-resource-row .r-actions .r-btn.danger { color: var(--danger); border-color: rgba(239,68,68,0.3); }
+    .dl-resource-row .r-actions .r-btn.danger:hover { background: rgba(239,68,68,0.08); }
+
+    /* Empty & pagination */
+    .dl-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 14px; }
+    .dl-pagination { display: flex; justify-content: center; gap: 6px; margin-top: 20px; flex-wrap: wrap; }
+    .dl-pagination a, .dl-pagination span { padding: 8px 14px; border-radius: 8px; font-size: 13px; text-decoration: none; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); }
+    .dl-pagination a:hover { background: var(--bg-tertiary); }
+    .dl-pagination .active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* Upload modal */
+    .up-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+    .up-modal-overlay.open { display: flex; }
+    .up-modal { background: var(--bg-primary); border-radius: 16px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(15,23,42,0.2); animation: upModalIn 0.25s ease; }
+    @keyframes upModalIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .up-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg-primary); border-radius: 16px 16px 0 0; z-index: 2; }
+    .up-modal-header h2 { font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0; }
+    .up-modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+    .up-modal-close:hover { background: var(--bg-tertiary); }
+    .up-modal-body { padding: 20px 24px 24px; }
+    .up-field { margin-bottom: 18px; }
+    .up-field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+    .up-field input[type="text"], .up-field textarea { width: 100%; padding: 10px 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; font-family: var(--font-body); font-size: 14px; color: var(--text-primary); outline: none; }
+    .up-field input:focus, .up-field textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .up-field textarea { resize: vertical; min-height: 80px; }
+    .up-file-drop { border: 2px dashed var(--border); border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; background: var(--bg-secondary); }
+    .up-file-drop:hover { border-color: var(--primary); background: var(--primary-light); }
+    .up-file-drop .up-file-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+    .up-file-drop .up-file-text { font-size: 13px; color: var(--text-secondary); }
+    .up-file-drop .up-file-hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .up-file-name { display: none; margin-top: 6px; font-size: 12px; color: var(--primary); }
+    .up-file-name.show { display: block; }
+    .up-modal-actions { display: flex; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .up-btn { flex: 1; padding: 11px 20px; border-radius: 10px; font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); }
+    .up-btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .up-btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+
+    @media (max-width: 1024px) {
+        .dl-metrics { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+        .dl-metrics { grid-template-columns: 1fr 1fr; gap: 12px; }
+        .dl-metric { padding: 16px; }
+        .dl-metric .m-value { font-size: 22px; }
+        .dl-header { flex-direction: column; align-items: stretch; }
+        .dl-header-actions { width: 100%; }
+        .dl-header-actions .btn { flex: 1; justify-content: center; }
+        .up-modal-overlay { padding: 0; align-items: flex-end; }
+        .up-modal { max-width: 100%; border-radius: 16px 16px 0 0; }
+        .up-modal-actions { flex-direction: column; }
+        .dl-bar .bar-label { width: 90px; font-size: 12px; }
+    }
 </style>
-<body>
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Downloaded Files</th>
-            <th>Count</th>
-        </tr>
-    
-        {% for lead in leads %}
-        <tr>
-            <td>{{ lead.name }}</td>
-            <td>{{ lead.email }}</td>
-    
-            <td>
-                {% for download in lead.downloads.all %}
-                {{ download.resource.title }}<br>
+{% endblock %}
+
+{% block admin_contents %}
+<div class="dl-wrap">
+
+    <!-- Header -->
+    <div class="dl-header">
+        <div>
+            <h1>Leads &amp; Analytics</h1>
+            <p>Track who downloaded your resources and where they came from.</p>
+        </div>
+        <div class="dl-header-actions">
+            <button class="btn btn-primary" id="openUploadModal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Upload Resource
+            </button>
+            <a href="{% url 'export_leads_pdf' %}?period={{ period }}" class="btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                Export PDF
+            </a>
+        </div>
+    </div>
+
+    <!-- Period selector -->
+    <div class="dl-period">
+        <a href="?period=today" class="{% if period == 'today' %}active{% endif %}">Today</a>
+        <a href="?period=week" class="{% if period == 'week' %}active{% endif %}">This Week</a>
+        <a href="?period=month" class="{% if period == 'month' %}active{% endif %}">This Month</a>
+        <a href="?period=total" class="{% if period == 'total' %}active{% endif %}">All Time</a>
+    </div>
+
+    <!-- Metrics -->
+    <div class="dl-metrics">
+        <div class="dl-metric">
+            <div class="m-icon blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="m-value">{{ unique_visitors }}</div>
+            <div class="m-label">Unique Visitors</div>
+        </div>
+        <div class="dl-metric">
+            <div class="m-icon green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            </div>
+            <div class="m-value">{{ returning_visitors }}</div>
+            <div class="m-label">Returning Visitors</div>
+        </div>
+        <div class="dl-metric">
+            <div class="m-icon amber">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            </div>
+            <div class="m-value">{{ total_downloads }}</div>
+            <div class="m-label">Downloads</div>
+        </div>
+        <div class="dl-metric">
+            <div class="m-icon purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="m-value">{{ total_leads }}</div>
+            <div class="m-label">Total Leads</div>
+        </div>
+    </div>
+
+    <!-- Traffic source chart -->
+    <div class="dl-chart-card">
+        <h3>Traffic Sources</h3>
+        {% if traffic_sources %}
+            {% for source in traffic_sources %}
+            <div class="dl-bar">
+                <div class="bar-label">{{ source.label }}</div>
+                <div class="bar-track">
+                    <div class="bar-fill" style="width: {% widthratio source.count traffic_sources.0.count 100 %}%;"></div>
+                </div>
+                <div class="bar-count">{{ source.count }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="dl-empty">No traffic source data available yet.</div>
+        {% endif %}
+    </div>
+
+    <!-- Leads table -->
+    <div class="dl-table-wrap">
+        <table class="dl-table">
+            <thead>
+                <tr>
+                    <th>Lead</th>
+                    <th>Visitor Type</th>
+                    <th>Downloaded Files</th>
+                    <th>Total Downloads</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lead in leads %}
+                <tr>
+                    <td>
+                        <div class="lead-cell">
+                            <span class="avatar">{{ lead.name|first|upper }}</span>
+                            <div>
+                                <div class="lead-name">{{ lead.name }}</div>
+                                <div class="lead-email">{{ lead.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if lead.visit_count > 1 %}
+                            <span class="badge returning">Returning</span>
+                        {% else %}
+                            <span class="badge unique">Unique</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="resource-list">
+                            {% for download in lead.downloads.all %}
+                            <span class="res-item">📄 {{ download.resource.title }}</span>
+                            {% empty %}
+                            <span style="color:var(--text-muted);">No downloads</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td><strong>{{ lead.number_of_resources_downloaded }}</strong></td>
+                    <td>{{ lead.created_at|date:"M d, Y" }}</td>
+                </tr>
                 {% empty %}
-                No downloads
+                <tr>
+                    <td colspan="5" class="dl-empty">No leads yet. Share your resource links to start collecting them.</td>
+                </tr>
                 {% endfor %}
-            </td>
-    
-            <td>{{ lead.number_of_resources_downloaded }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-<div class="pagination">
+            </tbody>
+        </table>
+    </div>
 
-    {% if leads.has_previous %}
-    <a href="?page=1">First</a>
-    <a href="?page={{ leads.previous_page_number }}">Previous</a>
+    <!-- Pagination -->
+    {% if leads.has_other_pages %}
+    <div class="dl-pagination">
+        {% if leads.has_previous %}
+        <a href="?period={{ period }}&page=1">« First</a>
+        <a href="?period={{ period }}&page={{ leads.previous_page_number }}">‹ Previous</a>
+        {% endif %}
+        <span class="active">Page {{ leads.number }} of {{ leads.paginator.num_pages }}</span>
+        {% if leads.has_next %}
+        <a href="?period={{ period }}&page={{ leads.next_page_number }}">Next ›</a>
+        <a href="?period={{ period }}&page={{ leads.paginator.num_pages }}">Last »</a>
+        {% endif %}
+    </div>
     {% endif %}
 
-    <span>
-        Page {{ leads.number }} of {{ leads.paginator.num_pages }}
-    </span>
-
-    {% if leads.has_next %}
-    <a href="?page={{ leads.next_page_number }}">Next</a>
-    <a href="?page={{ leads.paginator.num_pages }}">Last</a>
-    {% endif %}
+    <!-- Resource Management -->
+    <div class="dl-resources">
+        <div class="dl-resources-header">
+            <h3>Resource Library</h3>
+            <button class="btn btn-sm btn-primary" id="openUploadModalBottom">+ Upload</button>
+        </div>
+        <div class="dl-resources-body">
+            {% for resource in resources %}
+            <div class="dl-resource-row">
+                <div>
+                    <div class="r-title">{{ resource.title }}</div>
+                    <div class="r-meta">{{ resource.most_downloaded }} downloads · {{ resource.created_at|date:"M d, Y" }}</div>
+                </div>
+                <div class="r-actions">
+                    <a href="{% url 'edit_resource' resource.id %}" class="r-btn">Edit</a>
+                    <a href="{% url 'delete_resource' resource.id %}" class="r-btn danger" onclick="return confirm('Delete &quot;{{ resource.title }}&quot;?')">Delete</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="dl-empty">No resources uploaded yet. Click "Upload Resource" to add one.</div>
+            {% endfor %}
+        </div>
+    </div>
 
 </div>
-</body>
-</html>
+
+<!-- Upload modal (same as admin.html) -->
+<div class="up-modal-overlay" id="uploadModal">
+    <div class="up-modal">
+        <div class="up-modal-header">
+            <h2>Upload Resource</h2>
+            <button class="up-modal-close" id="closeUploadModal">✕</button>
+        </div>
+        <form method="POST" enctype="multipart/form-data" action="{% url 'admin' %}" class="up-modal-body">
+            {% csrf_token %}
+            <div class="up-field">
+                <label>Title</label>
+                <input type="text" name="title" placeholder="Resource title" required>
+            </div>
+            <div class="up-field">
+                <label>Description</label>
+                <textarea name="description" placeholder="Short description..."></textarea>
+            </div>
+            <div class="up-field">
+                <label>Thumbnail</label>
+                <div class="up-file-drop" id="thumbnailDrop">
+                    <span class="up-file-icon">🖼️</span>
+                    <div class="up-file-text">Click to upload thumbnail</div>
+                    <input type="file" name="thumbnail" id="thumbnailInput" accept="image/*" hidden>
+                    <div class="up-file-name" id="thumbnailName"></div>
+                </div>
+            </div>
+            <div class="up-field">
+                <label>Resource File</label>
+                <div class="up-file-drop" id="fileDrop">
+                    <span class="up-file-icon">📄</span>
+                    <div class="up-file-text">Click to upload file</div>
+                    <input type="file" name="file" id="fileInput" required hidden>
+                    <div class="up-file-name" id="fileName"></div>
+                </div>
+            </div>
+            <div class="up-modal-actions">
+                <button type="button" class="up-btn" id="cancelUpload">Cancel</button>
+                <button type="submit" class="up-btn up-btn-primary">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const modal = document.getElementById('uploadModal');
+        const openBtns = [document.getElementById('openUploadModal'), document.getElementById('openUploadModalBottom')];
+        const closeBtn = document.getElementById('closeUploadModal');
+        const cancelBtn = document.getElementById('cancelUpload');
+
+        function openModal() { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+        function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
+
+        openBtns.forEach(b => b && b.addEventListener('click', openModal));
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+        function bindFilePicker(dropId, inputId, nameId) {
+            const drop = document.getElementById(dropId);
+            const input = document.getElementById(inputId);
+            const nameEl = document.getElementById(nameId);
+            if (!drop || !input) return;
+            drop.addEventListener('click', () => input.click());
+            input.addEventListener('change', () => {
+                if (input.files.length > 0) {
+                    nameEl.textContent = '✓ ' + input.files[0].name;
+                    nameEl.classList.add('show');
+                    drop.style.borderColor = 'var(--primary)';
+                }
+            });
+        }
+        bindFilePicker('thumbnailDrop', 'thumbnailInput', 'thumbnailName');
+        bindFilePicker('fileDrop', 'fileInput', 'fileName');
+    })();
+</script>
+{% endblock %}

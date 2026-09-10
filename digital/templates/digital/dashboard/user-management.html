@@ -1,0 +1,613 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}User Management | Foundry Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+       USER MANAGEMENT LIGHT THEME
+       ============================================================ */
+    :root {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8FAFC;
+        --bg-tertiary: #F1F5F9;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #2563EB;
+        --primary-hover: #1D4ED8;
+        --primary-light: #EFF6FF;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --font-heading: 'Poppins', sans-serif;
+        --font-body: 'Inter', sans-serif;
+    }
+
+    body { font-family: var(--font-body); background: var(--bg-secondary); color: var(--text-primary); }
+    h1, h2, h3 { font-family: var(--font-heading); }
+
+    .um-page-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
+    .um-page-header-left h1 { font-size: 26px; font-weight: 700; color: var(--text-primary); margin: 0; }
+    .um-page-header-left p { font-size: 14px; color: var(--text-secondary); margin: 4px 0 0; }
+    .um-page-header-right { display: flex; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+    .btn:hover { background: var(--bg-tertiary); color: var(--text-primary); border-color: var(--text-muted); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: #fff; }
+
+    .um-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .um-metric-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(15,23,42,0.06); }
+    .um-metric-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+    .um-metric-label { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+    .um-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; }
+    .um-search-wrap { flex: 1 1 240px; position: relative; }
+    .um-search-wrap input { width: 100%; padding: 8px 12px 8px 36px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: var(--font-body); color: var(--text-primary); background: var(--bg-secondary); outline: none; }
+    .um-search-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .um-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .um-filter-group { display: flex; align-items: center; gap: 6px; }
+    .um-filter-group select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: var(--font-body); color: var(--text-primary); background: var(--bg-secondary); outline: none; }
+    .um-filter-actions { display: flex; gap: 6px; margin-left: auto; }
+    .btn-filter { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; }
+    .btn-filter-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .um-table-wrap { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .um-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .um-table thead { background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+    .um-table thead th { text-align: left; padding: 12px 16px; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .um-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.2s; }
+    .um-table tbody tr:hover { background: var(--bg-tertiary); }
+    .um-table tbody td { padding: 12px 16px; vertical-align: middle; color: var(--text-secondary); }
+
+    .um-user-cell { display: flex; align-items: center; gap: 10px; }
+    .um-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+    .um-user-name { font-weight: 500; color: var(--text-primary); font-size: 14px; }
+    .um-user-email { font-size: 12px; color: var(--text-muted); }
+
+    .um-plan-badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .um-plan-badge.free { background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border); }
+    .um-plan-badge.premium { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(37,99,235,0.2); }
+
+    .um-status-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .um-status-badge.active { background: rgba(34,197,94,0.1); color: var(--success); }
+    .um-status-badge.deactivated { background: var(--bg-tertiary); color: var(--text-muted); border: 1px solid var(--border); }
+    .um-status-badge.suspended { background: rgba(239,68,68,0.1); color: var(--danger); }
+
+    .um-usage-wrap { display: flex; align-items: center; gap: 8px; }
+    .um-usage-bar { width: 48px; height: 4px; background: var(--bg-tertiary); border-radius: 100px; overflow: hidden; }
+    .um-usage-fill { height: 100%; background: var(--primary); }
+
+    .um-view-btn { padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--primary); background: transparent; border: 1px solid transparent; cursor: pointer; }
+    .um-view-btn:hover { background: var(--primary-light); border-color: rgba(37,99,235,0.2); }
+
+    .um-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+    .um-modal-overlay.open { display: flex; }
+    .um-modal { background: var(--bg-primary); border-radius: 16px; max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(15,23,42,0.2); }
+    .um-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+    .um-modal-header h2 { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .um-modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+    .um-modal-close:hover { background: var(--bg-tertiary); }
+    .um-modal-body { padding: 20px 24px; }
+
+    .um-modal-identity { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+    .um-avatar-lg { width: 52px; height: 52px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-weight: 700; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+    .um-id-name { font-weight: 600; font-size: 18px; color: var(--text-primary); }
+    .um-id-email { font-size: 14px; color: var(--text-secondary); }
+    .um-id-username { font-size: 13px; color: var(--text-muted); }
+    .um-id-badges { margin-left: auto; display: flex; gap: 8px; }
+
+    .um-section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .um-section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+    .um-grid-item { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
+    .um-grid-label { color: var(--text-muted); font-weight: 500; }
+    .um-grid-value { color: var(--text-primary); text-align: right; }
+
+    .um-usage-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 4px; }
+    .um-usage-metric { background: var(--bg-tertiary); border-radius: 8px; padding: 12px; text-align: center; }
+    .um-um-value { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+    .um-um-label { font-size: 12px; color: var(--text-muted); }
+
+    .um-free-placeholder { background: var(--bg-tertiary); border: 1px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; color: var(--text-secondary); }
+
+    .um-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .um-action-btn { padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); }
+    .um-action-btn.danger { color: var(--danger); border-color: rgba(239,68,68,0.3); }
+    .um-action-btn.danger:hover { background: rgba(239,68,68,0.08); border-color: var(--danger); }
+    .um-action-btn.success { color: var(--success); border-color: rgba(34,197,94,0.3); }
+    .um-action-btn.success:hover { background: rgba(34,197,94,0.08); border-color: var(--success); }
+    .um-action-btn.warning { color: var(--warning); border-color: rgba(245,158,11,0.3); }
+    .um-action-btn.warning:hover { background: rgba(245,158,11,0.08); border-color: var(--warning); }
+
+    /* Responsive */
+    @media (max-width: 1024px) { .um-metrics { grid-template-columns: repeat(2,1fr); } .um-usage-metrics { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 768px) {
+        .um-page-header { flex-direction: column; align-items: stretch; }
+        .um-toolbar { flex-direction: column; align-items: stretch; }
+        .um-filter-actions { margin-left: 0; justify-content: stretch; }
+        .um-table-wrap { overflow-x: auto; }
+        .um-table { min-width: 700px; }
+        .um-section-grid { grid-template-columns: 1fr; }
+        .um-modal-identity { flex-wrap: wrap; }
+        .um-id-badges { margin-left: 0; width: 100%; }
+        .um-modal-actions { flex-direction: column; }
+        .um-action-btn { width: 100%; }
+    }
+
+/* (Keep all existing styles, but add these: */
+    .um-action-cell {
+        display: flex;
+        gap: 6px;
+    }
+
+    .um-view-btn,
+    .um-ban-btn,
+    .um-delete-btn {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-secondary);
+    }
+
+    .um-view-btn:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .um-ban-btn:hover {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border-color: var(--warning);
+    }
+
+    .um-delete-btn:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+
+    /* Modal improvements */
+    .um-confirm-modal .um-modal {
+        max-width: 440px;
+    }
+
+    .um-confirm-modal .um-modal-body {
+        text-align: center;
+    }
+
+    .um-confirm-icon {
+        font-size: 2.4rem;
+        margin-bottom: 10px;
+    }
+
+    .um-confirm-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .um-confirm-desc {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+
+    .um-confirm-actions {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .um-confirm-btn {
+        padding: 8px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: transparent;
+    }
+
+    .um-confirm-btn.danger {
+        background: var(--danger);
+        color: #fff;
+        border-color: var(--danger);
+    }
+
+    .um-confirm-btn.warning {
+        background: var(--warning);
+        color: #fff;
+        border-color: var(--warning);
+    }
+
+    .um-confirm-btn.success {
+        background: var(--success);
+        color: #fff;
+        border-color: var(--success);
+    }
+
+    .um-confirm-btn.cancel {
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+    }
+
+    /* Progress modal */
+    .um-progress-modal .um-modal {
+        max-width: 700px;
+    }
+
+    .um-progress-book {
+        margin-bottom: 16px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .um-progress-book-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .um-progress-bar {
+        height: 6px;
+        background: var(--bg-tertiary);
+        border-radius: 100px;
+        margin: 6px 0;
+    }
+
+    .um-progress-fill {
+        height: 100%;
+        background: var(--success);
+        border-radius: 100px;
+    }
+
+    .um-progress-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+
+
+{% block admin_contents %}
+<!-- Header, Metrics, Toolbar (same as before) -->
+<div class="um-page-header">
+    <div class="um-page-header-left">
+        <h1>User Management</h1>
+        <p>Manage Foundry accounts, subscriptions, and usage.</p>
+    </div>
+    <div class="um-page-header-right">
+        <a href="?export=csv" class="btn">⬇ Export users</a>
+    </div>
+</div>
+
+<div class="um-metrics">
+    <div class="um-metric-card">
+        <div class="um-metric-value">{{ total_users }}</div>
+        <div class="um-metric-label">Total Users</div>
+    </div>
+    <div class="um-metric-card">
+        <div class="um-metric-value">{{ active_users }}</div>
+        <div class="um-metric-label">Active Users</div>
+    </div>
+    <div class="um-metric-card">
+        <div class="um-metric-value">{{ premium_users }}</div>
+        <div class="um-metric-label">Premium Users</div>
+    </div>
+    <div class="um-metric-card">
+        <div class="um-metric-value">{{ suspended_users }}</div>
+        <div class="um-metric-label">Banned Users</div>
+    </div>
+</div>
+
+<!-- Toolbar (same, with forms) -->
+<div class="um-toolbar">
+    <form method="get" action="{% url 'user_management' %}" class="um-search-wrap">
+        <span class="um-search-icon">🔍</span>
+        <input type="text" name="q" placeholder="Search..." value="{{ search_query }}">
+    </form>
+    <form method="get" action="{% url 'user_management' %}" class="um-filter-group">
+        <select name="plan" onchange="this.form.submit()">
+            <option value="all" {% if plan_filter == 'all' %}selected{% endif %}>All plans</option>
+            <option value="premium" {% if plan_filter == 'premium' %}selected{% endif %}>Premium</option>
+            <option value="free" {% if plan_filter == 'free' %}selected{% endif %}>Free</option>
+        </select>
+    </form>
+    <form method="get" action="{% url 'user_management' %}" class="um-filter-group">
+        <select name="status" onchange="this.form.submit()">
+            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All statuses</option>
+            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+            <option value="deactivated" {% if status_filter == 'deactivated' %}selected{% endif %}>Banned</option>
+        </select>
+    </form>
+    <div class="um-filter-actions"><a href="{% url 'user_management' %}" class="btn-filter">Reset</a></div>
+</div>
+
+<!-- Table -->
+<div class="um-table-wrap">
+    <table class="um-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Plan</th>
+                <th>Status</th>
+                <th>Books</th>
+                <th>Joined</th>
+                <th>Last Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <div class="um-user-cell">
+                        <span class="um-avatar">{{ user.username|first|upper }}</span>
+                        <div>
+                            <div class="um-user-name">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="um-user-email">{{ user.email }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    {% if user.subscription.plan.slug == 'premium' and user.subscription.active %}
+                    <span class="um-plan-badge premium">Premium</span>
+                    {% else %}
+                    <span class="um-plan-badge free">Free</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.is_active %}
+                    <span class="um-status-badge active">Active</span>
+                    {% else %}
+                    <span class="um-status-badge deactivated">Banned</span>
+                    {% endif %}
+                </td>
+                <td>{{ user.total_books }}</td>
+                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                <td>{{ user.last_login|timesince|default:"Never" }} ago</td>
+                <td>
+                    <div class="um-action-cell">
+                        <button class="um-view-btn" data-id="{{ user.id }}">View</button>
+                        {% if user.is_active %}
+                        <button class="um-ban-btn" data-id="{{ user.id }}">Ban</button>
+                        {% else %}
+                        <button class="um-ban-btn" data-id="{{ user.id }}"
+                            style="color:var(--success); border-color:var(--success);">Unban</button>
+                        {% endif %}
+                        <button class="um-delete-btn" data-id="{{ user.id }}">Delete</button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination (same) -->
+{% if page_obj.has_other_pages %}
+<div style="display:flex; justify-content:center; gap:8px; margin-top:20px;">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&plan={{ plan_filter }}&status={{ status_filter }}"
+        class="btn">← Prev</a>
+    {% endif %}
+    <span class="btn" style="cursor:default;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&plan={{ plan_filter }}&status={{ status_filter }}"
+        class="btn">Next →</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- ============ USER DETAILS MODAL (View) ============ -->
+<div class="um-modal-overlay" id="userModal">
+    <div class="um-modal">
+        <div class="um-modal-header">
+            <h2>User Details</h2>
+            <button class="um-modal-close" onclick="closeModal('userModal')">✕</button>
+        </div>
+        <div class="um-modal-body" id="userModalBody"></div>
+    </div>
+</div>
+
+<!-- ============ CONFIRMATION MODAL (Ban/Delete) ============ -->
+<div class="um-modal-overlay um-confirm-modal" id="confirmModal">
+    <div class="um-modal">
+        <div class="um-modal-body">
+            <div class="um-confirm-icon" id="confirmIcon">⚠️</div>
+            <div class="um-confirm-title" id="confirmTitle">Confirm Action</div>
+            <div class="um-confirm-desc" id="confirmDesc"></div>
+            <div class="um-confirm-actions">
+                <button class="um-confirm-btn cancel" onclick="closeConfirm()">Cancel</button>
+                <button class="um-confirm-btn" id="confirmBtn">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ PROGRESS MODAL ============ -->
+<div class="um-modal-overlay um-progress-modal" id="progressModal">
+    <div class="um-modal">
+        <div class="um-modal-header">
+            <h2>User Progress</h2>
+            <button class="um-modal-close" onclick="closeModal('progressModal')">✕</button>
+        </div>
+        <div class="um-modal-body" id="progressBody"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let usersData = {{ users_json| safe }};
+
+    // --- Helper to open/close modals ---
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    // --- View User Details ---
+    document.querySelectorAll('.um-view-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            let userId = parseInt(this.dataset.id);
+            let user = usersData.find(u => u.id === userId);
+            if (!user) return;
+
+            let planLabel = user.plan === 'premium' ? 'Premium' : 'Free';
+            let statusLabel = user.is_active ? 'Active' : 'Banned';
+
+            let html = `
+                <div class="um-modal-identity">
+                    <span class="um-avatar-lg">${user.full_name ? user.full_name.charAt(0) : user.username.charAt(0)}</span>
+                    <div class="um-id-info">
+                        <div class="um-id-name">${user.full_name || user.username}</div>
+                        <div class="um-id-email">${user.email}</div>
+                        <div class="um-id-username">@${user.username}</div>
+                    </div>
+                    <div class="um-id-badges">
+                        <span class="um-plan-badge ${user.plan}">${planLabel}</span>
+                        <span class="um-status-badge ${user.is_active ? 'active' : 'deactivated'}">${statusLabel}</span>
+                    </div>
+                </div>
+                <div class="um-section-title">Account Information</div>
+                <div class="um-section-grid">
+                    <div class="um-grid-item"><span class="um-grid-label">User ID</span><span class="um-grid-value">#USR-${String(user.id).padStart(5, '0')}</span></div>
+                    <div class="um-grid-item"><span class="um-grid-label">Joined</span><span class="um-grid-value">${user.date_joined}</span></div>
+                    <div class="um-grid-item"><span class="um-grid-label">Last Active</span><span class="um-grid-value">${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}</span></div>
+                    <div class="um-grid-item"><span class="um-grid-label">Books</span><span class="um-grid-value">${user.total_books}</span></div>
+                </div>
+                <div style="margin-top:20px;">
+                    <button class="um-action-btn warning" onclick="showConfirm('ban', ${user.id})">Ban User</button>
+                    <button class="um-action-btn danger" onclick="showConfirm('delete', ${user.id})">Delete User</button>
+                </div>
+            `;
+            document.getElementById('userModalBody').innerHTML = html;
+            openModal('userModal');
+        });
+    });
+
+    // --- Ban/Unban button in table ---
+    document.querySelectorAll('.um-ban-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            let userId = parseInt(this.dataset.id);
+            let action = this.textContent.trim() === 'Ban' ? 'ban' : 'unban';
+            showConfirm(action, userId);
+        });
+    });
+
+    // --- Delete button in table ---
+    document.querySelectorAll('.um-delete-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            let userId = parseInt(this.dataset.id);
+            showConfirm('delete', userId);
+        });
+    });
+
+    // --- Confirmation modal ---
+    let currentAction = null;
+    let currentUserId = null;
+
+    function showConfirm(action, userId) {
+        currentAction = action;
+        currentUserId = userId;
+        let user = usersData.find(u => u.id === userId);
+        if (!user) return;
+
+        let title = '', desc = '', icon = '', btnClass = '';
+        if (action === 'ban') {
+            title = 'Ban User?';
+            desc = `This will prevent ${user.username} from accessing the platform. They can be unbanned later.`;
+            icon = '⛔';
+            btnClass = 'warning';
+        } else if (action === 'unban') {
+            title = 'Unban User?';
+            desc = `This will restore ${user.username}'s access to Foundry.`;
+            icon = '✅';
+            btnClass = 'success';
+        } else if (action === 'delete') {
+            title = 'Delete User Permanently?';
+            desc = `This will permanently remove ${user.username} and all associated data. This cannot be undone.`;
+            icon = '🗑️';
+            btnClass = 'danger';
+        }
+
+        document.getElementById('confirmIcon').textContent = icon;
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmDesc').innerHTML = desc;
+        document.getElementById('confirmBtn').className = 'um-confirm-btn ' + btnClass;
+        document.getElementById('confirmBtn').textContent = action === 'delete' ? 'Delete' : action === 'ban' ? 'Ban' : 'Unban';
+        openModal('confirmModal');
+    }
+
+    function closeConfirm() { closeModal('confirmModal'); }
+
+    document.getElementById('confirmBtn').addEventListener('click', function () {
+        let action = currentAction;
+        let userId = currentUserId;
+        let formData = new FormData();
+        formData.append('action', action);
+        formData.append('user_id', userId);
+
+        fetch("{% url 'user_management' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Action failed.');
+                }
+            })
+            .catch(() => alert('Network error'));
+    });
+
+    // --- Progress Modal ---
+    document.querySelectorAll('.um-view-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            let userId = parseInt(this.dataset.id);
+            let user = usersData.find(u => u.id === userId);
+            if (!user || !user.progress || user.progress.length === 0) {
+                document.getElementById('progressBody').innerHTML = '<p style="text-align:center;padding:20px;">No scheduled books/progress found.</p>';
+            } else {
+                let html = '<h3 style="margin-bottom:16px;">Scheduled Reading Progress</h3>';
+                user.progress.forEach(book => {
+                    let pct = book.total_chunks > 0 ? Math.round((book.read_chunks / book.total_chunks) * 100) : 0;
+                    html += `
+                        <div class="um-progress-book">
+                            <div class="um-progress-book-title">${book.title}</div>
+                            <div class="um-progress-bar"><div class="um-progress-fill" style="width:${pct}%;"></div></div>
+                            <div class="um-progress-stats">
+                                <span>Read: ${book.read_chunks}/${book.total_chunks}</span>
+                                <span>Delivered: ${book.delivered_chunks}</span>
+                                <span>Status: ${book.status}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('progressBody').innerHTML = html;
+            }
+            openModal('progressModal');
+        });
+    });
+
+    // Note: The user's progress modal should be triggered by an extra button.
+    // I'll update the Actions column in the template to include a "Progress" button.
+    // We'll add it in the template after the View button.
+</script>
+{% endblock %}

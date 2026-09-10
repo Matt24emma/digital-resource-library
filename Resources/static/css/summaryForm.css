@@ -1,0 +1,294 @@
+/* ============================================
+   BASE / GLOBAL (inherits from base.css)
+   ============================================ */
+html {
+    overflow-x: hidden;
+    /* safety against horizontal scroll */
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    background: #000;
+    color: #E5E7EB;
+    font-family: "Satoshi", sans-serif;
+}
+
+/* ============================================
+   MAIN CONTAINER – always fits viewport
+   ============================================ */
+.chapter-summary {
+    max-width: 900px;
+    width: 100%;
+    margin: 80px auto;
+    padding: 50px;
+    background: rgba(255, 255, 255, .03);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 24px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+    box-sizing: border-box;
+    overflow: hidden;
+    /* clip any accidental overflow */
+}
+
+.chapter-summary h1 {
+    font-size: 2.5rem;
+    margin-bottom: .5rem;
+}
+
+.subtitle {
+    color: #9CA3AF;
+    margin-bottom: 3rem;
+    line-height: 1.8;
+}
+
+/* ============================================
+   FORM – prevent overflow
+   ============================================ */
+.summary-form {
+    overflow: hidden;
+    width: 100%;
+}
+
+/* ============================================
+   FORM SECTIONS
+   ============================================ */
+.form-section {
+    margin-bottom: 3rem;
+    overflow: hidden;
+}
+
+.form-section h2 {
+    font-size: 1.2rem;
+    color: rgb(86, 252, 86);
+    margin-bottom: 1.5rem;
+}
+
+/* ============================================
+   BOOK GRID – 2 columns on desktop
+   ============================================ */
+.book-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    min-width: 0;
+    /* allow columns to shrink */
+}
+
+/* ============================================
+   FORM FIELDS
+   ============================================ */
+.field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+.field label {
+    margin-bottom: .7rem;
+    font-weight: 600;
+    color: #F3F4F6;
+}
+
+.field input,
+.field textarea {
+    width: 100%;
+    max-width: 100%;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 14px;
+    padding: 16px;
+    color: white;
+    font-size: 15px;
+    resize: vertical;
+    transition: .3s;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.field textarea {
+    min-height: 120px;
+}
+
+.field input:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: rgb(86, 252, 86);
+    box-shadow: 0 0 0 4px rgba(86, 252, 86, .12);
+}
+
+::placeholder {
+    color: #6B7280;
+    line-height: 1.7;
+}
+
+/* ============================================
+   SUBMIT BUTTON
+   ============================================ */
+.review-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg,
+            rgb(86, 252, 86),
+            rgb(0, 156, 0));
+    color: #000;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .3s;
+    box-sizing: border-box;
+}
+
+.review-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(86, 252, 86, .25);
+}
+
+/* ============================================
+   UPGRADE LINK
+   ============================================ */
+.upgrade {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.upgrade a {
+    color: #9CA3AF;
+    text-decoration: none;
+    transition: .3s;
+}
+
+.upgrade a:hover {
+    color: rgb(86, 252, 86);
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* ------ Tablet (max-width: 768px) ------ */
+@media (max-width: 768px) {
+    .chapter-summary {
+        padding: 30px 24px;
+        margin: 40px auto;
+        border-radius: 20px;
+    }
+
+    .book-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .chapter-summary h1 {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        margin-bottom: 2rem;
+    }
+
+    .form-section h2 {
+        font-size: 1.1rem;
+    }
+
+    .field input,
+    .field textarea {
+        padding: 14px;
+        font-size: 14px;
+    }
+
+    .review-btn {
+        padding: 14px;
+        font-size: 15px;
+    }
+}
+
+/* ------ Mobile (max-width: 480px) ------ */
+@media (max-width: 480px) {
+    .chapter-summary {
+        padding: 20px 16px;
+        margin: 20px 10px;
+        border-radius: 16px;
+    }
+
+    .chapter-summary h1 {
+        font-size: 1.6rem;
+        margin-bottom: .25rem;
+    }
+
+    .subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section h2 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .field {
+        margin-bottom: 1.25rem;
+    }
+
+    .field label {
+        font-size: 0.9rem;
+        margin-bottom: .5rem;
+    }
+
+    .field input,
+    .field textarea {
+        padding: 12px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+
+    .field textarea {
+        min-height: 100px;
+    }
+
+    .review-btn {
+        padding: 12px;
+        font-size: 14px;
+        border-radius: 12px;
+        margin-top: 10px;
+    }
+
+    .upgrade {
+        margin-top: 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ------ Extra small (≤ 360px) – fine-tune ------ */
+@media (max-width: 360px) {
+    .chapter-summary {
+        padding: 16px 12px;
+        margin: 12px 6px;
+    }
+
+    .chapter-summary h1 {
+        font-size: 1.4rem;
+    }
+
+    .field input,
+    .field textarea {
+        padding: 10px;
+        font-size: 12px;
+    }
+}

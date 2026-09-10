@@ -1,0 +1,410 @@
+{% extends 'digital/base.html' %}
+{% load static %}
+{% load text_filters %}
+{% block title %}{{ chunk.book.title }} – Day {{ chunk.chunk_number }} · Foundry{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+       LIGHT FOUNDRY READING THEME
+       ============================================================ */
+    :root {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8FAFC;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #2563EB;
+        --primary-hover: #1D4ED8;
+        --primary-light: #EFF6FF;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --radius-md: 12px;
+        --radius-sm: 8px;
+        --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+        --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- Main Reading Container ---------- */
+    .reading-wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 32px 24px 60px;
+    }
+
+    /* ---------- Reading Header ---------- */
+    .reading-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .reading-header-left h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 4px;
+        letter-spacing: -0.5px;
+    }
+
+    .reading-header-left .chunk-meta {
+        font-size: 14px;
+        color: var(--text-secondary);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .reading-header-left .chunk-meta .badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .reading-header-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn:hover {
+        background: var(--bg-secondary);
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        border-color: var(--primary-hover);
+    }
+
+    /* ---------- Progress Bar ---------- */
+    .progress-bar {
+        height: 6px;
+        background: var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .progress-bar .fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+        border-radius: 10px;
+        transition: width 0.5s ease;
+    }
+
+    /* ---------- Reading Content ---------- */
+    .reading-content {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 48px 56px;
+        margin-bottom: 32px;
+        line-height: 1.8;
+    }
+
+    .reading-content h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .reading-content p {
+        font-size: 17px;
+        color: var(--text-primary);
+        margin-bottom: 1.5em;
+        text-align: justify;
+        text-justify: inter-word;
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+        word-break: break-word;
+    }
+
+    .reading-content p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* ---------- Reading Footer / Actions ---------- */
+    .reading-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    .reading-footer .nav-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .reading-footer .actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* ---------- Success Toast ---------- */
+    .toast {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: var(--text-primary);
+        color: #fff;
+        padding: 14px 24px;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-md);
+        font-weight: 500;
+        font-size: 14px;
+        transform: translateX(120%);
+        transition: transform 0.4s ease;
+        z-index: 9999;
+    }
+
+    .toast.show {
+        transform: translateX(0);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 768px) {
+        .reading-wrapper {
+            padding: 20px 16px 40px;
+        }
+
+        .reading-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .reading-content {
+            padding: 28px 24px;
+            border-radius: 8px;
+        }
+
+        .reading-content p {
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 1.2em;
+        }
+
+        .reading-footer {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .reading-footer .nav-buttons,
+        .reading-footer .actions {
+            width: 100%;
+            display: flex;
+            gap: 8px;
+        }
+
+        .reading-footer .btn {
+            flex: 1;
+            justify-content: center;
+            min-width: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .reading-wrapper {
+            padding: 10px 8px 30px;
+        }
+
+        .reading-content {
+            padding: 20px 14px;
+        }
+
+        .reading-content h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .reading-content p {
+            font-size: 14px;
+            text-align: left;
+            /* Avoid justified text on very small screens */
+            hyphens: none;
+        }
+
+        .toast {
+            left: 16px;
+            right: 16px;
+            transform: translateY(120%);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="reading-wrapper">
+    <div class="reading-header-right">
+        <a href="{% url 'book_reading_plan' chunk.book.id %}" class="btn">← Back to Plan</a>
+    </div>
+    <!-- Header -->
+    <div class="reading-header">
+        <div class="reading-header-left">
+            <h1>{{ chunk.book.title }}</h1>
+            <div class="chunk-meta">
+                <span class="badge">Day {{ chunk.chunk_number }}</span>
+                <span>Pages {{ chunk.page_start }}–{{ chunk.page_end }}</span>
+                {% if chunk.chapter_title %}
+                <span>· {{ chunk.chapter_title }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        <div class="fill" style="width: {% if progress %}{{ progress }}%{% else %}0%{% endif %};"></div>
+    </div>
+
+    <!-- Main Reading Content -->
+    <div class="reading-content">
+        {% if chunk.chapter_title %}
+        <!--<h2>{{ chunk.chapter_title }}</h2>-->
+        {% else %}
+        <h2>Day {{ chunk.chunk_number }}</h2>
+        {% endif %}
+    
+        <!-- Use the new filter -->
+        {{ chunk.content|smart_paragraphs }}
+    </div>
+
+    <!-- Reading Footer / Actions -->
+    <div class="reading-footer">
+        <div class="nav-buttons">
+            {% if previous_chunk %}
+            <a href="{% url 'reading' chunk.book.id previous_chunk.id %}" class="btn">← Previous</a>
+            {% else %}
+            <span class="btn" style="opacity:0.5; cursor:not-allowed;">← Previous</span>
+            {% endif %}
+
+            {% if next_chunk %}
+            <a href="{% url 'reading' chunk.book.id next_chunk.id %}" class="btn">Next →</a>
+            {% else %}
+            <span class="btn" style="opacity:0.5; cursor:not-allowed;">Next →</span>
+            {% endif %}
+        </div>
+        <div class="actions">
+            {% if not chunk.is_read %}
+            <button class="btn btn-primary" id="markReadBtn">✓ Mark as Read</button>
+            {% else %}
+            <button class="btn btn-primary" disabled>✓ Already Read</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const markReadBtn = document.getElementById('markReadBtn');
+        const toast = document.getElementById('toast');
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        if (markReadBtn) {
+            markReadBtn.addEventListener('click', function () {
+                const chunkId = "{{ chunk.id }}";
+                const btn = this;
+                btn.disabled = true;
+                btn.textContent = 'Updating...';
+
+                fetch(`/Resources/mark-chunk-read/${chunkId}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            btn.disabled = true;
+                            btn.textContent = '✓ Already Read';
+                            showToast('✅ ' + data.message);
+                            if (data.progress !== undefined) {
+                                const fill = document.querySelector('.progress-bar .fill');
+                                if (fill) fill.style.width = data.progress + '%';
+                            }
+                        } else {
+                            alert('Error: ' + (data.error || 'Could not mark as read.'));
+                            btn.disabled = false;
+                            btn.textContent = '✓ Mark as Read';
+                        }
+                    })
+                    .catch(() => {
+                        alert('Network error. Please try again.');
+                        btn.disabled = false;
+                        btn.textContent = '✓ Mark as Read';
+                    });
+            });
+        }
+    });
+</script>
+{% endblock %}

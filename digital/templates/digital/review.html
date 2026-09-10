@@ -1,0 +1,434 @@
+{% extends 'digital/base.html' %}
+{% load static %}
+
+{% block title %}Review Summary · Foundry{% endblock %}
+
+{% block extra_css %}
+<style>
+    .review-page {
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 8px 0 32px;
+    }
+
+    .review-header {
+        margin-bottom: 32px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .review-header .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 16px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: var(--fw-medium);
+        text-decoration: none;
+        transition: all 0.2s;
+        margin-bottom: 16px;
+    }
+
+    .review-header .back-btn:hover {
+        background: var(--surface);
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    .review-header .eyebrow {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: var(--fw-semibold);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 2px 14px;
+        border-radius: 100px;
+        margin-bottom: 8px;
+    }
+
+    .review-header h1 {
+        font-family: var(--font-heading);
+        font-size: 32px;
+        font-weight: var(--fw-bold);
+        color: var(--text-primary);
+        margin: 0 0 4px;
+        letter-spacing: -0.3px;
+    }
+
+    .review-header p {
+        font-size: 16px;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    .summary-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 28px 32px 32px;
+        margin-bottom: 32px;
+    }
+
+    .summary-section {
+        margin-bottom: 28px;
+    }
+
+    .summary-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .summary-section .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .summary-section .section-heading span {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-bold);
+        font-size: 14px;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 0 10px;
+        border-radius: 20px;
+        line-height: 28px;
+        min-width: 32px;
+        text-align: center;
+    }
+
+    .summary-section .section-heading h2 {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-semibold);
+        font-size: 18px;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .book-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .book-grid div small {
+        display: block;
+        font-size: 11px;
+        font-weight: var(--fw-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+
+    .book-grid div h3 {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-semibold);
+        font-size: 18px;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .main-idea {
+        font-size: 17px;
+        line-height: 1.7;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .knowledge-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .knowledge-list li {
+        padding: 8px 0 8px 24px;
+        position: relative;
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .knowledge-list li:last-child {
+        border-bottom: none;
+    }
+
+    .knowledge-list li::before {
+        content: '•';
+        position: absolute;
+        left: 4px;
+        color: var(--primary);
+        font-weight: 700;
+    }
+
+    .action-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .action-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 12px;
+        background: var(--surface);
+        border-radius: var(--radius-sm);
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--text-primary);
+    }
+
+    .action-list li::before {
+        content: '→';
+        color: var(--primary);
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .summary-section p {
+        font-size: 15px;
+        line-height: 1.7;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .review-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 8px;
+    }
+
+    .review-actions .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 20px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: var(--fw-medium);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .review-actions .back-btn:hover {
+        background: var(--surface);
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    .review-actions .generate-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 32px;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-weight: var(--fw-semibold);
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: var(--shadow-sm);
+        text-decoration: none;
+    }
+
+    .review-actions .generate-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    @media (max-width: 768px) {
+        .summary-card {
+            padding: 20px 16px 24px;
+        }
+
+        .book-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .review-header h1 {
+            font-size: 26px;
+        }
+
+        .review-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .review-actions .back-btn,
+        .review-actions .generate-btn {
+            justify-content: center;
+            width: 100%;
+        }
+
+        .summary-section .section-heading span {
+            font-size: 12px;
+            line-height: 24px;
+            min-width: 28px;
+        }
+
+        .summary-section .section-heading h2 {
+            font-size: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .review-header h1 {
+            font-size: 22px;
+        }
+
+        .main-idea {
+            font-size: 15px;
+        }
+
+        .knowledge-list li,
+        .action-list li,
+        .summary-section p {
+            font-size: 14px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="review-page">
+    <header class="review-header">
+        <a href="{% url 'summaryForm' %}" class="back-btn">← Edit Summary</a>
+        <div>
+            <span class="eyebrow">FINAL REVIEW</span>
+            <h1>Review Your Summary</h1>
+            <p>Make sure everything looks right before turning your knowledge into beautiful cards.</p>
+        </div>
+    </header>
+
+    <section class="summary-card">
+        <!-- Book Information -->
+        <div class="summary-section">
+            <div class="section-heading">
+                <span>01</span>
+                <h2>Book Information</h2>
+            </div>
+            <div class="book-grid">
+                <div>
+                    <small>Book</small>
+                    <h3>{{ summary.book.title }}</h3>
+                </div>
+                <div>
+                    <small>Chapter</small>
+                    <h3>{{ summary.chapter_title }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Idea -->
+        <div class="summary-section">
+            <div class="section-heading">
+                <span>02</span>
+                <h2>Main Idea</h2>
+            </div>
+            <p class="main-idea">{{ summary.main_idea|linebreaksbr }}</p>
+        </div>
+
+        <!-- Key Lessons -->
+        <div class="summary-section">
+            <div class="section-heading">
+                <span>03</span>
+                <h2>Key Lessons</h2>
+            </div>
+            <ul class="knowledge-list">
+                {% for lesson in summary.key_lessons.splitlines %}
+                {% if lesson.strip %}
+                <li>{{ lesson }}</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Concepts -->
+        <div class="summary-section">
+            <div class="section-heading">
+                <span>04</span>
+                <h2>Important Concepts</h2>
+            </div>
+            <ul class="knowledge-list">
+                {% for concept in summary.concepts.splitlines %}
+                {% if concept.strip %}
+                <li>{{ concept }}</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Examples -->
+        <div class="summary-section">
+            <div class="section-heading">
+                <span>05</span>
+                <h2>Examples</h2>
+            </div>
+            <p>{{ summary.examples|linebreaksbr }}</p>
+        </div>
+
+        <!-- Action Steps -->
+        <div class="summary-section">
+            <div class="section-heading">
+                <span>06</span>
+                <h2>Action Steps</h2>
+            </div>
+            <ul class="action-list">
+                {% for action in summary.actions.splitlines %}
+                {% if action.strip %}
+                <li>{{ action }}</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Personal Insight -->
+        <div class="summary-section">
+            <div class="section-heading">
+                <span>07</span>
+                <h2>Personal Insight</h2>
+            </div>
+            <p>{{ summary.personal_insight|linebreaksbr }}</p>
+        </div>
+    </section>
+
+    <!-- Actions -->
+    <div class="review-actions">
+        <a href="{% url 'summaryForm' %}" class="back-btn">← Edit Summary</a>
+        <form method="GET" action="{% url 'generate_cards' pk=summary.pk %}" style="margin:0;">
+            <button type="submit" class="generate-btn">Generate Knowledge Cards →</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}

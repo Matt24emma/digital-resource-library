@@ -1,0 +1,1076 @@
+{% extends "digital/base.html" %}
+{% load static %}
+
+{% block title %}Scheduled Books · Foundry{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+       SCHEDULED BOOKS – Production UI
+       ============================================================ */
+
+    .schedule-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .schedule-header h1 {
+        font-family: var(--font-heading);
+        font-size: 32px;
+        font-weight: var(--fw-bold);
+        letter-spacing: -0.5px;
+        color: var(--text-primary);
+        margin: 0 0 4px;
+    }
+
+    .schedule-header .sub {
+        font-size: 16px;
+        color: var(--text-secondary);
+        font-weight: var(--fw-normal);
+    }
+
+    .schedule-header .header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .schedule-header .btn-add {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-weight: var(--fw-semibold);
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .schedule-header .btn-add:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .schedule-header .btn-add:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    /* ----- Stats ----- */
+    .schedule-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px 40px;
+        margin-bottom: 32px;
+        padding: 16px 20px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .schedule-stats .stat-item {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+
+    .schedule-stats .stat-number {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-bold);
+        font-size: 20px;
+        color: var(--text-primary);
+    }
+
+    .schedule-stats .stat-label {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .schedule-stats .stat-label .accent {
+        color: var(--primary);
+        font-weight: var(--fw-medium);
+    }
+
+    /* ----- Preferences Bar ----- */
+    .prefs-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px 24px;
+        padding: 16px 20px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-bottom: 32px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .prefs-bar label {
+        font-weight: var(--fw-medium);
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+
+    .prefs-bar select,
+    .prefs-bar input[type="time"],
+    .prefs-bar input[type="text"] {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 6px 14px;
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: var(--text-primary);
+        outline: none;
+        transition: border 0.2s;
+    }
+
+    .prefs-bar select:focus,
+    .prefs-bar input:focus {
+        border-color: var(--primary);
+    }
+
+    .prefs-bar .btn-save {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 6px 24px;
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .prefs-bar .btn-save:hover {
+        background: var(--primary-hover);
+    }
+
+    .prefs-bar .badge-premium {
+        background: var(--primary-light);
+        color: var(--primary);
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: var(--fw-medium);
+        margin-left: auto;
+    }
+
+    .prefs-bar .phone-field {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ----- Book Cards ----- */
+    .book-schedule-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-bottom: 24px;
+        overflow: hidden;
+        transition: border-color 0.25s, box-shadow 0.25s;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .book-schedule-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+    }
+
+    .book-schedule-card .book-header {
+        padding: 16px 20px;
+        background: var(--background);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .book-schedule-card .book-header h3 {
+        font-family: var(--font-heading);
+        font-size: 18px;
+        font-weight: var(--fw-semibold);
+        color: var(--text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .book-schedule-card .book-header .book-meta {
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: var(--fw-normal);
+    }
+
+    .book-schedule-card .book-header .book-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .book-schedule-card .book-header .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: var(--fw-medium);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .book-schedule-card .book-header .btn-action:hover {
+        background: var(--surface);
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    .book-schedule-card .book-header .btn-action.danger:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+        background: #fef2f2;
+    }
+
+    .book-schedule-card .book-header .btn-action:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .book-schedule-card .book-header .lock-icon {
+        color: var(--text-muted);
+        font-size: 16px;
+        margin-left: 4px;
+    }
+
+    .book-schedule-card .book-header .delivery-progress {
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: var(--fw-medium);
+        background: var(--surface);
+        padding: 2px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .chunk-list {
+        padding: 12px 20px 20px;
+    }
+
+    .chunk-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+        flex-wrap: wrap;
+    }
+
+    .chunk-row:last-child {
+        border-bottom: none;
+    }
+
+    .chunk-row .day {
+        font-weight: var(--fw-semibold);
+        min-width: 60px;
+        color: var(--text-primary);
+    }
+
+    .chunk-row .pages {
+        color: var(--text-secondary);
+        font-size: 14px;
+        min-width: 80px;
+    }
+
+    .chunk-row .date {
+        color: var(--text-secondary);
+        font-size: 14px;
+        min-width: 110px;
+    }
+
+    .chunk-row .status {
+        font-size: 13px;
+        padding: 2px 14px;
+        border-radius: 20px;
+        font-weight: var(--fw-medium);
+    }
+
+    .chunk-row .status.sent {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .chunk-row .status.pending {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .chunk-row .chunk-actions {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        margin-left: auto;
+    }
+
+    .chunk-row .chunk-actions .btn-read {
+        padding: 2px 12px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: var(--fw-medium);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .chunk-row .chunk-actions .btn-read:hover {
+        background: var(--surface);
+        border-color: var(--text-muted);
+        color: var(--text-primary);
+    }
+
+    .chunk-row .btn-send {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 4px 16px;
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.2s;
+    }
+
+    .chunk-row .btn-send:hover:not(:disabled) {
+        background: var(--primary-hover);
+    }
+
+    .chunk-row .btn-send:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .chunk-row .btn-send.sent {
+        background: transparent;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        cursor: default;
+    }
+
+    /* ----- Modal ----- */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-overlay.open {
+        display: flex;
+    }
+
+    .modal-box {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        max-width: 500px;
+        width: 100%;
+        padding: 32px 28px;
+        box-shadow: var(--shadow-lg);
+        animation: modalIn 0.25s ease;
+    }
+
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .modal-box h2 {
+        font-family: var(--font-heading);
+        font-weight: var(--fw-bold);
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .modal-box p {
+        font-size: 15px;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+
+    .modal-box .book-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 24px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .modal-box .book-list .book-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+
+    .modal-box .book-list .book-item:hover {
+        border-color: var(--primary);
+    }
+
+    .modal-box .book-list .book-item input[type="radio"] {
+        margin-right: 4px;
+        accent-color: var(--primary);
+    }
+
+    .modal-box .book-list .book-item .book-info {
+        flex: 1;
+    }
+
+    .modal-box .book-list .book-item .book-title {
+        font-weight: var(--fw-medium);
+        color: var(--text-primary);
+    }
+
+    .modal-box .book-list .book-item .book-author {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .modal-box .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .modal-box .modal-actions .btn {
+        padding: 8px 24px;
+        border-radius: var(--radius-sm);
+        font-weight: var(--fw-medium);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: var(--font-body);
+        font-size: 14px;
+    }
+
+    .modal-box .modal-actions .btn-cancel {
+        background: var(--surface);
+        color: var(--text-secondary);
+    }
+
+    .modal-box .modal-actions .btn-cancel:hover {
+        background: var(--background);
+    }
+
+    .modal-box .modal-actions .btn-primary {
+        background: var(--primary);
+        color: #fff;
+    }
+
+    .modal-box .modal-actions .btn-primary:hover {
+        background: var(--primary-hover);
+    }
+
+    .modal-box .modal-actions .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .modal-box .empty-modal {
+        text-align: center;
+        padding: 20px 0;
+        color: var(--text-secondary);
+    }
+
+    /* ----- Empty State ----- */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+    }
+
+    .empty-state .icon {
+        font-size: 56px;
+        margin-bottom: 16px;
+        opacity: 0.4;
+    }
+
+    .empty-state h3 {
+        font-family: var(--font-heading);
+        font-size: 24px;
+        font-weight: var(--fw-bold);
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        font-size: 16px;
+        color: var(--text-secondary);
+        max-width: 440px;
+        margin: 0 auto 20px;
+        line-height: 1.6;
+    }
+
+    .empty-state .btn-upload {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 32px;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-weight: var(--fw-semibold);
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .empty-state .btn-upload:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* ----- Responsive ----- */
+    @media (max-width: 768px) {
+        .schedule-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .schedule-header .header-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .schedule-header .btn-add {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .prefs-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .prefs-bar .badge-premium {
+            margin-left: 0;
+            text-align: center;
+        }
+
+        .phone-field {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .book-schedule-card .book-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .book-schedule-card .book-header .book-actions {
+            justify-content: flex-start;
+        }
+
+        .chunk-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .chunk-row .chunk-actions {
+            margin-left: 0;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .chunk-row .btn-send {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .modal-box {
+            padding: 24px 18px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .schedule-stats {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .book-schedule-card .book-header h3 {
+            font-size: 16px;
+            flex-wrap: wrap;
+        }
+
+        .chunk-row .chunk-actions {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block contents %}
+<div class="schedule-container">
+
+    <!-- Header -->
+    <div class="schedule-header">
+        <div>
+            <h1>📅 Scheduled Reading</h1>
+            <div class="sub">Manage your daily reading chunks and delivery preferences.</div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-add" id="addBookBtn" {% if not can_add %}disabled{% endif %}>
+                <span>+</span> Add Book
+                {% if not can_add and is_premium %}
+                <span style="font-size:12px; opacity:0.7;">(max 4)</span>
+                {% endif %}
+            </button>
+            {% if not is_premium %}
+            <a href="{% url 'pricing' %}" class="btn-add" style="background: #f59e0b;">Upgrade to Premium</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="schedule-stats">
+        <div class="stat-item">
+            <span class="stat-number">{{ scheduled_count|default:0 }}</span>
+            <span class="stat-label">scheduled</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ books|length }}</span>
+            <span class="stat-label">on this page</span>
+        </div>
+        {% if is_premium %}
+        <div class="stat-item">
+            <span class="stat-number">{{ max_allowed }}</span>
+            <span class="stat-label">max allowed <span class="accent">(Premium)</span></span>
+        </div>
+        {% else %}
+        <div class="stat-item">
+            <span class="stat-number">0</span>
+            <span class="stat-label">max allowed <span style="color:var(--text-muted);">(Free)</span></span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Preferences Bar -->
+    <div class="prefs-bar">
+        <label for="channel">Channel:</label>
+        <select id="channel" name="channel">
+            <option value="email" {% if prefs.channel == 'email' %}selected{% endif %}>Email</option>
+            <option value="whatsapp" {% if prefs.channel == 'whatsapp' %}selected{% endif %}>WhatsApp</option>
+        </select>
+        <label for="delivery_time">Time:</label>
+        <input type="time" id="delivery_time" name="delivery_time" value="{{ prefs.delivery_time|default:'07:00' }}">
+        <div class="phone-field" id="phoneField"
+            style="display:{% if prefs.channel == 'whatsapp' %}flex{% else %}none{% endif %};">
+            <label for="phone_number">WhatsApp:</label>
+            <input type="text" id="phone_number" name="phone_number" value="{{ prefs.phone_number|default:'' }}"
+                placeholder="+1234567890">
+        </div>
+        <button class="btn-save" id="savePrefs">Save Preferences</button>
+        <span class="badge-premium">
+            {% if is_premium %}✅ Premium{% else %}🔒 Free – Upgrade to schedule{% endif %}
+        </span>
+    </div>
+
+    <!-- Books List -->
+    {% if books %}
+    {% for book in books %}
+    <div class="book-schedule-card" data-book-id="{{ book.id }}">
+        <div class="book-header">
+            <h3>
+                {{ book.title }}
+                <span class="book-meta">{{ book.chunks_list|length }} chunks</span>
+                <span class="delivery-progress">
+                    {{ book.delivered_count|default:0 }} / {{ book.chunks_list|length }} delivered
+                </span>
+                {% if book.has_delivered_chunk %}
+                <span class="lock-icon" title="Some chunks already sent – editing locked">🔒</span>
+                {% endif %}
+            </h3>
+            <div class="book-actions">
+                {% if book.chunks_list|length > 0 %}
+                <a href="{% url 'reading' book.id book.chunks_list.0.id %}" class="btn-action">Read First</a>
+                {% endif %}
+                {% if not book.has_delivered_chunk %}
+                <button class="btn-action edit-pages" data-book-id="{{ book.id }}">Edit</button>
+                {% else %}
+                <span class="btn-action" disabled style="opacity:0.5;">Edit (locked)</span>
+                {% endif %}
+                <button class="btn-action danger delete-book" data-book-id="{{ book.id }}">Delete</button>
+            </div>
+        </div>
+        <div class="chunk-list">
+            {% for chunk in book.chunks_list %}
+            <div class="chunk-row" data-chunk-id="{{ chunk.id }}">
+                <span class="day">Day {{ chunk.chunk_number }}</span>
+                <span class="pages">Pages {{ chunk.page_start }}–{{ chunk.page_end }}</span>
+                <span class="date">{{ chunk.scheduled_date|date:"M d, Y" }}</span>
+                <span class="status {% if chunk.delivered %}sent{% else %}pending{% endif %}">
+                    {% if chunk.delivered %}✅ Sent{% else %}⏳ Pending{% endif %}
+                </span>
+                <div class="chunk-actions">
+                    <a href="{% url 'reading' book.id chunk.id %}" class="btn-read">Read</a>
+                    <button class="btn-send {% if chunk.delivered %}sent{% endif %}" data-chunk-id="{{ chunk.id }}" {% if chunk.delivered or not is_premium %}disabled{% endif %}> {% if chunk.delivered %}Sent{% else %}Send Now{% endif %}
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📚</div>
+        <h3>No scheduled books yet</h3>
+        <p>Add a book to your schedule and start receiving daily reading chunks.</p>
+        <button class="btn-upload" id="emptyAddBtn">+ Add Your First Book</button>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Add Book Modal -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal-box">
+        <h2>Add Book to Schedule</h2>
+        <p>Select a book from your library to add to your daily reading schedule.</p>
+        <div class="book-list" id="bookList">
+            {% for book in unscheduled_books %}
+            <label class="book-item">
+                <input type="radio" name="book_id" value="{{ book.id }}">
+                <div class="book-info">
+                    <div class="book-title">{{ book.title }}</div>
+                    <div class="book-author">{{ book.author|default:"Unknown Author" }}</div>
+                </div>
+            </label>
+            {% empty %}
+            <div class="empty-modal">You have no unscheduled books. <a href="{% url 'upload' %}">Upload a book</a>
+                first.</div>
+            {% endfor %}
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" id="addCancel">Cancel</button>
+            <button class="btn btn-primary" id="addConfirm" {% if not unscheduled_books %}disabled{% endif %}>Add to
+                Schedule</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Pages Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+        <h2>Edit Pages per Day</h2>
+        <p>Update how many pages you want to read per day for this book.</p>
+        <form id="editForm">
+            {% csrf_token %}
+            <input type="hidden" id="editBookId" name="book_id">
+            <div style="display:flex; gap:12px; align-items:center; margin-bottom:20px;">
+                <label for="editPages" style="font-weight:var(--fw-medium);">Pages per day:</label>
+                <input type="number" id="editPages" name="pages_per_day" min="1" max="1000"
+                    style="width:100px; padding:6px 12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-cancel" id="editCancel">Cancel</button>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <h3>Delete Book</h3>
+        <p>Are you sure you want to delete this book and all its chunks? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" id="deleteCancel">Cancel</button>
+            <button class="btn btn-primary" style="background:var(--danger);" id="deleteConfirm">Delete</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        'use strict';
+
+        // --- GSAP entrance ---
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            gsap.from('.schedule-header, .schedule-stats, .prefs-bar', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, ease: 'power2.out' });
+            gsap.from('.book-schedule-card', { opacity: 0, y: 30, duration: 0.5, stagger: 0.06, ease: 'power2.out', delay: 0.2 });
+        }
+
+        // --- Toast ---
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+                background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#1E1E1E'};
+                color: ${type === 'success' || type === 'error' ? '#fff' : '#fff'};
+                padding: 14px 24px; border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+                font-weight: 500; font-size: 15px;
+                transform: translateX(120%); transition: transform 0.4s ease;
+                max-width: 90%;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => { toast.style.transform = 'translateX(0)'; });
+            setTimeout(() => {
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(() => toast.remove(), 500);
+            }, 3500);
+        }
+
+        // --- Preferences ---
+        const channel = document.getElementById('channel');
+        const phoneField = document.getElementById('phoneField');
+        channel.addEventListener('change', function () {
+            phoneField.style.display = this.value === 'whatsapp' ? 'flex' : 'none';
+        });
+
+        document.getElementById('savePrefs').addEventListener('click', function () {
+            const data = {
+                channel: channel.value,
+                delivery_time: document.getElementById('delivery_time').value,
+                phone_number: document.getElementById('phone_number').value
+            };
+            fetch("{% url 'update_preferences' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify(data)
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('✅ Preferences saved', 'success');
+                        this.textContent = '✓ Saved!';
+                        setTimeout(() => this.textContent = 'Save Preferences', 2000);
+                    } else {
+                        showToast('Error saving preferences', 'error');
+                    }
+                })
+                .catch(() => showToast('Network error', 'error'));
+        });
+
+        // --- Add Book Modal ---
+        const addModal = document.getElementById('addModal');
+        const addBtn = document.getElementById('addBookBtn');
+        const emptyAddBtn = document.getElementById('emptyAddBtn');
+        const addCancel = document.getElementById('addCancel');
+        const addConfirm = document.getElementById('addConfirm');
+
+        function openAddModal() { addModal.classList.add('open'); }
+        function closeAddModal() { addModal.classList.remove('open'); }
+
+        addBtn.addEventListener('click', openAddModal);
+        if (emptyAddBtn) emptyAddBtn.addEventListener('click', openAddModal);
+        addCancel.addEventListener('click', closeAddModal);
+        addModal.addEventListener('click', function (e) { if (e.target === this) closeAddModal(); });
+
+        addConfirm.addEventListener('click', function () {
+            const selected = document.querySelector('input[name="book_id"]:checked');
+            if (!selected) { showToast('Please select a book.', 'error'); return; }
+            const bookId = selected.value;
+            fetch(`/Resources/schedule/add/${bookId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('✅ Book added to schedule!', 'success');
+                        closeAddModal();
+                        location.reload();
+                    } else {
+                        showToast('Error: ' + (data.error || 'Unknown'), 'error');
+                    }
+                })
+                .catch(() => showToast('Network error', 'error'));
+        });
+
+        // --- Edit Pages Modal ---
+        const editModal = document.getElementById('editModal');
+        const editCancel = document.getElementById('editCancel');
+        const editForm = document.getElementById('editForm');
+        const editBookId = document.getElementById('editBookId');
+        const editPages = document.getElementById('editPages');
+
+        document.querySelectorAll('.edit-pages').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const bookId = this.dataset.bookId;
+                const card = this.closest('.book-schedule-card');
+                const pagesSpan = card.querySelector('.book-header .book-meta')?.textContent.match(/\d+/);
+                const currentPages = pagesSpan ? parseInt(pagesSpan[0]) : 10;
+                editBookId.value = bookId;
+                editPages.value = currentPages || 10;
+                editModal.classList.add('open');
+            });
+        });
+
+        editCancel.addEventListener('click', function () { editModal.classList.remove('open'); });
+        editModal.addEventListener('click', function (e) { if (e.target === this) editModal.classList.remove('open'); });
+
+        editForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const bookId = editBookId.value;
+            const pages = editPages.value;
+            const formData = new FormData();
+            formData.append('pages_per_day', pages);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            fetch('/Resources/update-pages/' + bookId + '/', {
+                method: 'POST',
+                body: formData
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('✅ Pages per day updated', 'success');
+                        editModal.classList.remove('open');
+                        location.reload();
+                    } else {
+                        showToast('Error: ' + (data.error || 'Could not update'), 'error');
+                    }
+                })
+                .catch(() => showToast('Network error', 'error'));
+        });
+
+        // --- Delete Modal ---
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteCancel = document.getElementById('deleteCancel');
+        const deleteConfirm = document.getElementById('deleteConfirm');
+        let deleteBookId = null;
+
+        document.querySelectorAll('.delete-book').forEach(btn => {
+            btn.addEventListener('click', function () {
+                deleteBookId = this.dataset.bookId;
+                deleteModal.classList.add('open');
+            });
+        });
+
+        deleteCancel.addEventListener('click', function () { deleteModal.classList.remove('open'); deleteBookId = null; });
+        deleteModal.addEventListener('click', function (e) { if (e.target === this) { deleteModal.classList.remove('open'); deleteBookId = null; } });
+
+        deleteConfirm.addEventListener('click', function () {
+            if (!deleteBookId) return;
+            fetch(`/Resources/delete-book/${deleteBookId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('🗑️ Book deleted', 'success');
+                        deleteModal.classList.remove('open');
+                        const card = document.querySelector(`.book-schedule-card[data-book-id="${deleteBookId}"]`);
+                        if (card) {
+                            gsap.to(card, { opacity: 0, height: 0, margin: 0, duration: 0.5, onComplete: () => card.remove() });
+                        }
+                        if (!document.querySelector('.book-schedule-card')) {
+                            setTimeout(() => location.reload(), 600);
+                        }
+                    } else {
+                        showToast('Error deleting: ' + (data.error || 'Unknown'), 'error');
+                    }
+                })
+                .catch(() => showToast('Network error', 'error'));
+        });
+
+        // --- Send Now (AJAX) ---
+        document.querySelectorAll('.btn-send:not(.sent)').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const chunkId = this.dataset.chunkId;
+                const row = this.closest('.chunk-row');
+                const statusSpan = row.querySelector('.status');
+                this.disabled = true;
+                this.textContent = 'Sending...';
+                fetch(`/Resources/send-chunk/${chunkId}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('✅ Chunk sent!', 'success');
+                            statusSpan.textContent = '✅ Sent';
+                            statusSpan.className = 'status sent';
+                            this.textContent = 'Sent';
+                            this.className = 'btn-send sent';
+                            this.disabled = true;
+                            gsap.fromTo(row, { backgroundColor: 'rgba(34,197,94,0.08)' }, { backgroundColor: 'transparent', duration: 0.8 });
+                        } else {
+                            showToast('Error: ' + (data.error || 'Unknown'), 'error');
+                            this.textContent = 'Send Now';
+                            this.disabled = false;
+                        }
+                    })
+                    .catch(() => {
+                        showToast('Network error', 'error');
+                        this.textContent = 'Send Now';
+                        this.disabled = false;
+                    });
+            });
+        });
+    });
+</script>
+{% endblock %}

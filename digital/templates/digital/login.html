@@ -1,107 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login - Foundry</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2563eb;
+            font-size: 1.5rem;
+        }
+
+        .form {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        form {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        form label {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        form input {
+            padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+        }
+
+        .button button {
+            padding: 10px 30px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .button button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .messages {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .redirect,
+        .password-reset {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .redirect a,
+        .password-reset a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .redirect a:hover,
+        .password-reset a:hover {
+            text-decoration: underline;
+        }
+
+        @media (min-width: 768px) {
+            .form {
+                width: 60%;
+            }
+        }
+    </style>
 </head>
-<style>
-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
 
-h1 {
-    color: #2563eb;
-    font-size: 1.3rem;
-}
-
-
-.form {
-    width: 100%;
-}
-
-
-form {
-    box-shadow: 3px 4px 6px gainsboro;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    
-}
-
-form label {
-    padding: 1rem;
-    margin: 1rem;
-}
-
-form input {
-    padding: 0.6rem ;
-    margin: 1rem;
-    width: 50%;
-}
-
-
-.button {
-    display: flex;
-    align-self: center;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    width: 80%;
-}
-
-.button button {
-    padding: 0.3rem 1.6rem;
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 5rem;
-    cursor: pointer;
-}
-
-/* ================= TABLET SCREEN (768px) ================= */
-@media (min-width: 768px) {
-    body {
-        /*background-color: purple;*/
-}
-
-.form {
-    width: 50%;
-}
-}
-/* =============== END TABLET SCREEN (768px) =============== */
-
-
-
-</style>
 <body>
-    <h1>Login</h1>
+    <h1>Login to Foundry</h1>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div>{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="form">
         <form method="post">
             {% csrf_token %}
             <div class="username">
-                <label for="username">Username:</label>
-                <input type="text" name="username" id="username" required>
+                <label for="username">Email or Username</label>
+                <input type="text" name="username" id="username" placeholder="Enter email or username" required>
             </div>
-            <br>
             <div class="password">
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password" required>
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" placeholder="Enter password" required>
             </div>
-            <br>
             <div class="button">
                 <button type="submit">Login</button>
             </div>
         </form>
-    </div>
-    {% if error_message %}
-        <p style="color: red;">{{ error_message }}</p>
-    {% endif %}
 
-<div class="redirect">
-    <p style="display: flex; flex-direction: column; font-size: 1.1rem; align-items: center;">Don't have an account? Create one here. <br> <a href="{% url 'create_account' %}">Create Account</a></p>
-</div>
+        {% if error_message %}
+        <p style="color: red; text-align:center;">{{ error_message }}</p>
+        {% endif %}
+
+        <div class="redirect">
+            <p>Don't have an account? <a href="{% url 'create_account' %}">Create one here</a></p>
+        </div>
+        <div class="password-reset">
+            <p><a href="{% url 'password_reset' %}">Forgot your password? Reset it</a></p>
+        </div>
+    </div>
 </body>
+
 </html>
