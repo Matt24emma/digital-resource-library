@@ -46,3 +46,5 @@ typing_extensions==4.16.0
 tzdata==2026.2
 urllib3==2.7.0
 whitenoise==6.12.0
+reportlab==4.2.5
+psycopg2-binary==2.9.10
