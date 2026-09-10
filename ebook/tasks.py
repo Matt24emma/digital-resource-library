@@ -1,5 +1,4 @@
 # ebook/tasks.py
-from celery import shared_task
 from digital.models import Book, Chunk, ProcessingStage
 from ebook.services.pipeline import Pipeline
 import tempfile
@@ -16,7 +15,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.safestring import mark_safe
 import re
 
-@shared_task
+
+#@shared_task
 def process_book_async(book_id, file_name, pages_per_day):
     """
     Process a book PDF: download from storage, run pipeline, save chunks.
