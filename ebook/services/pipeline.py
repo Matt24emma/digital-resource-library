@@ -168,7 +168,9 @@ class Pipeline:
                     content=chunk_info["content"],
                     page_start=chunk_info["page_start"],
                     page_end=chunk_info["page_end"],
-                    chapter_title=chunk_info.get("chapter_title", ""),
+                    chapter_title=(chunk_info.get("chapter_title") or "")[
+                        :500
+                    ],  # ← CHANGED
                     word_count=chunk_info.get("word_count"),
                     scheduled_date=scheduled_date,
                 )

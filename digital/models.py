@@ -353,7 +353,7 @@ class Chunk(models.Model):
     content = models.TextField()
     page_start = models.PositiveIntegerField()
     page_end = models.PositiveIntegerField()
-    chapter_title = models.CharField(max_length=255, blank=True)
+    chapter_title = models.TextField(blank=True)
     is_read = models.BooleanField(default=False)
     word_count = models.PositiveIntegerField(null=True, blank=True)
     scheduled_date = models.DateTimeField(null=True, blank=True)
