@@ -1,12 +1,175 @@
-{% extends "digital/base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="auth-container"
-    style="max-width: 400px; margin: 40px auto; padding: 20px; background: #1a1a1a; border-radius: 12px;">
-    <h2>Verify Your Email</h2>
-    <p>We've sent a verification link to your email address. Please click the link to activate your account.</p>
-    <p>If you didn't receive it, check your spam folder or <a href="{% url 'resend_verification' %}">request a new
-            link</a>.</p>
-    <p><a href="{% url 'login' %}">← Back to login</a></p>
-</div>
-{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email · Foundry</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F8FAFC;
+            color: #0F172A;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            line-height: 1.6;
+        }
+
+        .vs-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            max-width: 440px;
+            width: 100%;
+            padding: 40px 32px;
+            text-align: center;
+        }
+
+        .vs-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #0F172A;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .vs-brand span {
+            color: #2563EB;
+        }
+
+        .vs-tagline {
+            font-size: 0.8rem;
+            color: #94A3B8;
+            margin-bottom: 24px;
+        }
+
+        .vs-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #EFF6FF;
+            color: #2563EB;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 1.6rem;
+        }
+
+        .vs-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+
+        .vs-body {
+            font-size: 0.9rem;
+            color: #64748B;
+            margin-bottom: 24px;
+        }
+
+        .vs-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .vs-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .vs-btn-primary {
+            background: #2563EB;
+            color: #FFFFFF;
+            border-color: #2563EB;
+        }
+
+        .vs-btn-primary:hover {
+            background: #1D4ED8;
+            border-color: #1D4ED8;
+        }
+
+        .vs-btn-ghost {
+            background: transparent;
+            color: #64748B;
+            border-color: #E2E8F0;
+        }
+
+        .vs-btn-ghost:hover {
+            background: #F8FAFC;
+            color: #0F172A;
+        }
+
+        .vs-hint {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .vs-hint a {
+            color: #2563EB;
+            text-decoration: none;
+        }
+
+        .vs-hint a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="vs-card">
+        <div class="vs-brand">Foundry<span>.</span></div>
+        <div class="vs-tagline">Every Chapter Builds Your Business.</div>
+
+        <div class="vs-icon">✉</div>
+
+        <h1 class="vs-title">Check Your Email</h1>
+        <p class="vs-body">
+            We've sent a verification link to your email address.
+            Click the link in the email to activate your Foundry account.
+        </p>
+
+        <div class="vs-actions">
+            <a href="{% url 'login' %}" class="vs-btn vs-btn-primary">Back to Login</a>
+            <a href="{% url 'resend_verification' %}" class="vs-btn vs-btn-ghost">Resend Verification Email</a>
+        </div>
+
+        <div class="vs-hint">
+            Didn't get the email? Check your spam folder, or
+            <a href="{% url 'create_account' %}">try a different email</a>.
+        </div>
+    </div>
+</body>
+
+</html>
