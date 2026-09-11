@@ -217,8 +217,16 @@ META_APP_SECRET = os.environ.get("META_APP_SECRET", "")       # ⚠️ Optional,
 # ============================================================
 # FILE UPLOAD LIMITS
 # ============================================================
-# Force file uploads to spill to disk rather than buffering in RAM.
-# This prevents Gunicorn OOM kills on Render's free tier (512 MB).
-FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024  # 1 MB — spill to disk quickly
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5 MB — hard cap on non-file POST data
-FILE_UPLOAD_TEMP_DIR = "/tmp"  # Render provides /tmp with writable perms
+# Force large file uploads to spill to disk instead of buffering
+# in RAM. This prevents Gunicorn OOM kills on Render's free tier.
+#
+# tempfile.gettempdir() returns:
+#   - Linux / Render  → /tmp
+#   - Windows         → C:\Users\<you>\AppData\Local\Temp
+#   - macOS           → /var/folders/...
+# ============================================================
+import tempfile
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024  # 1 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5 MB
+FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()

@@ -8,7 +8,7 @@
     <title>{{ book.title|default:"Reading Plan" }} · EbookSplitter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <style>
-        /* (keep all existing styles – unchanged) */
+        /* ---- Reset & base ---- */
         * {
             margin: 0;
             padding: 0;
@@ -95,6 +95,74 @@
             font-size: 1.2rem;
         }
 
+        /* ---- Error banner ---- */
+        .processing-error {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 4px solid #ef4444;
+            border-radius: 1rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .processing-error__icon {
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #dc2626;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .processing-error__body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .processing-error__title {
+            font-weight: 700;
+            color: #991b1b;
+            font-size: 1.05rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .processing-error__reason {
+            color: #7f1d1d;
+            font-size: 0.95rem;
+            line-height: 1.55;
+            word-break: break-word;
+        }
+
+        .processing-error__stage {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #b91c1c;
+        }
+
+        .processing-error__stage code {
+            background: #fee2e2;
+            padding: 0.1rem 0.45rem;
+            border-radius: 4px;
+            font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+            font-size: 0.78rem;
+        }
+
+        .processing-error__actions {
+            margin-top: 0.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .processing-error__actions .btn {
+            font-size: 0.85rem;
+            padding: 0.45rem 1.2rem;
+        }
+
+        /* ---- Book header ---- */
         .book-header {
             display: flex;
             align-items: center;
@@ -326,21 +394,26 @@
     <div class="container" id="app">
 
         {% if book.status == 'pending' or book.status == 'processing' %}
-        <!-- Processing state -->
+        <!-- ============================================================
+             PROCESSING STATE
+             ============================================================ -->
         <div class="card processing-card">
-            <div class="spinner"></div>
-            <h2 style="margin-top:1.5rem;">Preparing your reading plan</h2>
-            <p style="color:#475569;">We're analyzing your book and building your daily sessions.</p>
+            <div class="spinner" id="spinner"></div>
+            <h2 style="margin-top:1.5rem;" id="processing-heading">Preparing your reading plan</h2>
+            <p style="color:#475569;" id="processing-sub">
+                We're analyzing your book and building your daily sessions.
+            </p>
 
             <!-- Progress bar -->
-            <div
-                style="background: #1a1a1a; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #2d2d2d;">
+            <div style="background: #1a1a1a; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #2d2d2d;">
                 <div style="background: #2d2d2d; border-radius: 20px; height: 10px; overflow: hidden;">
                     <div id="progress-bar"
                         style="height: 100%; width: 0%; background: #3b82f6; border-radius: 20px; transition: width 0.3s ease;">
                     </div>
                 </div>
-                <p id="status-text" style="margin-top: 8px; color: #9CA3AF; font-size: 14px;">Processing... 0%</p>
+                <p id="status-text" style="margin-top: 8px; color: #9CA3AF; font-size: 14px;">
+                    Processing... 0%
+                </p>
             </div>
 
             <div class="timeline" id="timeline">
@@ -353,50 +426,154 @@
                 <div class="timeline-item"><span class="empty">○</span> Building your reading plan</div>
                 <div class="timeline-item"><span class="empty">○</span> Preparing your daily sessions</div>
             </div>
-            <p style="margin-top:1.5rem; font-size:0.9rem; color:#94a3b8;" id="processing-hint">This may take a minute
-                or two.</p>
+
+            <p style="margin-top:1.5rem; font-size:0.9rem; color:#94a3b8;" id="processing-hint">
+                This may take a minute or two.
+            </p>
+
+            <!-- Error container (populated by JS when the pipeline fails) -->
+            <div id="error-container" style="display:none; margin-top: 1.5rem;"></div>
         </div>
 
         <script>
-            function pollProgress(bookId) {
+            (function () {
+                const bookId = {{ book.id }};
                 const progressBar = document.getElementById('progress-bar');
                 const statusText = document.getElementById('status-text');
+                const spinner = document.getElementById('spinner');
+                const heading = document.getElementById('processing-heading');
+                const sub = document.getElementById('processing-sub');
+                const hint = document.getElementById('processing-hint');
+                const errorContainer = document.getElementById('error-container');
+
                 if (!progressBar) return;
 
-                fetch(`/ebook/progress/${bookId}/`)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.status === 'completed') {
-                            progressBar.style.width = '100%';
-                            statusText.textContent = 'Done!';
-                            setTimeout(() => location.reload(), 1000);
-                        } else if (data.status === 'failed') {
-                            statusText.textContent = 'Processing failed. Please try again.';
-                            progressBar.style.background = '#ef4444';
-                        } else {
-                            progressBar.style.width = data.progress + '%';
-                            statusText.textContent = `Processing... ${data.progress}%`;
-                            setTimeout(() => pollProgress(bookId), 2000);
-                        }
-                    })
-                    .catch(() => setTimeout(() => pollProgress(bookId), 3000));
-            }
+                let polling = true;
 
-            if (document.getElementById('progress-bar')) {
-                pollProgress({{ book.id }});
-            }
+                function showError(error) {
+                    polling = false;
+
+                    // Hide the spinner and progress visuals
+                    if (spinner) spinner.style.display = 'none';
+                    if (heading) {
+                        heading.textContent = "We couldn't process this book";
+                        heading.style.color = '#dc2626';
+                    }
+                    if (sub) {
+                        sub.textContent = "Something went wrong while reading the file.";
+                    }
+                    if (hint) hint.style.display = 'none';
+                    if (progressBar) progressBar.style.background = '#ef4444';
+
+                    // Build the error banner
+                    const stage = error && error.stage ? error.stage : '';
+                    const reason = error && error.reason
+                        ? error.reason
+                        : 'Processing failed for an unknown reason. Please try again.';
+
+                    errorContainer.style.display = 'block';
+                    errorContainer.innerHTML = `
+                        <div class="processing-error">
+                            <div class="processing-error__icon">⚠</div>
+                            <div class="processing-error__body">
+                                <div class="processing-error__title">Processing failed</div>
+                                <div class="processing-error__reason">${escapeHtml(reason)}</div>
+                                ${stage ? `<div class="processing-error__stage">Failed at: <code>${escapeHtml(stage)}</code></div>` : ''}
+                                <div class="processing-error__actions">
+                                    <a href="{% url 'upload' %}" class="btn">Try another file</a>
+                                    <a href="{% url 'library' %}" class="btn btn-outline">Back to library</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                function escapeHtml(str) {
+                    return String(str)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                }
+
+                function pollProgress() {
+                    if (!polling) return;
+
+                    fetch(`/ebook/progress/${bookId}/`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (!polling) return;
+
+                            if (data.status === 'completed') {
+                                progressBar.style.width = '100%';
+                                statusText.textContent = 'Done!';
+                                setTimeout(() => location.reload(), 800);
+                                return;
+                            }
+
+                            if (data.status === 'failed') {
+                                showError(data.error);
+                                return;
+                            }
+
+                            // Still processing
+                            const progress = data.progress || 0;
+                            progressBar.style.width = progress + '%';
+                            statusText.textContent = `Processing... ${progress}%`;
+
+                            setTimeout(pollProgress, 2000);
+                        })
+                        .catch((err) => {
+                            console.warn('Poll error:', err);
+                            setTimeout(pollProgress, 3000);
+                        });
+                }
+
+                pollProgress();
+            })();
         </script>
 
         {% elif book.status == 'failed' %}
-        <!-- Failed state -->
-        <div class="card processing-card" style="border-color: #ef4444;">
-            <h2 style="color: #ef4444;">⚠️ Processing Failed</h2>
-            <p style="color: #475569;">We couldn't process your book. Please try again with a different PDF.</p>
-            <a href="{% url 'upload' %}" class="btn" style="margin-top: 1rem;">Try Again</a>
+        <!-- ============================================================
+             FAILED STATE (server-rendered — shown on page reload)
+             ============================================================ -->
+        <div class="card processing-card" style="text-align:left;">
+
+            <div class="processing-error">
+                <div class="processing-error__icon">⚠</div>
+                <div class="processing-error__body">
+                    <div class="processing-error__title">We couldn't process this book</div>
+                    <div class="processing-error__reason">
+                        {% if error and error.reason %}
+                            {{ error.reason }}
+                        {% else %}
+                            Processing failed for an unknown reason. Please try again with a different PDF.
+                        {% endif %}
+                    </div>
+                    {% if error and error.stage %}
+                    <div class="processing-error__stage">
+                        Failed at: <code>{{ error.stage }}</code>
+                    </div>
+                    {% endif %}
+                    <div class="processing-error__actions">
+                        <a href="{% url 'upload' %}" class="btn">Try another file</a>
+                        <a href="{% url 'library' %}" class="btn btn-outline">Back to library</a>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:center; color:#64748b; font-size:0.9rem; margin-top: 0.5rem;">
+                Book: <strong>{{ book.title|default:"Untitled" }}</strong>
+            </div>
         </div>
 
         {% else %}
-        <!-- Completed state -->
+        <!-- ============================================================
+             COMPLETED STATE
+             ============================================================ -->
         <div class="card">
             <div class="book-header">
                 <div class="book-icon">📖</div>
@@ -445,8 +622,9 @@
                         </div>
                         <div class="actions">
                             <a href="{% url 'reading' book.id chunk.id %}" class="btn">View Reading</a>
-                            <button class="btn btn-outline mark-read" data-chunk-id="{{ chunk.id }}">Mark as
-                                Read</button>
+                            <button class="btn btn-outline mark-read" data-chunk-id="{{ chunk.id }}">
+                                Mark as Read
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -469,6 +647,7 @@
 
             const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+            // ---- Expand / collapse chunk previews ----
             document.querySelectorAll('.expand-icon').forEach(icon => {
                 const header = icon.closest('.chunk-header');
                 const body = header.nextElementSibling;
@@ -476,20 +655,28 @@
                 icon.addEventListener('click', function (e) {
                     e.stopPropagation();
                     const isOpen = body.classList.contains('open');
+
                     document.querySelectorAll('.chunk-body.open').forEach(b => {
                         if (b !== body) {
                             b.classList.remove('open');
                             const prevIcon = b.previousElementSibling.querySelector('.expand-icon');
                             if (prevIcon) prevIcon.classList.remove('open');
-                            if (!reduceMotion) gsap.to(b, { height: 0, duration: 0.3, autoAlpha: 0, overwrite: 'auto' });
-                            else b.style.display = 'none';
+                            if (!reduceMotion) {
+                                gsap.to(b, { height: 0, duration: 0.3, autoAlpha: 0, overwrite: 'auto' });
+                            } else {
+                                b.style.display = 'none';
+                            }
                         }
                     });
+
                     if (isOpen) {
                         body.classList.remove('open');
                         icon.classList.remove('open');
-                        if (!reduceMotion) gsap.to(body, { height: 0, duration: 0.3, autoAlpha: 0, overwrite: 'auto' });
-                        else body.style.display = 'none';
+                        if (!reduceMotion) {
+                            gsap.to(body, { height: 0, duration: 0.3, autoAlpha: 0, overwrite: 'auto' });
+                        } else {
+                            body.style.display = 'none';
+                        }
                     } else {
                         body.classList.add('open');
                         icon.classList.add('open');
@@ -498,13 +685,20 @@
                             body.style.display = 'block';
                             const h = body.scrollHeight;
                             gsap.set(body, { height: 0, autoAlpha: 0 });
-                            gsap.to(body, { height: h, autoAlpha: 1, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
+                            gsap.to(body, {
+                                height: h,
+                                autoAlpha: 1,
+                                duration: 0.4,
+                                ease: 'power2.out',
+                                overwrite: 'auto'
+                            });
                         } else {
                             body.style.display = 'block';
                         }
                     }
                     icon.setAttribute('aria-expanded', !isOpen);
                 });
+
                 icon.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
@@ -513,29 +707,35 @@
                 });
             });
 
-            const total = {{ chunks| length
-        }};
-        const readCount = 0;
-        const progressFill = document.getElementById('progress-fill');
-        if (progressFill && total > 0) {
-            const pct = Math.min(100, Math.round((readCount / total) * 100));
-            if (!reduceMotion) {
-                gsap.fromTo(progressFill, { width: '0%' }, { width: pct + '%', duration: 0.8, ease: 'power1.out' });
-            } else {
-                progressFill.style.width = pct + '%';
+            // ---- Progress bar (completed state) ----
+            const total = {{ chunks|length }};
+            const readCount = 0;
+            const progressFill = document.getElementById('progress-fill');
+            if (progressFill && total > 0) {
+                const pct = Math.min(100, Math.round((readCount / total) * 100));
+                if (!reduceMotion) {
+                    gsap.fromTo(
+                        progressFill,
+                        { width: '0%' },
+                        { width: pct + '%', duration: 0.8, ease: 'power1.out' }
+                    );
+                } else {
+                    progressFill.style.width = pct + '%';
+                }
+                const pt = document.getElementById('progress-text');
+                if (pt) pt.textContent = pct + '%';
             }
-            document.getElementById('progress-text').textContent = pct + '%';
-        }
 
-        document.querySelectorAll('.mark-read').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const item = this.closest('.chunk-item');
-                item.style.opacity = '0.6';
-                this.textContent = '✓ Read';
-                this.disabled = true;
+            // ---- Mark as Read ----
+            document.querySelectorAll('.mark-read').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const item = this.closest('.chunk-item');
+                    item.style.opacity = '0.6';
+                    this.textContent = '✓ Read';
+                    this.disabled = true;
+                });
             });
-        });
-        }) ();
+        })();
     </script>
 </body>
 

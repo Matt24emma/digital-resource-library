@@ -2,22 +2,56 @@
 import fitz
 from .interfaces import Extractor, OCR
 
+
 class PyMuPDFExtractor(Extractor):
+    """
+    Extract text from PDF using PyMuPDF.
+
+    Resilient to partially-corrupt PDFs: skips pages that fail to load
+    rather than aborting the entire extraction.
+    """
+
     def extract(self, file_path: str) -> str:
         doc = fitz.open(file_path)
-        full_text = []
-        for page in doc:
-            full_text.append(page.get_text())
+        text_parts = []
+        total_pages = doc.page_count
+        bad_pages = []
+
+        for i in range(total_pages):
+            try:
+                page = doc.load_page(i)
+                page_text = page.get_text()
+                if page_text:
+                    text_parts.append(page_text)
+            except Exception as e:
+                print(f"[Extractor] Skipping page {i}: {e}")
+                bad_pages.append({"page": i, "error": str(e)})
+                continue
+
         doc.close()
-        return "\n".join(full_text)
+
+        if bad_pages:
+            print(
+                f"[Extractor] Skipped {len(bad_pages)} bad pages "
+                f"out of {total_pages}: {bad_pages}"
+            )
+
+        if not text_parts:
+            raise ValueError(
+                f"PDF has no readable pages. All {total_pages} pages failed to load."
+            )
+
+        return "\n".join(text_parts)
+
 
 class TesseractOCR(OCR):
     """
     Placeholder for actual OCR (e.g., pytesseract + pdf2image).
-    In production, use Tesseract or cloud OCR.
+    In production, use Tesseract or a cloud OCR service.
     """
+
     def ocr(self, file_path: str) -> str:
-        # Simulate OCR processing
-        # In real implementation, convert PDF to images and run OCR.
-        # For now, raise NotImplementedError or return dummy.
-        raise NotImplementedError("OCR not implemented; integrate Tesseract or a cloud service.")
+        raise NotImplementedError(
+            "OCR not implemented yet. This PDF appears to be image-based "
+            "(scanned). Please upload a text-based PDF."
+        )
