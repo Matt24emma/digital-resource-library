@@ -176,6 +176,7 @@ def progress_view(request, book_id):
 # ============================================================
 # STATUS PAGE (full HTML render)
 # ============================================================
+@login_required
 def status_view(request, book_id):
     book = get_object_or_404(Book, id=book_id)
 
@@ -211,9 +212,10 @@ def status_view(request, book_id):
 # ============================================================
 # STATUS DATA (JSON — used if the frontend polls stages)
 # ============================================================
+@login_required
 @require_GET
 def status_data_view(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
+    book = get_object_or_404(Book, id=book_id, user=request.user)
     stages = ProcessingStage.objects.filter(book=book).values(
         "stage_name", "created_at"
     )
