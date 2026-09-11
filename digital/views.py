@@ -728,6 +728,27 @@ def create_account(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
+            # ---- Duplicate-email guard ----
+            # If an inactive account with this email already exists and is older
+            # than 1 hour, delete it so the user can re-register.
+            # (Prevents permanent lockout from stale unverified signups.)
+            email = form.cleaned_data.get("email", "").strip().lower()
+            existing = User.objects.filter(email__iexact=email).first()
+            if existing:
+                if (
+                    not existing.is_active
+                    and existing.date_joined < timezone.now() - timedelta(hours=1)
+                ):
+                    existing.delete()
+                else:
+                    form.add_error(
+                        "email", "An account with this email already exists."
+                    )
+                    return render(
+                        request, "digital/create-account.html", {"form": form}
+                    )
+
+            # ---- Create user as INACTIVE (pending verification) ----
             user = form.save(commit=False)
             user.is_active = False
             user.save()
@@ -739,38 +760,31 @@ def create_account(request):
                 reverse("verify_email", kwargs={"token": verification.token})
             )
 
-            send_mail(
-                subject="Verify your Foundry account",
-                message=f"Click the link to verify your account: {verification_link}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=False,
-            )
+            # ---- Send email WITHOUT blocking the worker ----
+            # On Render, outbound SMTP is blocked. fail_silently=True + try/except
+            # ensures the request never crashes or kills the Gunicorn worker.
+            try:
+                send_mail(
+                    subject="Verify your Foundry account",
+                    message=f"Click the link to verify your account: {verification_link}",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                import logging
+
+                logging.getLogger(__name__).exception(
+                    "Verification email failed for %s: %s", user.email, e
+                )
 
             return redirect("verification_sent")
-    else:
-        form = CustomUserCreationForm()
+
+        # Form invalid — re-render with errors, do NOT save anything
+        return render(request, "digital/create-account.html", {"form": form})
+
+    form = CustomUserCreationForm()
     return render(request, "digital/create-account.html", {"form": form})
-
-
-def verify_email(request, token):
-    try:
-        verification = EmailVerification.objects.get(token=token, used=False)
-        if verification.is_expired():
-            messages.error(
-                request, "The verification link has expired. Please request a new one."
-            )
-            return redirect("resend_verification")
-        user = verification.user
-        user.is_active = True
-        user.save()
-        verification.used = True
-        verification.save()
-        messages.success(request, "Your email has been verified! You can now log in.")
-        return redirect("login")
-    except EmailVerification.DoesNotExist:
-        messages.error(request, "Invalid verification link.")
-        return redirect("login")
 
 
 @login_required
@@ -871,7 +885,10 @@ def verify_email(request, token):
             messages.error(
                 request, "The verification link has expired. Please request a new one."
             )
-            return redirect("resend_verification")
+            # Pass the email so resend_verification can find the user
+            return redirect(
+                f"{reverse('resend_verification')}?email={verification.user.email}"
+            )
         user = verification.user
         user.is_active = True
         user.save()
@@ -885,12 +902,13 @@ def verify_email(request, token):
 
 
 # @login_required
+# @login_required
 def resend_verification(request):
     # Get email from query string (sent from login view)
-    email = request.GET.get('email')
+    email = request.GET.get("email")
     if not email:
-        messages.error(request, 'Email is required to resend verification.')
-        return redirect('login')
+        messages.error(request, "Email is required to resend verification.")
+        return redirect("login")
 
     try:
         user = User.objects.get(email=email, is_active=False)
@@ -904,25 +922,40 @@ def resend_verification(request):
 
             # Send new email
             verification_link = request.build_absolute_uri(
-                reverse('verify_email', kwargs={'token': verification.token})
+                reverse("verify_email", kwargs={"token": verification.token})
             )
-            send_mail(
-                subject='Verify your Foundry account',
-                message=f'Click the link to verify your account: {verification_link}',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=False,
+
+            # ---- Send email WITHOUT blocking the worker ----
+            try:
+                send_mail(
+                    subject="Verify your Foundry account",
+                    message=f"Click the link to verify your account: {verification_link}",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                import logging
+
+                logging.getLogger(__name__).exception(
+                    "Resend verification email failed for %s: %s", user.email, e
+                )
+
+            messages.success(
+                request, "A new verification link has been sent to your email."
             )
-            messages.success(request, 'A new verification link has been sent to your email.')
         else:
-            messages.info(request, 'A verification email was already sent recently. Please check your inbox.')
+            messages.info(
+                request,
+                "A verification email was already sent recently. Please check your inbox.",
+            )
 
     except User.DoesNotExist:
-        messages.error(request, 'No inactive account found with that email.')
+        messages.error(request, "No inactive account found with that email.")
     except EmailVerification.DoesNotExist:
-        messages.error(request, 'Verification record not found. Please register again.')
+        messages.error(request, "Verification record not found. Please register again.")
 
-    return redirect('verification_sent')
+    return redirect("verification_sent")
 
 
 def logout_view(request):

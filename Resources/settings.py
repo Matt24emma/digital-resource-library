@@ -153,19 +153,45 @@ LOGOUT_REDIRECT_URL = "/Resources/"
 PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY")
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
 
-# Email settings
-EMAIL_BACKEND = os.environ.get(
-    "EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend"
-)
-EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
-EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
-EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "False") == "True"
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = os.environ.get(
-    "DEFAULT_FROM_EMAIL", "Foundry <noreply@foundry.com>"
-)
+
+
+
+# ============================================================
+# EMAIL CONFIGURATION
+# ============================================================
+# On Render, outbound SMTP ports (587 / 465) are blocked. This means
+# django.core.mail.backends.smtp.EmailBackend will hang until the
+# Gunicorn worker times out (30s) and gets SIGKILLed.
+#
+# We therefore use Resend (via django-anymail) in production, which
+# sends email over HTTPS (port 443) and works reliably on Render.
+#
+# Locally, we fall back to the console backend so dev emails just
+# print to the terminal — no SMTP setup needed.
+# ============================================================
+
+import os
+
+# Render sets RENDER=true in the environment automatically.
+ON_RENDER = os.environ.get("RENDER", "false").lower() == "true"
+
+if ON_RENDER:
+    # Production — use Resend HTTP API (never blocks the worker)
+    EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+    ANYMAIL = {
+        "RESEND_API_KEY": os.environ.get("RESEND_API_KEY", ""),
+    }
+    DEFAULT_FROM_EMAIL = os.environ.get(
+        "DEFAULT_FROM_EMAIL",
+        "Foundry <noreply@yourdomain.com>",
+    )
+else:
+    # Local dev — print emails to console (no SMTP required)
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    DEFAULT_FROM_EMAIL = os.environ.get(
+        "DEFAULT_FROM_EMAIL",
+        "Foundry <noreply@foundry.local>",
+    )
 
 # IMPORTANT: Site URL for building absolute links (e.g., email verification)
 SITE_URL = os.environ.get("SITE_URL", "http://127.0.0.1:8000").rstrip("/")
