@@ -11,6 +11,7 @@ from .models import (
     LeadVisit,
     PageVisit,
 )
+import hmac
 from django_ratelimit.decorators import ratelimit
 import uuid
 from reportlab.lib.pagesizes import A4
@@ -112,36 +113,75 @@ import hashlib
 import json
 from django.http import HttpResponse
 
+import hmac
+import json
+import hashlib
+import logging
+from django.utils import timezone
+from datetime import timedelta
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
 
 @csrf_exempt
 @require_POST
 def paystack_webhook(request):
     """
     Handle Paystack webhook events (charge.success, charge.failed, etc.).
-    Verify the signature using HMAC SHA512 with the secret key.
+
+    Verifies the signature using HMAC-SHA512 with the secret key.
+    The signature header is compared in constant time to prevent timing
+    attacks.
     """
     payload = request.body
     signature = request.headers.get("x-paystack-signature", "")
 
-    expected = hashlib.sha512(
-        payload + settings.PAYSTACK_SECRET_KEY.encode()
-    ).hexdigest()
+    # ---- Guard: secret key must be configured ----
+    if not settings.PAYSTACK_SECRET_KEY:
+        logger.error("PAYSTACK_SECRET_KEY is not configured — refusing webhook.")
+        return HttpResponse(status=500)
 
-    if signature != expected:
+    # ---- Guard: signature header must be present ----
+    if not signature:
+        logger.warning("Paystack webhook received with no signature header.")
         return HttpResponse(status=401)
 
+    # ---- Compute expected signature (HMAC-SHA512) ----
+    expected = hmac.new(
+        settings.PAYSTACK_SECRET_KEY.encode(),
+        payload,
+        hashlib.sha512,
+    ).hexdigest()
+
+    # ---- Constant-time comparison ----
+    if not hmac.compare_digest(signature, expected):
+        logger.warning("Paystack webhook signature mismatch — rejecting.")
+        return HttpResponse(status=401)
+
+    # ---- Parse event ----
     try:
         event = json.loads(payload)
     except json.JSONDecodeError:
         return HttpResponse(status=400)
 
+    # ---- Handle successful charge ----
     if event.get("event") == "charge.success":
         data = event["data"]
         reference = data["reference"]
         user_id = data["metadata"].get("user_id")
 
-        if user_id and not Payment.objects.filter(reference=reference, status="success").exists():
+        if (
+            user_id
+            and not Payment.objects.filter(
+                reference=reference, status="success"
+            ).exists()
+        ):
             from django.contrib.auth.models import User
+
             try:
                 user = User.objects.get(id=user_id)
                 Payment.objects.create(
@@ -153,11 +193,16 @@ def paystack_webhook(request):
                     transaction_date=timezone.now(),
                     metadata={"webhook": True},
                 )
-                # Activate subscription...
+
+                # ---- Activate subscription ----
                 subscription, _ = Subscription.objects.get_or_create(user=user)
                 premium_plan, _ = SubscriptionPlan.objects.get_or_create(
                     slug="premium",
-                    defaults={"name": "Premium", "monthly_price": 100.00, "currency": "NGN"},
+                    defaults={
+                        "name": "Premium",
+                        "monthly_price": 100.00,
+                        "currency": "NGN",
+                    },
                 )
                 subscription.plan = premium_plan
                 subscription.status = "active"
@@ -165,8 +210,19 @@ def paystack_webhook(request):
                 subscription.current_period_start = timezone.now()
                 subscription.current_period_end = timezone.now() + timedelta(days=30)
                 subscription.save()
+
+                logger.info(
+                    "Paystack webhook: activated Premium for user %d " "(ref=%s)",
+                    user.id,
+                    reference,
+                )
+
             except User.DoesNotExist:
-                pass
+                logger.warning(
+                    "Paystack webhook: user_id=%s not found (ref=%s)",
+                    user_id,
+                    reference,
+                )
 
     return HttpResponse(status=200)
 
