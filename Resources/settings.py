@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get(
     "django-insecure-local-development-key",
 )
 
-DEBUG = os.environ.get("DEBUG", "True") == "True"
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     ".onrender.com",
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "cloudinary",
     "digital",
     "ebook",
+    "django_ratelimit",
 ]
 
 MIDDLEWARE = [
@@ -88,6 +89,41 @@ DATABASES = {
         conn_max_age=600,
     )
 }
+
+# ============================================================
+# CACHE CONFIGURATION (for django-ratelimit)
+# ============================================================
+# On Render, REDIS_URL is set → use Redis (shared across workers).
+# Locally, REDIS_URL is not set → fall back to LocMemCache and
+# disable rate limiting checks (avoids E003 during dev).
+# ============================================================
+REDIS_URL = os.environ.get("REDIS_URL")
+
+if REDIS_URL:
+    # Production / Render — Redis shared cache (works across workers)
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+        }
+    }
+    RATELIMIT_ENABLE = True
+else:
+    # Local dev — no Redis running.
+    # LocMemCache is fine for dev-only caching.
+    # django-ratelimit's E003/W001 checks are silenced below because
+    # they only accept shared backends (Redis, Memcached, FileBased).
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+    RATELIMIT_ENABLE = True
+    # Silence the checks locally — rate limiting is disabled anyway.
+    SILENCED_SYSTEM_CHECKS = [
+        "django_ratelimit.E003",
+        "django_ratelimit.W001",
+    ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.onrender.com",
@@ -203,15 +239,6 @@ CELERY_TASK_EAGER_PROPAGATES = True
 
 
 # Meta WhatsApp API
-META_ACCESS_TOKEN = os.environ.get(
-    "META_ACCESS_TOKEN",
-    "EAAaPZCP84CekBSTxQ0qAHqKHrlb6idCZBcpIQAF8nZACd3OeUdvptBO3qWJsJQ6juZBZBFZBnTNZBFVRmialK10ic00qqDzI92JKerl4b1Y1glgqNxd1Uy56iVwvwba5dGCHTAs6CZCQV56PXyzmVzDpGxtYpL9yX5BgSpbFRO3XrqfYX0i3qgbvGmmYC2CZCXIrO7TvaOItyyqsxNX0Hnku2OittOZAanzToB4Sl9618IDl2oQ639GUgZA4gsQ5vmV1odmRZCssTxiYkqZBZCw4bpd9ha",
-)
-META_PHONE_NUMBER_ID = os.environ.get("META_PHONE_NUMBER_ID", "1336806619507103")
-META_WABA_ID = os.environ.get("META_WABA_ID", "1046267215057178")
-META_TEST_NUMBER = os.environ.get("META_TEST_NUMBER", "+15556754266")
-META_API_VERSION = os.environ.get("META_API_VERSION", "v21.0")
-META_APP_SECRET = os.environ.get("META_APP_SECRET", "")       # ⚠️ Optional, can leave empty for now
 
 
 # ============================================================
@@ -230,3 +257,18 @@ import tempfile
 FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024  # 1 MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5 MB
 FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()
+
+
+# ============================================================
+# HTTPS / COOKIE SECURITY (production)
+# ============================================================
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
