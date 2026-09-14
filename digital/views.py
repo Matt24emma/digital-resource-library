@@ -11,6 +11,7 @@ from .models import (
     LeadVisit,
     PageVisit,
 )
+from django_ratelimit.decorators import ratelimit
 import uuid
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
@@ -724,7 +725,20 @@ def resource_detail(request, slug):
     return render(request, "digital/resource_detail.html", context)
 
 
+@ratelimit(key="ip", rate="5/m", method="POST", block=False)
 def create_account(request):
+    # ---- Rate limit check ----
+    if request.method == "POST" and getattr(request, "limited", False):
+        messages.error(
+            request,
+            "Too many signup attempts. Please wait a minute and try again.",
+        )
+        return render(
+            request,
+            "digital/create-account.html",
+            {"form": CustomUserCreationForm()},
+        )
+
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -787,42 +801,27 @@ def create_account(request):
     return render(request, "digital/create-account.html", {"form": form})
 
 
-@login_required
-def resend_verification(request):
-    if request.user.is_active:
-        messages.info(request, "Your account is already verified.")
-        return redirect("user_dashboard")
-    try:
-        verification = request.user.verification
-        if not verification.is_expired():
-            messages.info(
-                request,
-                "A verification email was already sent recently. Please check your inbox.",
-            )
-            return redirect("verification_sent")
-        # Generate new token
-        verification.token = secrets.token_urlsafe(32)
-        verification.created_at = timezone.now()
-        verification.save()
-        # Resend email...
-        send_mail(...)  # similar to above
-        messages.success(request, "A new verification link has been sent.")
-        return redirect("verification_sent")
-    except EmailVerification.DoesNotExist:
-        # Should not happen, but handle
-        messages.error(request, "No verification request found. Please register again.")
-        return redirect("register")
-
-
+@ratelimit(key="ip", rate="10/m", method="POST", block=False)
+@ratelimit(key="post:username", rate="5/m", method="POST", block=False)
 def login_view(request):
+    # ---- Rate limit check: MUST come before any auth logic ----
+    if request.method == "POST" and getattr(request, "limited", False):
+        return render(
+            request,
+            "digital/login.html",
+            {
+                "error_message": (
+                    "Too many login attempts. " "Please wait a minute and try again."
+                ),
+            },
+        )
+
     if request.method == "POST":
         raw_username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "")
 
-        # Try authentication with raw input as username
         user = authenticate(request, username=raw_username, password=password)
 
-        # If failed, try to find user by email and authenticate with that username
         if user is None:
             try:
                 user_obj = User.objects.get(email=raw_username)
@@ -834,7 +833,6 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            # Redirect based on role
             log_activity(user, "login", "Logged in")
 
             if user.is_superuser:
@@ -842,7 +840,6 @@ def login_view(request):
             else:
                 return redirect("user_dashboard")
         else:
-            # Check if user exists but is inactive (not verified)
             try:
                 user_obj = User.objects.get(username=raw_username)
                 if not user_obj.is_active:
@@ -850,7 +847,7 @@ def login_view(request):
                         request,
                         "Your account is not verified. Check your email for the verification link.",
                     )
-                    return redirect("resend_verification")  # Will pass email later
+                    return redirect("resend_verification")
             except User.DoesNotExist:
                 try:
                     user_obj = User.objects.get(email=raw_username)
@@ -863,8 +860,6 @@ def login_view(request):
                 except User.DoesNotExist:
                     pass
 
-            # Generic error message for security
-            
             return render(
                 request,
                 "digital/login.html",
@@ -903,12 +898,29 @@ def verify_email(request, token):
 
 # @login_required
 # @login_required
+@ratelimit(key="ip", rate="3/m", method="GET", block=False)
 def resend_verification(request):
+    # ---- Rate limit check ----
+    if getattr(request, "limited", False):
+        messages.error(
+            request,
+            "Too many verification requests. Please wait a minute.",
+        )
+        return redirect("login")
+
     # Get email from query string (sent from login view)
     email = request.GET.get("email")
     if not email:
         messages.error(request, "Email is required to resend verification.")
         return redirect("login")
+
+    # Always show the same message regardless of outcome.
+    # This prevents user enumeration: an attacker cannot tell whether
+    # an email is registered or not based on the response.
+    success_msg = (
+        "If an inactive account exists for that email, "
+        "a new verification link has been sent."
+    )
 
     try:
         user = User.objects.get(email=email, is_active=False)
@@ -940,21 +952,14 @@ def resend_verification(request):
                 logging.getLogger(__name__).exception(
                     "Resend verification email failed for %s: %s", user.email, e
                 )
+        # If not expired, we still return the generic success message.
+        # The user can check their inbox — no information leaked.
 
-            messages.success(
-                request, "A new verification link has been sent to your email."
-            )
-        else:
-            messages.info(
-                request,
-                "A verification email was already sent recently. Please check your inbox.",
-            )
+    except (User.DoesNotExist, EmailVerification.DoesNotExist):
+        # Silently ignore — do NOT reveal that the email isn't registered.
+        pass
 
-    except User.DoesNotExist:
-        messages.error(request, "No inactive account found with that email.")
-    except EmailVerification.DoesNotExist:
-        messages.error(request, "Verification record not found. Please register again.")
-
+    messages.success(request, success_msg)
     return redirect("verification_sent")
 
 
@@ -1694,12 +1699,21 @@ def pricing(request):
     return render(request, "digital/pricing.html",{"is_public_page": True,})
 
 
+@ratelimit(key="user", rate="10/m", method="POST", block=False)
 @login_required
 def initialize_payment(request):
     """
     Initialize a Paystack transaction for ₦100 (test price during launch phase).
     Creates a pending Payment record so we can track the attempt.
     """
+    # ---- Rate limit check ----
+    if request.method == "POST" and getattr(request, "limited", False):
+        messages.error(
+            request,
+            "Too many payment attempts. Please wait a minute.",
+        )
+        return redirect("pricing")
+
     # Prevent double-initiation if already on a paid plan
     subscription, _ = Subscription.objects.get_or_create(user=request.user)
     if subscription.is_premium():
