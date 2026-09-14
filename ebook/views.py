@@ -4,7 +4,7 @@ import logging
 import tempfile
 import os
 from datetime import date, timedelta
-
+import filetype
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -80,78 +80,117 @@ def upload_view(request):
         uploaded_file = request.FILES.get("pdf")
         pages_per_day = request.POST.get("pages_per_day")
 
-        if uploaded_file and pages_per_day:
-            if uploaded_file.size == 0:
-                messages.error(
-                    request,
-                    "The uploaded file is empty. Please choose a valid PDF.",
-                )
-                return render(request, "ebook/ebook.html")
-
-            if uploaded_file.size > 50 * 1024 * 1024:
-                messages.error(request, "File size exceeds 50MB limit.")
-                return render(request, "ebook/ebook.html")
-
-            pages_per_day = int(pages_per_day)
-
-            book = Book.objects.create(
-                user=request.user,
-                file=uploaded_file,
-                pages_per_day=pages_per_day,
-                status="processing",
-                title=uploaded_file.name,
-            )
-
-            log_activity(request.user, "upload_book", f"Uploaded book: {book.title}")
-
-            # ---- Background pipeline thread ----
-            def run_pipeline():
-                temp_path = None
-                try:
-                    temp_path = download_file_to_temp(book.file)
-                    logger.info(
-                        "Processing book %d from temp path: %s",
-                        book.id,
-                        temp_path,
-                    )
-                    pipeline = Pipeline()
-                    result = pipeline.process_from_path(
-                        temp_path, pages_per_day, book.id
-                    )
-                    logger.info("Pipeline result: %s", result)
-                except Exception as e:
-                    # The pipeline itself handles most errors and records them.
-                    # This is a last-resort safety net.
-                    logger.exception("Pipeline crashed for book %d", book.id)
-                    book.status = "failed"
-                    book.progress = 100
-                    book.save(update_fields=["status", "progress"])
-                    try:
-                        ProcessingStage.objects.create(
-                            book=book,
-                            stage_name="error",
-                            data={
-                                "stage": "unknown",
-                                "reason": f"Unexpected error: {e}",
-                                "details": {},
-                            },
-                        )
-                    except Exception:
-                        logger.exception(
-                            "Failed to record last-resort error stage for book %d",
-                            book.id,
-                        )
-                finally:
-                    if temp_path and os.path.exists(temp_path):
-                        os.unlink(temp_path)
-
-            thread = threading.Thread(target=run_pipeline, daemon=True)
-            thread.start()
-
-            messages.success(request, "Book uploaded! Processing started.")
-            return redirect("status", book_id=book.id)
-        else:
+        if not uploaded_file or not pages_per_day:
             messages.error(request, "Please provide both PDF and pages per day.")
+            return render(request, "ebook/ebook.html")
+
+        # ---- Size checks ----
+        if uploaded_file.size == 0:
+            messages.error(
+                request, "The uploaded file is empty. Please choose a valid PDF."
+            )
+            return render(request, "ebook/ebook.html")
+
+        if uploaded_file.size > 50 * 1024 * 1024:
+            messages.error(request, "File size exceeds 50MB limit.")
+            return render(request, "ebook/ebook.html")
+
+        # ---- Magic byte check: confirm it's really a PDF ----
+        # The browser-provided Content-Type and the file extension can be
+        # spoofed. Only the file's magic bytes are trustworthy.
+        header = uploaded_file.read(2048)
+        uploaded_file.seek(0)  # rewind so the pipeline can read it later
+
+        kind = filetype.guess(header)
+        if kind is None or kind.mime != "application/pdf":
+            detected = kind.mime if kind else "unknown"
+            messages.error(
+                request,
+                f"That file isn't a valid PDF (detected: {detected}). "
+                "Please upload a genuine PDF file.",
+            )
+            return render(request, "ebook/ebook.html")
+
+        # ---- Filename sanitization ----
+        # Strip directory components and force a .pdf extension.
+        # Prevents path traversal (e.g. "../../etc/passwd") and
+        # ensures Cloudinary always sees a safe filename.
+        safe_name = os.path.basename(uploaded_file.name)
+        if not safe_name.lower().endswith(".pdf"):
+            safe_name = f"{safe_name}.pdf"
+
+        # Truncate to a reasonable length (Cloudinary caps at 255)
+        if len(safe_name) > 200:
+            base, ext = os.path.splitext(safe_name)
+            safe_name = base[: 200 - len(ext)] + ext
+
+        # ---- Pages per day ----
+        try:
+            pages_per_day = int(pages_per_day)
+        except (TypeError, ValueError):
+            messages.error(request, "Pages per day must be a number.")
+            return render(request, "ebook/ebook.html")
+
+        if pages_per_day < 1 or pages_per_day > 1000:
+            messages.error(request, "Pages per day must be between 1 and 1000.")
+            return render(request, "ebook/ebook.html")
+
+        # ---- Create the Book record ----
+        # Attach the safe filename to the uploaded file before saving
+        uploaded_file.name = safe_name
+
+        book = Book.objects.create(
+            user=request.user,
+            file=uploaded_file,
+            pages_per_day=pages_per_day,
+            status="processing",
+            title=safe_name,
+        )
+
+        log_activity(request.user, "upload_book", f"Uploaded book: {book.title}")
+
+        # ---- Background pipeline thread ----
+        def run_pipeline():
+            temp_path = None
+            try:
+                temp_path = download_file_to_temp(book.file)
+                logger.info(
+                    "Processing book %d from temp path: %s",
+                    book.id,
+                    temp_path,
+                )
+                pipeline = Pipeline()
+                result = pipeline.process_from_path(temp_path, pages_per_day, book.id)
+                logger.info("Pipeline result: %s", result)
+            except Exception as e:
+                logger.exception("Pipeline crashed for book %d", book.id)
+                book.status = "failed"
+                book.progress = 100
+                book.save(update_fields=["status", "progress"])
+                try:
+                    ProcessingStage.objects.create(
+                        book=book,
+                        stage_name="error",
+                        data={
+                            "stage": "unknown",
+                            "reason": f"Unexpected error: {e}",
+                            "details": {},
+                        },
+                    )
+                except Exception:
+                    logger.exception(
+                        "Failed to record last-resort error stage for book %d",
+                        book.id,
+                    )
+            finally:
+                if temp_path and os.path.exists(temp_path):
+                    os.unlink(temp_path)
+
+        thread = threading.Thread(target=run_pipeline, daemon=True)
+        thread.start()
+
+        messages.success(request, "Book uploaded! Processing started.")
+        return redirect("status", book_id=book.id)
 
     return render(request, "ebook/ebook.html")
 

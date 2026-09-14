@@ -56,3 +56,4 @@ twilio==9.3.7
 django-anymail[resend]
 django-ratelimit
 redis
+filetype
