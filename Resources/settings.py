@@ -22,13 +22,43 @@ load_dotenv(BASE_DIR / ".env")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY",
-    "django-insecure-local-development-key",
-)
-
+# ============================================================
+# DEBUG + SECRET_KEY
+# ============================================================
+# DEBUG defaults to False so production never runs in debug mode
+# by accident. Locally, set DEBUG=True in .env.
+# ============================================================
 DEBUG = os.environ.get("DEBUG", "False") == "True"
+
+# ============================================================
+# SECRET_KEY — required in production, safe fallback only in dev
+# ============================================================
+# In production (DEBUG=False), the SECRET_KEY env var MUST be set.
+# If it's missing, the app refuses to start — this prevents the app
+# from silently running with an insecure hardcoded key.
+#
+# In local dev (DEBUG=True), we allow a placeholder so developers
+# don't need to set up .env to run the server.
+#
+# Generate a secure key with:
+#     python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+# ============================================================
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
+if not SECRET_KEY:
+    if DEBUG:
+        # Local dev only — DEBUG=True means not production.
+        SECRET_KEY = "django-insecure-local-dev-only-do-not-use-in-production"
+    else:
+        from django.core.exceptions import ImproperlyConfigured
+
+        raise ImproperlyConfigured(
+            "SECRET_KEY environment variable is required when DEBUG=False. "
+            "Set it on Render (or in .env for non-debug local runs). "
+            "Generate one with: python -c "
+            '"from django.core.management.utils import get_random_secret_key; '
+            'print(get_random_secret_key())"'
+        )
 
 ALLOWED_HOSTS = [
     ".onrender.com",
